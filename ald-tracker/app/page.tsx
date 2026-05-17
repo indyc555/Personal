@@ -1,65 +1,140 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Activity, Pill, Beaker, Newspaper, FlaskConical, MapPin, Upload, ArrowRight, Wine, AlertTriangle } from 'lucide-react';
 
-export default function Home() {
+const sections = [
+  {
+    href: '/health',
+    title: 'Health Data',
+    icon: Activity,
+    description: 'Log lab results, track alcohol intake, and get AI analysis of your health metrics.',
+    lightColor: 'bg-blue-50',
+    textColor: 'text-blue-600',
+  },
+  {
+    href: '/treatment',
+    title: 'Treatment Options',
+    icon: Pill,
+    description: 'Research current ALD treatments, clinical evidence, and options for patients who continue drinking.',
+    lightColor: 'bg-purple-50',
+    textColor: 'text-purple-600',
+  },
+  {
+    href: '/vitamins',
+    title: 'Vitamins & Supplements',
+    icon: Beaker,
+    description: 'Evidence-based vitamin recommendations for ALD with dosage, formulation, and liver safety info.',
+    lightColor: 'bg-green-50',
+    textColor: 'text-green-600',
+  },
+  {
+    href: '/news',
+    title: 'ALD News',
+    icon: Newspaper,
+    description: 'Latest research, clinical trial results, and treatment developments for Alcoholic Liver Disease.',
+    lightColor: 'bg-orange-50',
+    textColor: 'text-orange-600',
+  },
+  {
+    href: '/trials',
+    title: 'Clinical Trials',
+    icon: FlaskConical,
+    description: 'Active recruiting trials for ALD from ClinicalTrials.gov, with Texas/Houston trials highlighted.',
+    lightColor: 'bg-teal-50',
+    textColor: 'text-teal-600',
+  },
+  {
+    href: '/doctors',
+    title: 'Doctors & Specialists',
+    icon: MapPin,
+    description: 'Top hepatologists in Houston TX, with interactive map and contact information.',
+    lightColor: 'bg-red-50',
+    textColor: 'text-red-600',
+  },
+  {
+    href: '/import',
+    title: 'Import Medical History',
+    icon: Upload,
+    description: 'Paste medical history text to automatically extract and import lab values into your health records.',
+    lightColor: 'bg-slate-50',
+    textColor: 'text-slate-600',
+  },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="p-8 max-w-5xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome, Ananya</h1>
+        <p className="text-slate-600 text-lg">Your personal Alcoholic Liver Disease management dashboard</p>
+        <p className="text-slate-400 text-sm mt-1">Today is May 17, 2026</p>
+      </div>
+
+      <div className="mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
+        <AlertTriangle className="text-amber-500 flex-shrink-0 mt-0.5" size={20} />
+        <div>
+          <p className="text-amber-800 font-semibold text-sm">Medical Disclaimer</p>
+          <p className="text-amber-700 text-sm mt-0.5">
+            This app is a personal research tool only. Always consult your hepatologist for medical decisions.
+            AI-generated information may contain errors. Current alcohol intake: <strong>300 mL/day</strong>.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <div className="flex items-center gap-2 mb-2">
+            <Wine className="text-purple-500" size={18} />
+            <p className="text-slate-500 text-sm font-medium">Current Intake</p>
+          </div>
+          <p className="text-2xl font-bold text-slate-900">300 mL</p>
+          <p className="text-slate-400 text-xs mt-0.5">~2 glasses wine/day</p>
         </div>
-      </main>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <div className="flex items-center gap-2 mb-2">
+            <Activity className="text-blue-500" size={18} />
+            <p className="text-slate-500 text-sm font-medium">Condition</p>
+          </div>
+          <p className="text-lg font-bold text-slate-900">ALD</p>
+          <p className="text-slate-400 text-xs mt-0.5">Since ~2011</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <div className="flex items-center gap-2 mb-2">
+            <MapPin className="text-red-500" size={18} />
+            <p className="text-slate-500 text-sm font-medium">Location</p>
+          </div>
+          <p className="text-lg font-bold text-slate-900">Houston, TX</p>
+          <p className="text-slate-400 text-xs mt-0.5">Texas Medical Center</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {sections.map(({ href, title, icon: Icon, description, lightColor, textColor }) => (
+          <Link
+            key={href}
+            href={href}
+            className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all group"
+          >
+            <div className="flex items-start gap-4">
+              <div className={`w-10 h-10 ${lightColor} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                <Icon size={20} className={textColor} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold text-slate-900 text-sm">{title}</h2>
+                  <ArrowRight size={16} className="text-slate-300 group-hover:text-slate-600 transition-colors" />
+                </div>
+                <p className="text-slate-500 text-xs mt-1 leading-relaxed">{description}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="mt-8 text-center">
+        <p className="text-slate-400 text-sm">
+          Need help? Click the chat button in the bottom-right corner to ask the AI assistant.
+        </p>
+      </div>
     </div>
   );
 }
