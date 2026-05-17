@@ -31,10 +31,11 @@ export async function POST(request: NextRequest) {
     }
 
     const db = getDb();
+    const numericValue = value !== undefined && value !== '' ? parseFloat(String(value)) : null;
     const result = db.prepare(`
-      INSERT INTO health_records (date, test_name, value, unit, reference_range, notes)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(date, test_name, value, unit, reference_range || null, notes || null);
+      INSERT INTO health_records (date, test_name, value, value_text, unit, reference_range, notes, is_abnormal)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+    `).run(date, test_name, numericValue, body.value_text || null, unit, reference_range || null, notes || null);
 
     return NextResponse.json({ id: result.lastInsertRowid, success: true });
   } catch (error) {

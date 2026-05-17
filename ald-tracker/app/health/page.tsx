@@ -8,10 +8,12 @@ interface HealthRecord {
   id: number;
   date: string;
   test_name: string;
-  value: number;
+  value: number | null;
+  value_text: string | null;
   unit: string;
   reference_range: string | null;
   notes: string | null;
+  is_abnormal: number;
   created_at: string;
 }
 
@@ -47,14 +49,15 @@ const COMMON_LABS = [
   { name: 'Fibroscan Score', unit: 'kPa', range: '<7.0' },
 ];
 
-function isAbnormal(value: number, range: string | null): boolean | null {
-  if (!range) return null;
-  const parts = range.replace(/[<>]/g, '').split('-');
-  if (range.startsWith('<')) return value >= parseFloat(parts[0]);
-  if (range.startsWith('>')) return value <= parseFloat(parts[0]);
-  if (parts.length === 2) {
-    return value < parseFloat(parts[0]) || value > parseFloat(parts[1]);
-  }
+function displayValue(r: HealthRecord): string {
+  if (r.value !== null && r.value !== undefined) return `${r.value} ${r.unit}`;
+  if (r.value_text) return `${r.value_text} ${r.unit !== 'imaging' ? r.unit : ''}`.trim();
+  return '—';
+}
+
+function abnormalFromRecord(r: HealthRecord): boolean | null {
+  if (r.is_abnormal === 1) return true;
+  if (r.is_abnormal === 0 && r.value !== null) return false;
   return null;
 }
 
@@ -414,7 +417,7 @@ export default function HealthPage() {
           {/* Lab Records grouped by test */}
           {Object.entries(groupedRecords).map(([testName, testRecords]) => {
             const latest = testRecords[0];
-            const abnormal = isAbnormal(latest.value, latest.reference_range);
+            const abnormal = abnormalFromRecord(latest);
             return (
               <div key={testName} className="bg-white rounded-xl border border-slate-200 shadow-sm">
                 <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
@@ -429,9 +432,9 @@ export default function HealthPage() {
                   </div>
                   <div className="text-right">
                     <span className={`text-lg font-bold ${abnormal === true ? 'text-red-600' : abnormal === false ? 'text-green-600' : 'text-slate-700'}`}>
-                      {latest.value} {latest.unit}
+                      {displayValue(latest)}
                     </span>
-                    {latest.reference_range && (
+                    {latest.reference_range && latest.reference_range !== 'N/A' && (
                       <p className="text-xs text-slate-400">ref: {latest.reference_range}</p>
                     )}
                   </div>
@@ -447,12 +450,12 @@ export default function HealthPage() {
                     </thead>
                     <tbody>
                       {testRecords.map(r => {
-                        const ab = isAbnormal(r.value, r.reference_range);
+                        const ab = abnormalFromRecord(r);
                         return (
                           <tr key={r.id} className="border-b border-slate-50 hover:bg-slate-50">
                             <td className="px-4 py-2 text-slate-500">{r.date}</td>
                             <td className={`px-4 py-2 font-medium ${ab === true ? 'text-red-600' : ab === false ? 'text-green-600' : 'text-slate-700'}`}>
-                              {r.value} {r.unit}
+                              {displayValue(r)}
                             </td>
                             <td className="px-4 py-2 text-slate-400 text-xs">{r.notes || '—'}</td>
                           </tr>

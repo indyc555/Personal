@@ -26,10 +26,12 @@ function initializeDb(db: Database.Database) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT NOT NULL,
       test_name TEXT NOT NULL,
-      value REAL NOT NULL,
+      value REAL,
+      value_text TEXT,
       unit TEXT NOT NULL,
       reference_range TEXT,
       notes TEXT,
+      is_abnormal INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     );
 
