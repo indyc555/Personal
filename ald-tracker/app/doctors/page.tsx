@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import {
   MapPin, RefreshCw, AlertCircle, Phone, Building2,
   ChevronDown, ChevronUp, Plus, FileText, Image as ImageIcon,
-  X, Trash2, CheckCircle, StickyNote, UserMinus,
+  X, Trash2, CheckCircle, StickyNote, UserMinus, CalendarDays, ArrowUpDown,
 } from 'lucide-react';
 
 const DoctorsMap = dynamic(() => import('@/components/DoctorsMap'), {
@@ -38,6 +38,10 @@ interface DoctorNote {
   note_text: string | null;
   image_media_type: string | null;
   created_at: string;
+}
+
+interface AllNote extends DoctorNote {
+  doctor_name: string;
 }
 
 function NoteForm({
@@ -271,6 +275,98 @@ function DoctorNotes({ doctorId }: { doctorId: number }) {
   );
 }
 
+function AllNotesView() {
+  const [notes, setNotes] = useState<AllNote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'date' | 'doctor'>('date');
+  const [expandedImage, setExpandedImage] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch('/api/doctors/notes')
+      .then(r => r.json())
+      .then(d => setNotes(d.notes || []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const sorted = [...notes].sort((a, b) => {
+    if (sortBy === 'date') return b.date.localeCompare(a.date);
+    return a.doctor_name.localeCompare(b.doctor_name) || b.date.localeCompare(a.date);
+  });
+
+  if (loading) return (
+    <div className="flex items-center gap-2 text-slate-400 py-8 justify-center">
+      <RefreshCw size={16} className="animate-spin" /> Loading notes...
+    </div>
+  );
+
+  if (notes.length === 0) return (
+    <p className="text-slate-400 italic text-sm py-8 text-center">No notes yet. Add notes from the Doctors view.</p>
+  );
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-sm text-slate-500">Sort by:</span>
+        <div className="flex rounded-lg border border-slate-300 overflow-hidden text-xs">
+          <button
+            onClick={() => setSortBy('date')}
+            className={`flex items-center gap-1.5 px-3 py-2 transition-colors ${sortBy === 'date' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+          >
+            <CalendarDays size={13} /> Date
+          </button>
+          <button
+            onClick={() => setSortBy('doctor')}
+            className={`flex items-center gap-1.5 px-3 py-2 border-l border-slate-300 transition-colors ${sortBy === 'doctor' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+          >
+            <ArrowUpDown size={13} /> Doctor
+          </button>
+        </div>
+        <span className="text-xs text-slate-400 ml-1">{notes.length} note{notes.length !== 1 ? 's' : ''}</span>
+      </div>
+
+      <div className="space-y-3">
+        {sorted.map(note => (
+          <div key={note.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-semibold text-white bg-slate-700 px-2 py-0.5 rounded">
+                  {note.doctor_name}
+                </span>
+                <span className="text-xs text-slate-500 flex items-center gap-1">
+                  <CalendarDays size={11} /> {note.date}
+                </span>
+              </div>
+            </div>
+            {note.note_text && (
+              <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{note.note_text}</p>
+            )}
+            {note.image_media_type && (
+              <div className="mt-2">
+                {expandedImage === note.id ? (
+                  <div>
+                    <img
+                      src={`/api/doctors/${note.doctor_id}/notes/${note.id}/image`}
+                      alt="Note image"
+                      className="w-full max-w-lg rounded border border-slate-200 cursor-pointer"
+                      onClick={() => setExpandedImage(null)}
+                    />
+                    <button onClick={() => setExpandedImage(null)} className="text-xs text-slate-400 mt-1 hover:text-slate-600">Collapse</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setExpandedImage(note.id)}
+                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800">
+                    <ImageIcon size={11} /> View attached image
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const EMPTY_FORM = {
   name: '', practice: '', address: '', phone: '', specialties: '', reputation_notes: '',
 };
@@ -367,6 +463,7 @@ export default function DoctorsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [pageView, setPageView] = useState<'doctors' | 'notes'>('doctors');
 
   const deleteDoctor = async (id: number, name: string) => {
     if (!confirm(`Remove ${name} from your list? This will also delete all their notes.`)) return;
@@ -420,13 +517,31 @@ export default function DoctorsPage() {
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">Sorted A–Z by last name — click Notes to add dated notes or images</p>
         </div>
-        <button
-          onClick={() => setShowAddForm(v => !v)}
-          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
-        >
-          <Plus size={16} />
-          Add Doctor
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-lg border border-slate-300 overflow-hidden text-sm">
+            <button
+              onClick={() => setPageView('doctors')}
+              className={`flex items-center gap-1.5 px-3 py-2 transition-colors ${pageView === 'doctors' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+            >
+              <Building2 size={14} /> Doctors
+            </button>
+            <button
+              onClick={() => setPageView('notes')}
+              className={`flex items-center gap-1.5 px-3 py-2 border-l border-slate-300 transition-colors ${pageView === 'notes' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+            >
+              <StickyNote size={14} /> All Notes
+            </button>
+          </div>
+          {pageView === 'doctors' && (
+            <button
+              onClick={() => setShowAddForm(v => !v)}
+              className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
+            >
+              <Plus size={16} />
+              Add Doctor
+            </button>
+          )}
+        </div>
       </div>
 
       {error && (
@@ -436,75 +551,81 @@ export default function DoctorsPage() {
         </div>
       )}
 
-      {showAddForm && (
-        <AddDoctorForm
-          onSaved={() => { setShowAddForm(false); fetchData(); }}
-          onCancel={() => setShowAddForm(false)}
-        />
-      )}
+      {pageView === 'notes' ? (
+        <AllNotesView />
+      ) : (
+        <>
+          {showAddForm && (
+            <AddDoctorForm
+              onSaved={() => { setShowAddForm(false); fetchData(); }}
+              onCancel={() => setShowAddForm(false)}
+            />
+          )}
 
-      <div className="mb-6 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-        <DoctorsMap doctors={doctors} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {doctors.map(doctor => (
-          <div key={doctor.id} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 group">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Building2 size={20} className="text-red-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="font-semibold text-slate-900 text-sm leading-snug">{doctor.name}</h2>
-                  <button
-                    onClick={() => deleteDoctor(doctor.id, doctor.name)}
-                    className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-slate-300 hover:text-red-500 transition-all"
-                    title="Remove doctor"
-                  >
-                    <UserMinus size={14} />
-                  </button>
-                </div>
-                {doctor.practice && <p className="text-blue-600 text-xs mt-0.5">{doctor.practice}</p>}
-                {doctor.address && (
-                  <div className="flex items-start gap-1 mt-1.5">
-                    <MapPin size={12} className="text-slate-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-500 text-xs leading-relaxed">{doctor.address}</p>
-                  </div>
-                )}
-                {doctor.phone && (
-                  <a href={`tel:${doctor.phone}`}
-                    className="flex items-center gap-1 mt-1 text-xs text-green-700 hover:text-green-900">
-                    <Phone size={12} />
-                    {doctor.phone}
-                  </a>
-                )}
-                {doctor.specialties && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {doctor.specialties.split(',').map(s => (
-                      <span key={s} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">
-                        {s.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            {doctor.reputation_notes && (
-              <div className="mt-3 pt-3 border-t border-slate-100">
-                <p className="text-xs text-slate-500 italic leading-relaxed">{doctor.reputation_notes}</p>
-              </div>
-            )}
-            <DoctorNotes doctorId={doctor.id} />
+          <div className="mb-6 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <DoctorsMap doctors={doctors} />
           </div>
-        ))}
-      </div>
 
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
-        <strong>Tip:</strong> For ALD specifically, ask for a hepatologist rather than a general gastroenterologist.
-        Baylor College of Medicine and Houston Methodist have dedicated liver programs with ALD expertise.
-        Consider requesting a Fibroscan assessment to stage your fibrosis level.
-      </div>
+          <div className="grid grid-cols-2 gap-4">
+            {doctors.map(doctor => (
+              <div key={doctor.id} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 group">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Building2 size={20} className="text-red-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <h2 className="font-semibold text-slate-900 text-sm leading-snug">{doctor.name}</h2>
+                      <button
+                        onClick={() => deleteDoctor(doctor.id, doctor.name)}
+                        className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-slate-300 hover:text-red-500 transition-all"
+                        title="Remove doctor"
+                      >
+                        <UserMinus size={14} />
+                      </button>
+                    </div>
+                    {doctor.practice && <p className="text-blue-600 text-xs mt-0.5">{doctor.practice}</p>}
+                    {doctor.address && (
+                      <div className="flex items-start gap-1 mt-1.5">
+                        <MapPin size={12} className="text-slate-400 mt-0.5 flex-shrink-0" />
+                        <p className="text-slate-500 text-xs leading-relaxed">{doctor.address}</p>
+                      </div>
+                    )}
+                    {doctor.phone && (
+                      <a href={`tel:${doctor.phone}`}
+                        className="flex items-center gap-1 mt-1 text-xs text-green-700 hover:text-green-900">
+                        <Phone size={12} />
+                        {doctor.phone}
+                      </a>
+                    )}
+                    {doctor.specialties && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {doctor.specialties.split(',').map(s => (
+                          <span key={s} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">
+                            {s.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {doctor.reputation_notes && (
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    <p className="text-xs text-slate-500 italic leading-relaxed">{doctor.reputation_notes}</p>
+                  </div>
+                )}
+                <DoctorNotes doctorId={doctor.id} />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            <strong>Tip:</strong> For ALD specifically, ask for a hepatologist rather than a general gastroenterologist.
+            Baylor College of Medicine and Houston Methodist have dedicated liver programs with ALD expertise.
+            Consider requesting a Fibroscan assessment to stage your fibrosis level.
+          </div>
+        </>
+      )}
     </div>
   );
 }
