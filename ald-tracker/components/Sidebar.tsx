@@ -43,11 +43,11 @@ export default function Sidebar() {
       {/* Patient Info Card */}
       <div className="mx-4 mt-4 p-3 rounded-lg bg-slate-800 border border-slate-600">
         <p className="text-slate-300 text-xs font-semibold uppercase tracking-wide mb-2">Patient</p>
-        <p className="text-white font-semibold text-sm">Ananya Sarkar</p>
+        <p className="text-white font-semibold text-sm">Jane Doe</p>
         <p className="text-slate-400 text-xs mt-0.5">Houston, TX</p>
         <div className="mt-2 pt-2 border-t border-slate-600">
           <p className="text-slate-400 text-xs">Condition</p>
-          <p className="text-orange-400 text-xs font-medium">Alcoholic Liver Disease</p>
+          <p className="text-orange-400 text-xs font-medium">ALD</p>
         </div>
         <div className="mt-1.5 flex items-center gap-1.5">
           <Wine size={12} className="text-purple-400" />
