@@ -37,6 +37,7 @@ export default function Sidebar() {
             <Activity size={18} className="text-white" />
           </div>
           <h1 className="text-white font-bold text-lg leading-tight">Hepto<br />Tracker</h1>
+          <span className="text-slate-400 text-xs font-mono mt-0.5">v2</span>
         </div>
       </div>
 
