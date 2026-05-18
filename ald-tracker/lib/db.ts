@@ -247,7 +247,7 @@ function initializeDb(db: Database.Database) {
   }
 
   // ── Health Records (versioned migration — bump HEALTH_SEED_VER to force reseed) ──
-  const HEALTH_SEED_VER = '5';
+  const HEALTH_SEED_VER = '6';
   const currentSeedVer = (db.prepare("SELECT value FROM patient_info WHERE key='health_seed_version'").get() as { value: string } | undefined)?.value;
   if (currentSeedVer !== HEALTH_SEED_VER) {
     db.prepare('DELETE FROM health_records').run();
@@ -291,9 +291,6 @@ function initializeDb(db: Database.Database) {
       ['2024-08-07','Albumin',4.7,null,'g/dL','3.4–5.1','Normal. Good synthetic function.',0],
       ['2024-08-07','Total Bilirubin',0.3,null,'mg/dL','0.2–1.2','Normal.',0],
       ['2024-08-07','AST/ALT Ratio',3.0,null,'ratio','<2','Remains >2 — continued ALD pattern.',1],
-      ['2024-08-07','Glucose',90,null,'mg/dL','70–99','Normal.',0],
-      ['2024-08-07','Creatinine',0.54,null,'mg/dL','0.57–1.11','Slightly low — may reflect reduced muscle mass (sarcopenia) in ALD.',1],
-      ['2024-08-07','eGFR',112,null,'mL/min/1.73m²','>60','Normal kidney filtration.',0],
       // ── 9/2025 MRI ──
       ['2025-09-01','MRI Abdomen',null,'Abnormal','imaging','N/A','Hepatic steatosis, cholelithiasis. Gallbladder small stones. Normal: stomach, bowel, pancreas, spleen, adrenals, lymph nodes, vessels, kidney. No musculoskeletal lesions.',1],
       // ── 9/11/2025 ──
@@ -304,6 +301,9 @@ function initializeDb(db: Database.Database) {
       ['2025-09-11','Total Bilirubin',0.5,null,'mg/dL','0.2–1.2','Normal.',0],
       ['2025-09-11','Platelets',235,null,'×10³/μL','150–400','Normal. Low platelets would indicate portal hypertension.',0],
       ['2025-09-11','AST/ALT Ratio',3.0,null,'ratio','<2','Elevated — ALD pattern persists.',1],
+      ['2025-09-11','Glucose',90,null,'mg/dL','70–99','Normal.',0],
+      ['2025-09-11','Creatinine',0.54,null,'mg/dL','0.57–1.11','Slightly low.',1],
+      ['2025-09-11','eGFR',112,null,'mL/min/1.73m²','>60','Normal kidney filtration.',0],
       // ── 5/17/2026 ──
       ['2026-05-17','ALT',12,null,'IU/L','0–55','Within normal range.',0],
       ['2026-05-17','Total Bilirubin',0.3,null,'mg/dL','0.2–1.2','Normal.',0],
