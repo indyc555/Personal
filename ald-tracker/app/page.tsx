@@ -30,7 +30,7 @@ const sections = [
     href: '/news',
     title: 'ALD News',
     icon: Newspaper,
-    description: 'Latest research, clinical trial results, and treatment developments for Alcoholic Liver Disease.',
+    description: 'Latest research, clinical trial results, and treatment developments for ALD.',
     lightColor: 'bg-orange-50',
     textColor: 'text-orange-600',
   },
@@ -64,8 +64,8 @@ export default function HomePage() {
   return (
     <div className="p-8 max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome, Ananya</h1>
-        <p className="text-slate-600 text-lg">Your personal Alcoholic Liver Disease management dashboard</p>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Hepto Tracker</h1>
+        <p className="text-slate-600 text-lg">Personal ALD management dashboard</p>
         <p className="text-slate-400 text-sm mt-1">Today is May 17, 2026</p>
       </div>
 

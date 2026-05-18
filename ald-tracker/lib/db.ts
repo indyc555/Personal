@@ -106,6 +106,17 @@ function initializeDb(db: Database.Database) {
       key TEXT UNIQUE NOT NULL,
       value TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS doctor_notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      doctor_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      note_text TEXT,
+      image_data TEXT,
+      image_media_type TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (doctor_id) REFERENCES doctors(id)
+    );
   `);
 
   // Seed patient info
@@ -202,6 +213,36 @@ function initializeDb(db: Database.Database) {
       'Hepatology, ALD, Non-Alcoholic Fatty Liver Disease, Liver Transplant Evaluation',
       'Memorial Hermann liver program, comprehensive ALD care including transplant evaluation',
       29.7074, -95.4026
+    );
+
+    insertDoctor.run(
+      'Dr. Victor Machicao',
+      'UTHealth Houston / McGovern Medical School',
+      '6410 Fannin St, Suite 1400, Houston, TX 77030',
+      '(713) 486-5000',
+      'Hepatology, Liver Transplantation, ALD, Cirrhosis, Portal Hypertension',
+      'Associate Professor of Medicine at UTHealth, liver transplant hepatologist with expertise in ALD and end-stage liver disease. Affiliated with Memorial Hermann Transplant Center.',
+      29.7079, -95.4018
+    );
+
+    insertDoctor.run(
+      'Dr. Joseph Galati',
+      'Liver Specialists of Texas',
+      '1200 Binz St, Suite 1275, Houston, TX 77004',
+      '(713) 794-0700',
+      'Hepatology, ALD, Liver Disease, Fatty Liver, Cirrhosis, Hepatitis',
+      'Founder of Liver Specialists of Texas, one of Houston\'s most recognized hepatologists. Active in patient education and ALD treatment. Sees patients independently outside hospital systems.',
+      29.7350, -95.3845
+    );
+
+    insertDoctor.run(
+      'Dr. David Victor',
+      'Houston Methodist Hospital - Sherrie & Alan Conover Center for Liver Disease & Transplantation',
+      '6565 Fannin St, Smith Tower Suite 1001, Houston, TX 77030',
+      '(713) 441-8160',
+      'Hepatology, Liver Transplantation, ALD, MASLD, Cirrhosis, Liver Cancer',
+      'Director of Liver Transplantation at Houston Methodist. Extensive experience in ALD and liver transplant evaluation. Part of one of the top transplant programs in Texas.',
+      29.7100, -95.4023
     );
   }
 }
