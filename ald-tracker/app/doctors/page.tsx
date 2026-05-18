@@ -271,10 +271,102 @@ function DoctorNotes({ doctorId }: { doctorId: number }) {
   );
 }
 
+const EMPTY_FORM = {
+  name: '', practice: '', address: '', phone: '', specialties: '', reputation_notes: '',
+};
+
+function AddDoctorForm({ onSaved, onCancel }: { onSaved: () => void; onCancel: () => void }) {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm(f => ({ ...f, [k]: e.target.value }));
+
+  const handleSubmit = async (ev: React.FormEvent) => {
+    ev.preventDefault();
+    setError('');
+    setSaving(true);
+    try {
+      const res = await fetch('/api/doctors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const field = (label: string, key: keyof typeof EMPTY_FORM, required = false, placeholder = '') => (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">
+        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+        {!required && <span className="text-slate-400 text-xs ml-1">(optional)</span>}
+      </label>
+      <input
+        type="text"
+        value={form[key]}
+        onChange={set(key)}
+        placeholder={placeholder}
+        required={required}
+        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  );
+
+  return (
+    <div className="mb-6 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+        <Plus size={16} className="text-blue-600" /> Add New Doctor
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {field('Name', 'name', true, 'Dr. First Last')}
+        <div className="grid grid-cols-2 gap-4">
+          {field('Practice / Hospital', 'practice', false, 'e.g. Houston Methodist')}
+          {field('Phone', 'phone', false, '(713) 000-0000')}
+        </div>
+        {field('Address', 'address', false, '123 Main St, Houston, TX 77030')}
+        {field('Specialties', 'specialties', false, 'Hepatology, ALD, Liver Transplant')}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Notes / Reputation <span className="text-slate-400 text-xs">(optional)</span>
+          </label>
+          <textarea
+            value={form.reputation_notes}
+            onChange={set('reputation_notes')}
+            placeholder="Any background, referral reason, or notes about this doctor..."
+            className="w-full h-20 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          />
+        </div>
+        {error && (
+          <p className="text-sm text-red-600 flex items-center gap-1"><AlertCircle size={14} />{error}</p>
+        )}
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={onCancel}
+            className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg text-sm hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg text-sm">
+            {saving ? <RefreshCw size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+            {saving ? 'Saving...' : 'Add Doctor'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -306,12 +398,21 @@ export default function DoctorsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <MapPin className="text-red-500" size={24} />
-          Houston Hepatologists
-        </h1>
-        <p className="text-slate-500 text-sm mt-0.5">Top liver specialists in Houston, TX — click Notes on any card to add dated notes or images</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <MapPin className="text-red-500" size={24} />
+            Doctors
+          </h1>
+          <p className="text-slate-500 text-sm mt-0.5">Sorted A–Z by last name — click Notes to add dated notes or images</p>
+        </div>
+        <button
+          onClick={() => setShowAddForm(v => !v)}
+          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
+        >
+          <Plus size={16} />
+          Add Doctor
+        </button>
       </div>
 
       {error && (
@@ -319,6 +420,13 @@ export default function DoctorsPage() {
           <AlertCircle size={16} />
           {error}
         </div>
+      )}
+
+      {showAddForm && (
+        <AddDoctorForm
+          onSaved={() => { setShowAddForm(false); fetchData(); }}
+          onCancel={() => setShowAddForm(false)}
+        />
       )}
 
       <div className="mb-6 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
@@ -334,11 +442,13 @@ export default function DoctorsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="font-semibold text-slate-900 text-sm leading-snug">{doctor.name}</h2>
-                <p className="text-blue-600 text-xs mt-0.5">{doctor.practice}</p>
-                <div className="flex items-start gap-1 mt-1.5">
-                  <MapPin size={12} className="text-slate-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-slate-500 text-xs leading-relaxed">{doctor.address}</p>
-                </div>
+                {doctor.practice && <p className="text-blue-600 text-xs mt-0.5">{doctor.practice}</p>}
+                {doctor.address && (
+                  <div className="flex items-start gap-1 mt-1.5">
+                    <MapPin size={12} className="text-slate-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-slate-500 text-xs leading-relaxed">{doctor.address}</p>
+                  </div>
+                )}
                 {doctor.phone && (
                   <a href={`tel:${doctor.phone}`}
                     className="flex items-center gap-1 mt-1 text-xs text-green-700 hover:text-green-900">
