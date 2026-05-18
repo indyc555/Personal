@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
-import { Plus, RefreshCw, Activity, Wine, ChevronDown, ChevronUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Plus, RefreshCw, Activity, Wine, ChevronDown, ChevronUp, AlertCircle, CheckCircle, LayoutGrid, List } from 'lucide-react';
 
 interface HealthRecord {
   id: number;
@@ -61,6 +61,112 @@ function abnormalFromRecord(r: HealthRecord): boolean | null {
   return null;
 }
 
+function MatrixView({ records }: { records: HealthRecord[] }) {
+  // Exclude imaging records (unit === 'imaging') from the matrix
+  const labRecords = records.filter(r => r.unit !== 'imaging');
+
+  // Unique dates sorted newest → oldest (left → right)
+  const dates = Array.from(new Set(labRecords.map(r => r.date))).sort((a, b) => b.localeCompare(a));
+
+  // Unique test names, preserving insertion order (which reflects grouping)
+  const testNames = Array.from(new Set(labRecords.map(r => r.test_name)));
+
+  // Build lookup: testName → date → record
+  const lookup: Record<string, Record<string, HealthRecord>> = {};
+  for (const r of labRecords) {
+    if (!lookup[r.test_name]) lookup[r.test_name] = {};
+    // Keep the first (most recently inserted) for a given test+date
+    if (!lookup[r.test_name][r.date]) lookup[r.test_name][r.date] = r;
+  }
+
+  if (testNames.length === 0) return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center text-slate-400">
+      <Activity size={32} className="mx-auto mb-2 opacity-40" />
+      <p>No lab results yet.</p>
+    </div>
+  );
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="text-sm border-collapse w-full">
+          <thead>
+            <tr className="bg-slate-800 text-white">
+              <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide sticky left-0 bg-slate-800 z-10 min-w-[160px]">
+                Test
+              </th>
+              <th className="text-left px-3 py-3 font-semibold text-xs uppercase tracking-wide text-slate-400 min-w-[80px]">
+                Ref Range
+              </th>
+              {dates.map(date => (
+                <th
+                  key={date}
+                  className="px-4 py-3 font-semibold text-xs text-center whitespace-nowrap min-w-[100px]"
+                >
+                  {date}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {testNames.map((testName, i) => {
+              const rowRecords = lookup[testName] || {};
+              // Get ref range from any record for this test
+              const sampleRecord = labRecords.find(r => r.test_name === testName);
+              const refRange = sampleRecord?.reference_range && sampleRecord.reference_range !== 'N/A'
+                ? sampleRecord.reference_range : '—';
+
+              return (
+                <tr key={testName} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                  <td className={`px-4 py-2.5 font-semibold text-slate-800 text-xs sticky left-0 z-10 border-r border-slate-200 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
+                    {testName}
+                  </td>
+                  <td className="px-3 py-2.5 text-slate-400 text-xs border-r border-slate-100">
+                    {refRange}
+                  </td>
+                  {dates.map(date => {
+                    const rec = rowRecords[date];
+                    if (!rec) {
+                      return (
+                        <td key={date} className="px-4 py-2.5 text-center text-slate-200 text-xs border-r border-slate-100">
+                          —
+                        </td>
+                      );
+                    }
+                    const isAbnormal = rec.is_abnormal === 1;
+                    const val = rec.value !== null ? String(rec.value) : (rec.value_text ?? '—');
+                    return (
+                      <td key={date} className={`px-4 py-2.5 text-center text-xs font-semibold border-r border-slate-100 ${
+                        isAbnormal ? 'text-red-600 bg-red-50' : 'text-green-700'
+                      }`}>
+                        {val}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex items-center gap-4 text-xs text-slate-500">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-3 rounded bg-red-100 border border-red-300" />
+          Outside reference range
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-3 rounded bg-white border border-slate-300" />
+          Within range
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="text-slate-300">—</span>
+          No data for this date
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function HealthPage() {
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [alcoholLogs, setAlcoholLogs] = useState<AlcoholLog[]>([]);
@@ -72,6 +178,7 @@ export default function HealthPage() {
   const [showAlcoholForm, setShowAlcoholForm] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [viewMode, setViewMode] = useState<'detail' | 'matrix'>('detail');
 
   const [labForm, setLabForm] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -210,7 +317,22 @@ export default function HealthPage() {
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">Track lab results and alcohol intake</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {/* View toggle */}
+          <div className="flex rounded-lg border border-slate-300 overflow-hidden text-sm">
+            <button
+              onClick={() => setViewMode('detail')}
+              className={`flex items-center gap-1.5 px-3 py-2 transition-colors ${viewMode === 'detail' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+            >
+              <List size={15} /> Detail
+            </button>
+            <button
+              onClick={() => setViewMode('matrix')}
+              className={`flex items-center gap-1.5 px-3 py-2 transition-colors border-l border-slate-300 ${viewMode === 'matrix' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+            >
+              <LayoutGrid size={15} /> Grid
+            </button>
+          </div>
           <button
             onClick={() => { setShowAlcoholForm(v => !v); setShowAddForm(false); }}
             className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm transition-colors"
@@ -381,9 +503,16 @@ export default function HealthPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* Left: Records */}
-        <div className="col-span-2 space-y-4">
+      {/* Matrix / Grid view — full width */}
+      {viewMode === 'matrix' && (
+        <div className="mb-6">
+          <MatrixView records={records} />
+        </div>
+      )}
+
+      <div className={`grid gap-6 ${viewMode === 'matrix' ? 'grid-cols-1' : 'grid-cols-3'}`}>
+        {/* Left: Records (detail view only) */}
+        <div className={`${viewMode === 'matrix' ? 'hidden' : 'col-span-2'} space-y-4`}>
           {/* Alcohol Log */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
@@ -476,8 +605,8 @@ export default function HealthPage() {
           )}
         </div>
 
-        {/* Right: AI Analysis */}
-        <div className="space-y-4">
+        {/* Right: AI Analysis (always visible) */}
+        <div className={`space-y-4 ${viewMode === 'matrix' ? 'col-span-1' : ''}`}>
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="font-semibold text-slate-900">AI Analysis</h2>
