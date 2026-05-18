@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ananya's Liver Care",
+  title: "Hepto Tracker",
   description: "Personal ALD health tracker for Ananya Sarkar",
 };
 

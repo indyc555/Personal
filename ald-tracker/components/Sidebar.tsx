@@ -36,7 +36,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
             <Activity size={18} className="text-white" />
           </div>
-          <h1 className="text-white font-bold text-lg leading-tight">Ananya&apos;s<br />Liver Care</h1>
+          <h1 className="text-white font-bold text-lg leading-tight">Hepto<br />Tracker</h1>
         </div>
       </div>
 
