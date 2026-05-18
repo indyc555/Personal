@@ -52,3 +52,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to add doctor' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { id } = await request.json();
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    const db = getDb();
+    db.prepare('DELETE FROM doctor_notes WHERE doctor_id = ?').run(id);
+    db.prepare('DELETE FROM doctors WHERE id = ?').run(id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('DELETE /api/doctors error:', error);
+    return NextResponse.json({ error: 'Failed to delete doctor' }, { status: 500 });
+  }
+}

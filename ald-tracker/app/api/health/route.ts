@@ -43,3 +43,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to save health record' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { id } = await request.json();
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    const db = getDb();
+    db.prepare('DELETE FROM health_records WHERE id = ?').run(id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('DELETE /api/health error:', error);
+    return NextResponse.json({ error: 'Failed to delete record' }, { status: 500 });
+  }
+}

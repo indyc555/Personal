@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import {
   MapPin, RefreshCw, AlertCircle, Phone, Building2,
   ChevronDown, ChevronUp, Plus, FileText, Image as ImageIcon,
-  X, Trash2, CheckCircle, StickyNote,
+  X, Trash2, CheckCircle, StickyNote, UserMinus,
 } from 'lucide-react';
 
 const DoctorsMap = dynamic(() => import('@/components/DoctorsMap'), {
@@ -368,6 +368,20 @@ export default function DoctorsPage() {
   const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
 
+  const deleteDoctor = async (id: number, name: string) => {
+    if (!confirm(`Remove ${name} from your list? This will also delete all their notes.`)) return;
+    try {
+      await fetch('/api/doctors', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      fetchData();
+    } catch {
+      setError('Failed to delete doctor');
+    }
+  };
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -435,13 +449,22 @@ export default function DoctorsPage() {
 
       <div className="grid grid-cols-2 gap-4">
         {doctors.map(doctor => (
-          <div key={doctor.id} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+          <div key={doctor.id} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 group">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Building2 size={20} className="text-red-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="font-semibold text-slate-900 text-sm leading-snug">{doctor.name}</h2>
+                <div className="flex items-start justify-between gap-2">
+                  <h2 className="font-semibold text-slate-900 text-sm leading-snug">{doctor.name}</h2>
+                  <button
+                    onClick={() => deleteDoctor(doctor.id, doctor.name)}
+                    className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-slate-300 hover:text-red-500 transition-all"
+                    title="Remove doctor"
+                  >
+                    <UserMinus size={14} />
+                  </button>
+                </div>
                 {doctor.practice && <p className="text-blue-600 text-xs mt-0.5">{doctor.practice}</p>}
                 {doctor.address && (
                   <div className="flex items-start gap-1 mt-1.5">

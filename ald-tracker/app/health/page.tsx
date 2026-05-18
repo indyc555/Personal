@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
-import { Plus, RefreshCw, Activity, Wine, ChevronDown, ChevronUp, AlertCircle, CheckCircle, LayoutGrid, List } from 'lucide-react';
+import { Plus, RefreshCw, Activity, Wine, ChevronDown, ChevronUp, AlertCircle, CheckCircle, LayoutGrid, List, Trash2 } from 'lucide-react';
 
 interface HealthRecord {
   id: number;
@@ -268,6 +268,20 @@ export default function HealthPage() {
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to log');
+    }
+  };
+
+  const deleteRecord = async (id: number) => {
+    if (!confirm('Delete this lab result?')) return;
+    try {
+      await fetch('/api/health', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      fetchData();
+    } catch {
+      setErrorMsg('Failed to delete record');
     }
   };
 
@@ -575,18 +589,28 @@ export default function HealthPage() {
                         <th className="text-left px-4 py-2 text-slate-600 font-medium">Date</th>
                         <th className="text-left px-4 py-2 text-slate-600 font-medium">Value</th>
                         <th className="text-left px-4 py-2 text-slate-600 font-medium">Notes</th>
+                        <th className="px-2 py-2" />
                       </tr>
                     </thead>
                     <tbody>
                       {testRecords.map(r => {
                         const ab = abnormalFromRecord(r);
                         return (
-                          <tr key={r.id} className="border-b border-slate-50 hover:bg-slate-50">
+                          <tr key={r.id} className="border-b border-slate-50 hover:bg-slate-50 group">
                             <td className="px-4 py-2 text-slate-500">{r.date}</td>
                             <td className={`px-4 py-2 font-medium ${ab === true ? 'text-red-600' : ab === false ? 'text-green-600' : 'text-slate-700'}`}>
                               {displayValue(r)}
                             </td>
                             <td className="px-4 py-2 text-slate-400 text-xs">{r.notes || '—'}</td>
+                            <td className="px-2 py-2 text-right">
+                              <button
+                                onClick={() => deleteRecord(r.id)}
+                                className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all"
+                                title="Delete this record"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </td>
                           </tr>
                         );
                       })}
