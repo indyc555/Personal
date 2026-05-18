@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
-import { Plus, RefreshCw, Activity, Wine, ChevronDown, ChevronUp, AlertCircle, CheckCircle, LayoutGrid, List, Trash2 } from 'lucide-react';
+import { Plus, RefreshCw, Activity, Wine, ChevronDown, ChevronUp, AlertCircle, CheckCircle, LayoutGrid, List, Trash2, Settings2 } from 'lucide-react';
 
 interface HealthRecord {
   id: number;
@@ -178,7 +178,7 @@ export default function HealthPage() {
   const [showAlcoholForm, setShowAlcoholForm] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [viewMode, setViewMode] = useState<'detail' | 'matrix'>('matrix');
+  const [viewMode, setViewMode] = useState<'detail' | 'matrix' | 'manage'>('matrix');
 
   const [labForm, setLabForm] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -345,6 +345,12 @@ export default function HealthPage() {
               className={`flex items-center gap-1.5 px-3 py-2 transition-colors border-l border-slate-300 ${viewMode === 'matrix' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
             >
               <LayoutGrid size={15} /> Grid
+            </button>
+            <button
+              onClick={() => setViewMode('manage')}
+              className={`flex items-center gap-1.5 px-3 py-2 transition-colors border-l border-slate-300 ${viewMode === 'manage' ? 'bg-red-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+            >
+              <Settings2 size={15} /> Manage
             </button>
           </div>
           <button
@@ -524,9 +530,62 @@ export default function HealthPage() {
         </div>
       )}
 
-      <div className={`grid gap-6 ${viewMode === 'matrix' ? 'grid-cols-1' : 'grid-cols-3'}`}>
+      {/* Manage view — flat list with delete */}
+      {viewMode === 'manage' && (
+        <div className="mb-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-100 bg-red-50 flex items-center gap-2">
+            <Settings2 size={16} className="text-red-600" />
+            <span className="font-semibold text-slate-900 text-sm">Manage Records</span>
+            <span className="text-xs text-slate-500 ml-1">— {records.length} records total</span>
+          </div>
+          {records.length === 0 ? (
+            <div className="px-6 py-10 text-center text-slate-400 text-sm">No records yet.</div>
+          ) : (
+            (() => {
+              const byDate: Record<string, HealthRecord[]> = {};
+              for (const r of [...records].sort((a, b) => b.date.localeCompare(a.date))) {
+                if (!byDate[r.date]) byDate[r.date] = [];
+                byDate[r.date].push(r);
+              }
+              return Object.entries(byDate).map(([date, dateRecords]) => (
+                <div key={date}>
+                  <div className="px-4 py-2 bg-slate-50 border-y border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    {date}
+                  </div>
+                  {dateRecords.map(r => {
+                    const isAbnormal = r.is_abnormal === 1;
+                    return (
+                      <div key={r.id} className="flex items-center justify-between px-4 py-2.5 border-b border-slate-50 hover:bg-slate-50 group">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="text-sm font-medium text-slate-700 min-w-[180px]">{r.test_name}</span>
+                          <span className={`text-sm font-semibold ${isAbnormal ? 'text-red-600' : 'text-green-700'}`}>
+                            {r.value !== null ? `${r.value} ${r.unit}` : r.value_text ?? '—'}
+                          </span>
+                          {isAbnormal && <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-600 rounded">abnormal</span>}
+                          {r.reference_range && r.reference_range !== 'N/A' && (
+                            <span className="text-xs text-slate-400">ref: {r.reference_range}</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => deleteRecord(r.id)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                          title="Delete this record"
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ));
+            })()
+          )}
+        </div>
+      )}
+
+      <div className={`grid gap-6 ${viewMode === 'matrix' || viewMode === 'manage' ? 'grid-cols-1' : 'grid-cols-3'}`}>
         {/* Left: Records (detail view only) */}
-        <div className={`${viewMode === 'matrix' ? 'hidden' : 'col-span-2'} space-y-4`}>
+        <div className={`${viewMode === 'matrix' || viewMode === 'manage' ? 'hidden' : 'col-span-2'} space-y-4`}>
           {/* Alcohol Log */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
@@ -629,8 +688,8 @@ export default function HealthPage() {
           )}
         </div>
 
-        {/* Right: AI Analysis (always visible) */}
-        <div className={`space-y-4 ${viewMode === 'matrix' ? 'col-span-1' : ''}`}>
+        {/* Right: AI Analysis (hidden in manage view) */}
+        <div className={`space-y-4 ${viewMode === 'manage' ? 'hidden' : viewMode === 'matrix' ? 'col-span-1' : ''}`}>
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="font-semibold text-slate-900">AI Analysis</h2>
