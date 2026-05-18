@@ -246,42 +246,46 @@ function initializeDb(db: Database.Database) {
     );
   }
 
-  // ── Health Records ────────────────────────────────────────────────────────
-  const recordCount = (db.prepare('SELECT COUNT(*) as c FROM health_records').get() as { c: number }).c;
-  if (recordCount === 0) {
+  // ── Health Records (versioned migration — bump HEALTH_SEED_VER to force reseed) ──
+  const HEALTH_SEED_VER = '3';
+  const currentSeedVer = (db.prepare("SELECT value FROM patient_info WHERE key='health_seed_version'").get() as { value: string } | undefined)?.value;
+  if (currentSeedVer !== HEALTH_SEED_VER) {
+    db.prepare('DELETE FROM health_records').run();
     const ins = db.prepare(`
       INSERT INTO health_records (date, test_name, value, value_text, unit, reference_range, notes, is_abnormal)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const seedRecords: [string, string, number | null, string | null, string, string, string, number][] = [
-      // 12/18/2018
+      // ── 12/18/2018 ──
       ['2018-12-18','AST',190,null,'IU/L','5–34','#2 ALD indicator. Severely elevated — acute alcoholic hepatitis at time of collapse.',1],
-      ['2018-12-18','ALT',40,null,'IU/L','0–55','Within normal range despite severe ALD.',0],
+      ['2018-12-18','ALT',44,null,'IU/L','0–55','Within normal range.',0],
+      ['2018-12-18','Albumin',4.4,null,'g/dL','3.4–5.1','Normal.',0],
       ['2018-12-18','Total Bilirubin',0.5,null,'mg/dL','0.2–1.2','Normal.',0],
       ['2018-12-18','AST/ALT Ratio',4.3,null,'ratio','<2','>2 with high GGT strongly indicates ALD. 4.3 consistent with active alcoholic hepatitis.',1],
-      // 10/22/2022
+      // ── 10/22/2022 ──
       ['2022-10-22','AST',71,null,'IU/L','5–34','Elevated; ~2× upper normal. Ongoing liver inflammation.',1],
       ['2022-10-22','ALT',39,null,'IU/L','0–55','Within normal range.',0],
       ['2022-10-22','ALK Phos (ALP)',80,null,'Unit/L','40–150','Normal.',0],
-      ['2022-10-22','Albumin',4.4,null,'g/dL','3.4–5.1','Normal.',0],
       ['2022-10-22','Total Bilirubin',0.2,null,'mg/dL','0.2–1.2','Normal.',0],
       ['2022-10-22','Indirect Bilirubin',0.3,null,'mg/dL','0–1.2','Normal.',0],
       ['2022-10-22','GGT Enzyme',233,null,'IU/L','8–40 (female)','#1 ALD indicator. Severely elevated. 84+ indicates heavy drinking.',1],
+      ['2022-10-22','Total Protein',8.3,null,'g/dL','6.1–8.2','Mildly elevated — possible inflammation or dehydration.',1],
       ['2022-10-22','AST/ALT Ratio',1.8,null,'ratio','<2','Borderline — just below the >2 ALD threshold.',1],
-      // 4/26/2023
+      // ── 4/26/2023 ──
       ['2023-04-26','AST',77,null,'IU/L','5–34','Elevated — continued liver inflammation.',1],
       ['2023-04-26','ALT',23,null,'IU/L','0–55','Normal.',0],
       ['2023-04-26','ALK Phos (ALP)',71,null,'Unit/L','40–150','Normal.',0],
       ['2023-04-26','Albumin',4.6,null,'g/dL','3.4–5.1','Normal.',0],
       ['2023-04-26','Total Bilirubin',0.3,null,'mg/dL','0.2–1.2','Normal.',0],
       ['2023-04-26','GGT Enzyme',321,null,'IU/L','8–40 (female)','Peak recorded value — 8× upper normal.',1],
-      ['2023-04-26','AST/ALT Ratio',2.0,null,'ratio','<2','>2 confirms ALD pattern combined with high GGT.',1],
+      ['2023-04-26','AST/ALT Ratio',2.0,null,'ratio','<2','>2 w/high GGT confirms ALD pattern.',1],
       ['2023-04-26','BUN',6.9,null,'mg/dL','7–25','Slightly low — poor protein synthesis or dilution.',1],
       ['2023-04-26','Glucose',91,null,'mg/dL','70–99','Normal.',0],
       ['2023-04-26','Creatinine',0.71,null,'mg/dL','0.57–1.11','Normal kidney function.',0],
-      ['2023-04-26','Total Protein',8.3,null,'g/dL','6.1–8.2','Mildly elevated — possible inflammation or dehydration.',1],
-      ['2023-04-26','BUN/Creatinine Ratio',9.7,null,'ratio','<10','Low ratio with impaired liver — poor protein metabolism.',0],
-      // 8/7/2024
+      ['2023-04-26','Total Protein',8.5,null,'g/dL','6.1–8.2','Mildly elevated — possible inflammation or dehydration.',1],
+      ['2023-04-26','BUN/Creatinine Ratio',9.7,null,'ratio','<10','Low BUN with impaired liver — poor protein metabolism.',0],
+      ['2023-04-26','eGFR',null,'>60','mL/min/1.73m²','>60','Normal kidney filtration.',0],
+      // ── 8/7/2024 ──
       ['2024-08-07','AST',68,null,'IU/L','5–34','Elevated but lower than 4/2023 — modest improvement.',1],
       ['2024-08-07','ALT',31,null,'IU/L','0–55','Normal.',0],
       ['2024-08-07','ALK Phos (ALP)',83,null,'Unit/L','40–150','Normal.',0],
@@ -289,28 +293,27 @@ function initializeDb(db: Database.Database) {
       ['2024-08-07','Total Bilirubin',0.5,null,'mg/dL','0.2–1.2','Normal.',0],
       ['2024-08-07','AST/ALT Ratio',3.0,null,'ratio','<2','Remains >2 — continued ALD pattern.',1],
       ['2024-08-07','Glucose',90,null,'mg/dL','70–99','Normal.',0],
-      ['2024-08-07','Total Protein',8.5,null,'g/dL','6.1–8.2','Mildly elevated.',1],
-      ['2024-08-07','eGFR',null,'>60','mL/min/1.73m²','>60','Normal kidney filtration.',0],
-      // 9/11/2025
-      ['2025-09-11','Apolipoprotein A1',219,null,'mg/dL','101–198','Elevated. ApoA1 is main HDL protein. Elevated in ALD may reflect alcohol-induced HDL elevation.',1],
+      ['2024-08-07','Creatinine',0.54,null,'mg/dL','0.57–1.11','Slightly low — may reflect reduced muscle mass (sarcopenia) in ALD.',1],
+      ['2024-08-07','eGFR',112,null,'mL/min/1.73m²','>60','Normal kidney filtration.',0],
+      // ── 9/2025 MRI ──
+      ['2025-09-01','MRI Abdomen',null,'Abnormal','imaging','N/A','Hepatic steatosis, cholelithiasis. Gallbladder small stones. Normal: stomach, bowel, pancreas, spleen, adrenals, lymph nodes, vessels, kidney. No musculoskeletal lesions.',1],
+      // ── 9/11/2025 ──
       ['2025-09-11','AST',86,null,'IU/L','5–34','Elevated — increased from 8/2024. Concerning upward trend.',1],
       ['2025-09-11','ALT',12,null,'IU/L','0–55','Normal and low. Low ALT with high AST widens ratio — classic ALD pattern.',0],
       ['2025-09-11','ALK Phos (ALP)',77,null,'Unit/L','40–150','Normal.',0],
       ['2025-09-11','Albumin',4.7,null,'g/dL','3.4–5.1','Normal. Liver synthetic function preserved.',0],
-      ['2025-09-11','Alpha-2-Macroglobulin',262,null,'mg/dL','106–279','Upper-normal. Elevated A2M can indicate fibrosis/scarring.',1],
-      ['2025-09-11','Haptoglobin',92,null,'mg/dL','43–212','Normal. Reassuring inflammation marker.',0],
       ['2025-09-11','Total Bilirubin',0.3,null,'mg/dL','0.2–1.2','Normal.',0],
-      ['2025-09-11','GGT Enzyme',63,null,'IU/L','8–40 (female)','Still elevated but dramatically improved from 321 in 4/2023.',1],
-      ['2025-09-11','Platelets',235,null,'×10³/μL','150–400','Normal. Low platelets would indicate portal hypertension.',0],
       ['2025-09-11','AST/ALT Ratio',3.0,null,'ratio','<2','Elevated — ALD pattern persists.',1],
-      ['2025-09-11','Glucose',90,null,'mg/dL','70–99','Normal.',0],
-      ['2025-09-11','Creatinine',0.54,null,'mg/dL','0.57–1.11','Slightly low — may reflect reduced muscle mass (sarcopenia) in ALD.',1],
-      ['2025-09-11','eGFR',112,null,'mL/min/1.73m²','>60','Normal kidney filtration. No hepatorenal syndrome.',0],
-      // 9/2025 MRI
-      ['2025-09-01','MRI Abdomen',null,'Abnormal','imaging','N/A','Hepatic steatosis, cholelithiasis. Gallbladder small stones. Normal: stomach, bowel, pancreas, spleen, adrenals, lymph nodes, vessels, kidney. No musculoskeletal lesions.',1],
+      // ── 5/17/2026 ──
+      ['2026-05-17','Apolipoprotein A1',219,null,'mg/dL','101–198','Elevated. ApoA1 is main HDL protein. Elevated in ALD may reflect alcohol-induced HDL elevation.',1],
+      ['2026-05-17','Alpha-2-Macroglobulin',262,null,'mg/dL','106–279','Near upper-normal. Elevated A2M can indicate fibrosis/scarring.',0],
+      ['2026-05-17','Haptoglobin',92,null,'mg/dL','43–212','Normal. Reassuring inflammation marker.',0],
+      ['2026-05-17','GGT Enzyme',63,null,'IU/L','8–40 (female)','Still elevated but dramatically improved from 321 in 4/2023.',1],
+      ['2026-05-17','Platelets',235,null,'×10³/μL','150–400','Normal. Low platelets would indicate portal hypertension.',0],
     ];
     const seedMany = db.transaction((rows: typeof seedRecords) => { for (const r of rows) ins.run(...r); });
     seedMany(seedRecords);
+    db.prepare("INSERT OR REPLACE INTO patient_info (key, value) VALUES ('health_seed_version', ?)").run(HEALTH_SEED_VER);
   }
 
   // ── Treatment Cache ───────────────────────────────────────────────────────

@@ -178,7 +178,7 @@ export default function HealthPage() {
   const [showAlcoholForm, setShowAlcoholForm] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [viewMode, setViewMode] = useState<'detail' | 'matrix'>('detail');
+  const [viewMode, setViewMode] = useState<'detail' | 'matrix'>('matrix');
 
   const [labForm, setLabForm] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
