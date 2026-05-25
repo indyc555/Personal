@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seekho Hindi — Learn Hindi</title>
+<style>
+  :root {
+    --saffron: #FF9933;
+    --saffron-light: #FFB347;
+    --saffron-pale: #FFF3E0;
+    --green: #138808;
+    --green-light: #4CAF50;
+    --navy: #000080;
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --bg: #fafafa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 32px rgba(255,153,51,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--saffron) 0%, #e67e22 100%);
+    color: white;
+    padding: 20px 24px 0;
+    box-shadow: 0 2px 12px rgba(255,153,51,0.4);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .logo { font-size: 2rem; }
+  .header-text h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+  .header-text p { font-size: 0.85rem; opacity: 0.9; }
+
+  nav {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 12px 12px 0 0;
+    color: white;
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.35); }
+  .nav-btn.active { background: var(--bg); color: var(--saffron); font-weight: 700; }
+
+  /* ── Main ── */
+  main { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── Progress bar ── */
+  .progress-strip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow);
+  }
+  .progress-strip .label { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+  .progress-bar-wrap { flex: 1; background: #f0f0f0; border-radius: 20px; height: 10px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--saffron), var(--green-light)); border-radius: 20px; transition: width 0.5s ease; }
+  .progress-strip .count { font-weight: 700; color: var(--saffron); font-size: 0.9rem; white-space: nowrap; }
+
+  /* ── Lesson View ── */
+  .section-heading { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .category-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .category-card:hover { border-color: var(--saffron); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .category-card.selected { border-color: var(--saffron); background: var(--saffron-pale); }
+  .category-card .cat-icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .category-card .cat-title { font-weight: 600; font-size: 0.95rem; }
+  .category-card .cat-count { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+  .category-card .cat-progress { font-size: 0.75rem; color: var(--green); font-weight: 600; margin-top: 4px; }
+
+  .word-list { display: grid; gap: 10px; }
+  .word-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .word-row:hover { border-color: var(--saffron); background: var(--saffron-pale); }
+  .word-row.learned { border-left: 4px solid var(--green); }
+  .word-info { flex: 1 }
+  .word-transliteration { font-size: 1.1rem; font-weight: 700; color: var(--saffron); }
+  .word-english { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+  .word-tip { font-size: 0.75rem; color: #9c5; font-style: italic; margin-top: 3px; }
+  .speak-btn {
+    background: var(--saffron-pale);
+    border: 1.5px solid var(--saffron);
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .speak-btn:hover { background: var(--saffron); }
+  .speak-btn.speaking { animation: pulse 0.6s infinite alternate; background: var(--saffron); }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
+  .learned-badge { font-size: 0.7rem; background: #e8f5e9; color: var(--green); border: 1px solid #c8e6c9; border-radius: 20px; padding: 2px 8px; font-weight: 600; flex-shrink: 0; }
+  .mark-learned-btn { font-size: 0.75rem; background: none; border: 1.5px solid #ccc; border-radius: 20px; padding: 3px 10px; cursor: pointer; color: var(--text-muted); flex-shrink: 0; transition: all 0.15s; }
+  .mark-learned-btn:hover { border-color: var(--green); color: var(--green); }
+
+  /* ── Flashcard View ── */
+  .flashcard-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .flashcard-controls select {
+    flex: 1;
+    min-width: 160px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: var(--card);
+    cursor: pointer;
+  }
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--saffron); color: white; }
+  .btn-primary:hover { background: #e67e22; transform: translateY(-1px); }
+  .btn-secondary { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--saffron); color: var(--saffron); }
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:hover { background: #0d6b06; }
+
+  .card-area { perspective: 1000px; margin-bottom: 20px; }
+  .flashcard {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    height: 280px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+    padding: 30px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, var(--saffron-pale), #fff8f0);
+    border: 2px solid var(--saffron);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border: 2px solid var(--green);
+    transform: rotateY(180deg);
+  }
+  .card-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+  .card-main { font-size: 1.8rem; font-weight: 800; color: var(--saffron); margin-bottom: 6px; }
+  .card-back .card-main { color: var(--green); font-size: 1.4rem; }
+  .card-sub { font-size: 1rem; color: var(--text-muted); }
+  .card-hint { font-size: 0.78rem; color: #aaa; margin-top: 16px; }
+  .card-speak {
+    margin-top: 14px;
+    background: var(--saffron);
+    border: none;
+    border-radius: 50%;
+    width: 44px; height: 44px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .card-speak:hover { background: #e67e22; transform: scale(1.1); }
+  .card-tip-text { font-size: 0.82rem; color: var(--green); font-style: italic; margin-top: 10px; }
+
+  .card-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .card-nav .nav-arrow {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--card);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .card-nav .nav-arrow:hover { border-color: var(--saffron); color: var(--saffron); }
+  .card-counter { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; min-width: 80px; text-align: center; }
+
+  /* ── Quiz View ── */
+  .quiz-setup {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .quiz-setup h2 { font-size: 1.4rem; margin-bottom: 8px; }
+  .quiz-setup p { color: var(--text-muted); margin-bottom: 24px; font-size: 0.9rem; }
+  .quiz-options { display: grid; gap: 12px; margin-bottom: 24px; text-align: left; }
+  .quiz-option-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+  .quiz-option-group select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.9rem; background: var(--bg); }
+
+  .quiz-active { max-width: 600px; margin: 0 auto; }
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .quiz-score { font-size: 0.9rem; color: var(--text-muted); }
+  .quiz-score span { color: var(--green); font-weight: 700; }
+  .quiz-progress-nums { font-size: 0.9rem; font-weight: 600; }
+
+  .quiz-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .quiz-type-badge { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--saffron); font-weight: 700; margin-bottom: 10px; }
+  .quiz-question { font-size: 1.25rem; font-weight: 700; margin-bottom: 22px; color: var(--text); }
+  .quiz-speak-btn { background: var(--saffron-pale); border: 1.5px solid var(--saffron); border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; cursor: pointer; color: var(--saffron); font-weight: 600; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; }
+  .quiz-speak-btn:hover { background: var(--saffron); color: white; }
+
+  .quiz-choices { display: grid; gap: 10px; }
+  .quiz-choice {
+    width: 100%;
+    text-align: left;
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .quiz-choice:hover:not(:disabled) { border-color: var(--saffron); background: var(--saffron-pale); }
+  .quiz-choice.correct { border-color: var(--green); background: #e8f5e9; color: var(--green); font-weight: 700; }
+  .quiz-choice.wrong { border-color: #e53e3e; background: #fff5f5; color: #e53e3e; }
+  .quiz-choice:disabled { cursor: default; }
+
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 14px;
+    display: none;
+  }
+  .quiz-feedback.correct { background: #e8f5e9; color: var(--green); display: block; }
+  .quiz-feedback.wrong { background: #fff5f5; color: #e53e3e; display: block; }
+
+  .quiz-next-btn { margin-top: 16px; width: 100%; }
+
+  .quiz-result {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 36px 28px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .result-emoji { font-size: 4rem; margin-bottom: 12px; }
+  .result-score { font-size: 2.5rem; font-weight: 800; color: var(--saffron); }
+  .result-label { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 6px; }
+  .result-msg { font-size: 1rem; margin-bottom: 24px; color: var(--text); }
+  .result-breakdown { text-align: left; background: var(--bg); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+  .result-breakdown h4 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .breakdown-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-item .correct-ans { color: var(--green); font-weight: 600; }
+  .breakdown-item .your-ans { color: #e53e3e; }
+
+  /* ── Progress View ── */
+  .progress-view-header { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .stat-card { background: var(--card); border-radius: var(--radius); padding: 18px; text-align: center; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--saffron); }
+  .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+  .category-progress-list { display: grid; gap: 10px; }
+  .cat-prog-row { background: var(--card); border-radius: 12px; padding: 14px 18px; border: 1px solid var(--border); }
+  .cat-prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .cat-prog-name { font-weight: 600; font-size: 0.9rem; }
+  .cat-prog-frac { font-size: 0.8rem; color: var(--text-muted); }
+  .mini-bar { background: #f0f0f0; border-radius: 20px; height: 8px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; background: linear-gradient(90deg, var(--saffron), var(--green-light)); border-radius: 20px; transition: width 0.5s; }
+  .reset-btn { margin-top: 24px; background: none; border: 2px solid #fee; color: #e53e3e; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.15s; }
+  .reset-btn:hover { background: #fff5f5; }
+
+  /* ── Toasts & misc ── */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .no-speech-warning { background: #fff8e1; border: 1px solid #ffc107; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: #856404; margin-bottom: 16px; }
+
+  @media (max-width: 500px) {
+    .flashcard { height: 240px; }
+    .card-main { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">🇮🇳</div>
+    <div class="header-text">
+      <h1>Seekho Hindi</h1>
+      <p>Hindi for English speakers — using transliteration & audio</p>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" onclick="showView('lessons')" id="tab-lessons">📚 Lessons</button>
+    <button class="nav-btn" onclick="showView('flashcards')" id="tab-flashcards">🃏 Flashcards</button>
+    <button class="nav-btn" onclick="showView('quiz')" id="tab-quiz">✏️ Quiz</button>
+    <button class="nav-btn" onclick="showView('progress')" id="tab-progress">📊 Progress</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ═══ LESSONS VIEW ═══ -->
+  <div class="view active" id="view-lessons">
+    <div class="progress-strip">
+      <span class="label">Overall progress</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="overall-bar" style="width:0%"></div></div>
+      <span class="count" id="overall-count">0 / 0</span>
+    </div>
+    <div id="speech-warning" class="no-speech-warning" style="display:none">
+      ⚠️ Your browser doesn't support speech synthesis. Audio playback won't work. Try Chrome or Edge.
+    </div>
+    <div class="section-heading">Choose a category</div>
+    <div class="category-grid" id="category-grid"></div>
+    <div id="word-section" style="display:none">
+      <div class="section-heading" id="word-section-title"></div>
+      <div class="word-list" id="word-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ FLASHCARD VIEW ═══ -->
+  <div class="view" id="view-flashcards">
+    <div class="flashcard-controls">
+      <select id="fc-category">
+        <option value="all">All categories</option>
+      </select>
+      <button class="btn btn-secondary" onclick="shuffleFlashcards()">🔀 Shuffle</button>
+      <button class="btn btn-primary" onclick="markCardLearned()">✅ Mark learned</button>
+    </div>
+    <div class="card-area">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="card-face card-front" id="card-front">
+          <div class="card-label">English</div>
+          <div class="card-main" id="fc-english"></div>
+          <div class="card-hint">Tap to reveal Hindi</div>
+        </div>
+        <div class="card-face card-back" id="card-back">
+          <div class="card-label">Hindi (transliteration)</div>
+          <div class="card-main" id="fc-hindi"></div>
+          <div class="card-sub" id="fc-english-back"></div>
+          <button class="card-speak" onclick="event.stopPropagation(); speakWord(currentCard.devanagari)">🔊</button>
+          <div class="card-tip-text" id="fc-tip"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-nav">
+      <button class="nav-arrow" onclick="prevCard()">◀</button>
+      <span class="card-counter" id="card-counter">1 / 1</span>
+      <button class="nav-arrow" onclick="nextCard()">▶</button>
+    </div>
+    <div style="text-align:center; color:var(--text-muted); font-size:0.82rem">Tap the card to flip • Use arrows to navigate</div>
+  </div>
+
+  <!-- ═══ QUIZ VIEW ═══ -->
+  <div class="view" id="view-quiz">
+    <div id="quiz-setup" class="quiz-setup">
+      <h2>Test your Hindi!</h2>
+      <p>Choose your settings and start a quiz</p>
+      <div class="quiz-options">
+        <div class="quiz-option-group">
+          <label>Category</label>
+          <select id="q-category">
+            <option value="all">All categories</option>
+          </select>
+        </div>
+        <div class="quiz-option-group">
+          <label>Quiz type</label>
+          <select id="q-type">
+            <option value="en-to-hi">English → Hindi (transliteration)</option>
+            <option value="hi-to-en">Hindi → English</option>
+            <option value="audio">Hear it → Pick English</option>
+            <option value="mixed">Mixed</option>
+          </select>
+        </div>
+        <div class="quiz-option-group">
+          <label>Number of questions</label>
+          <select id="q-count">
+            <option value="5">5 questions</option>
+            <option value="10" selected>10 questions</option>
+            <option value="15">15 questions</option>
+            <option value="20">20 questions</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%; padding:14px" onclick="startQuiz()">Start Quiz →</button>
+    </div>
+
+    <div id="quiz-active" class="quiz-active" style="display:none">
+      <div class="quiz-header">
+        <div class="quiz-score">Score: <span id="q-score">0</span></div>
+        <div class="quiz-progress-nums" id="q-progress">1 / 10</div>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-type-badge" id="q-type-badge"></div>
+        <div class="quiz-question" id="q-question"></div>
+        <button class="quiz-speak-btn" id="q-speak-btn" style="display:none" onclick="speakWord(currentQuiz.devanagari)">🔊 Hear it</button>
+        <div class="quiz-choices" id="q-choices"></div>
+        <div class="quiz-feedback" id="q-feedback"></div>
+        <button class="btn btn-primary quiz-next-btn" id="q-next" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+
+    <div id="quiz-result" class="quiz-result" style="display:none">
+      <div class="result-emoji" id="r-emoji"></div>
+      <div class="result-label">Your score</div>
+      <div class="result-score" id="r-score"></div>
+      <div class="result-msg" id="r-msg"></div>
+      <div class="result-breakdown" id="r-breakdown"></div>
+      <button class="btn btn-primary" style="width:100%; margin-bottom:10px" onclick="startQuiz()">Try again</button>
+      <button class="btn btn-secondary" style="width:100%" onclick="showQuizSetup()">Change settings</button>
+    </div>
+  </div>
+
+  <!-- ═══ PROGRESS VIEW ═══ -->
+  <div class="view" id="view-progress">
+    <div class="progress-view-header">Your progress</div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="section-heading">By category</div>
+    <div class="category-progress-list" id="cat-progress-list"></div>
+    <button class="reset-btn" onclick="confirmReset()">🗑 Reset all progress</button>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+const curriculum = {
+  greetings: {
+    title: "Greetings & Basics",
+    icon: "🙏",
+    words: [
+      { english: "Hello / Greetings", transliteration: "Namaste", devanagari: "नमस्ते", tip: "Press palms together while saying this" },
+      { english: "Thank you", transliteration: "Dhanyavaad", devanagari: "धन्यवाद", tip: "" },
+      { english: "You're welcome", transliteration: "Koi baat nahi", devanagari: "कोई बात नहीं", tip: "Literally: 'It's nothing'" },
+      { english: "Please", transliteration: "Kripaya", devanagari: "कृपया", tip: "" },
+      { english: "Sorry / Excuse me", transliteration: "Maafi kijiye", devanagari: "माफी कीजिए", tip: "" },
+      { english: "Yes", transliteration: "Haan", devanagari: "हाँ", tip: "" },
+      { english: "No", transliteration: "Nahi", devanagari: "नहीं", tip: "" },
+      { english: "Good morning", transliteration: "Suprabhat", devanagari: "सुप्रभात", tip: "" },
+      { english: "Good night", transliteration: "Shubh ratri", devanagari: "शुभ रात्रि", tip: "" },
+      { english: "How are you?", transliteration: "Aap kaise hain?", devanagari: "आप कैसे हैं?", tip: "Formal. Use 'Tum kaise ho?' with friends" },
+      { english: "I'm fine", transliteration: "Main theek hoon", devanagari: "मैं ठीक हूँ", tip: "" },
+      { english: "What is your name?", transliteration: "Aapka naam kya hai?", devanagari: "आपका नाम क्या है?", tip: "" },
+      { english: "My name is…", transliteration: "Mera naam … hai", devanagari: "मेरा नाम … है", tip: "" },
+      { english: "Goodbye", transliteration: "Alvida / Phir milenge", devanagari: "अलविदा / फिर मिलेंगे", tip: "'Phir milenge' means 'We'll meet again'" },
+    ]
+  },
+  numbers: {
+    title: "Numbers 1–20",
+    icon: "🔢",
+    words: [
+      { english: "One", transliteration: "Ek", devanagari: "एक", tip: "" },
+      { english: "Two", transliteration: "Do", devanagari: "दो", tip: "" },
+      { english: "Three", transliteration: "Teen", devanagari: "तीन", tip: "" },
+      { english: "Four", transliteration: "Chaar", devanagari: "चार", tip: "" },
+      { english: "Five", transliteration: "Paanch", devanagari: "पाँच", tip: "" },
+      { english: "Six", transliteration: "Chhe", devanagari: "छह", tip: "" },
+      { english: "Seven", transliteration: "Saat", devanagari: "सात", tip: "" },
+      { english: "Eight", transliteration: "Aath", devanagari: "आठ", tip: "" },
+      { english: "Nine", transliteration: "Nau", devanagari: "नौ", tip: "" },
+      { english: "Ten", transliteration: "Das", devanagari: "दस", tip: "" },
+      { english: "Eleven", transliteration: "Gyaarah", devanagari: "ग्यारह", tip: "" },
+      { english: "Twelve", transliteration: "Baarah", devanagari: "बारह", tip: "" },
+      { english: "Thirteen", transliteration: "Terah", devanagari: "तेरह", tip: "" },
+      { english: "Fourteen", transliteration: "Chaudah", devanagari: "चौदह", tip: "" },
+      { english: "Fifteen", transliteration: "Pandrah", devanagari: "पंद्रह", tip: "" },
+      { english: "Twenty", transliteration: "Bees", devanagari: "बीस", tip: "" },
+      { english: "Hundred", transliteration: "Sau", devanagari: "सौ", tip: "" },
+      { english: "Thousand", transliteration: "Hazaar", devanagari: "हज़ार", tip: "" },
+    ]
+  },
+  colors: {
+    title: "Colors",
+    icon: "🎨",
+    words: [
+      { english: "Red", transliteration: "Laal", devanagari: "लाल", tip: "" },
+      { english: "Blue", transliteration: "Neela", devanagari: "नीला", tip: "" },
+      { english: "Green", transliteration: "Hara", devanagari: "हरा", tip: "" },
+      { english: "Yellow", transliteration: "Peela", devanagari: "पीला", tip: "" },
+      { english: "White", transliteration: "Safed", devanagari: "सफ़ेद", tip: "" },
+      { english: "Black", transliteration: "Kaala", devanagari: "काला", tip: "" },
+      { english: "Orange", transliteration: "Narangi", devanagari: "नारंगी", tip: "" },
+      { english: "Pink", transliteration: "Gulaabi", devanagari: "गुलाबी", tip: "Literally 'rose-colored'" },
+      { english: "Purple", transliteration: "Baingani", devanagari: "बैंगनी", tip: "" },
+      { english: "Brown", transliteration: "Bhoora", devanagari: "भूरा", tip: "" },
+      { english: "Grey", transliteration: "Slatee / Dhoosra", devanagari: "स्लेटी / धूसरा", tip: "" },
+      { english: "Golden", transliteration: "Sona", devanagari: "सोना", tip: "" },
+    ]
+  },
+  family: {
+    title: "Family",
+    icon: "👨‍👩‍👧",
+    words: [
+      { english: "Mother", transliteration: "Maa / Maata ji", devanagari: "माँ", tip: "Add 'ji' for extra respect" },
+      { english: "Father", transliteration: "Pita ji / Baap", devanagari: "पिता जी", tip: "" },
+      { english: "Older brother", transliteration: "Bhaiya", devanagari: "भैया", tip: "Also used to address young men respectfully" },
+      { english: "Older sister", transliteration: "Didi", devanagari: "दीदी", tip: "" },
+      { english: "Younger brother/sister", transliteration: "Bhai / Behen", devanagari: "भाई / बहन", tip: "" },
+      { english: "Son", transliteration: "Beta", devanagari: "बेटा", tip: "" },
+      { english: "Daughter", transliteration: "Beti", devanagari: "बेटी", tip: "" },
+      { english: "Grandfather (paternal)", transliteration: "Dada ji", devanagari: "दादा जी", tip: "" },
+      { english: "Grandmother (paternal)", transliteration: "Dadi ji", devanagari: "दादी जी", tip: "" },
+      { english: "Husband", transliteration: "Pati", devanagari: "पति", tip: "" },
+      { english: "Wife", transliteration: "Patni", devanagari: "पत्नी", tip: "" },
+      { english: "Friend", transliteration: "Dost", devanagari: "दोस्त", tip: "" },
+    ]
+  },
+  phrases: {
+    title: "Useful Phrases",
+    icon: "💬",
+    words: [
+      { english: "Where is the bathroom?", transliteration: "Bathroom kahan hai?", devanagari: "बाथरूम कहाँ है?", tip: "" },
+      { english: "How much does it cost?", transliteration: "Yeh kitne ka hai?", devanagari: "यह कितने का है?", tip: "" },
+      { english: "I don't understand", transliteration: "Mujhe samajh nahi aaya", devanagari: "मुझे समझ नहीं आया", tip: "" },
+      { english: "Please speak slowly", transliteration: "Dhire boliye", devanagari: "धीरे बोलिए", tip: "" },
+      { english: "I am hungry", transliteration: "Mujhe bhookh lagi hai", devanagari: "मुझे भूख लगी है", tip: "" },
+      { english: "I am thirsty", transliteration: "Mujhe pyaas lagi hai", devanagari: "मुझे प्यास लगी है", tip: "" },
+      { english: "I don't know", transliteration: "Mujhe nahi pata", devanagari: "मुझे नहीं पता", tip: "" },
+      { english: "Good / Okay", transliteration: "Accha", devanagari: "अच्छा", tip: "Very versatile — 'Accha!' can mean 'Oh really?'" },
+      { english: "Let's go!", transliteration: "Chalo!", devanagari: "चलो!", tip: "" },
+      { english: "Come here", transliteration: "Idhar aao", devanagari: "इधर आओ", tip: "" },
+      { english: "I love you", transliteration: "Main tumse pyaar karta hoon", devanagari: "मैं तुमसे प्यार करता हूँ", tip: "Use 'karti' instead of 'karta' if the speaker is female" },
+      { english: "What is this?", transliteration: "Yeh kya hai?", devanagari: "यह क्या है?", tip: "" },
+      { english: "Very good!", transliteration: "Bahut accha!", devanagari: "बहुत अच्छा!", tip: "" },
+    ]
+  },
+  food: {
+    title: "Food & Drink",
+    icon: "🍛",
+    words: [
+      { english: "Water", transliteration: "Paani", devanagari: "पानी", tip: "" },
+      { english: "Tea", transliteration: "Chai", devanagari: "चाय", tip: "Indian masala chai is spiced milk tea" },
+      { english: "Rice", transliteration: "Chawal", devanagari: "चावल", tip: "" },
+      { english: "Flatbread", transliteration: "Roti", devanagari: "रोटी", tip: "Also called 'chapati'" },
+      { english: "Vegetables / Curry", transliteration: "Sabzi", devanagari: "सब्जी", tip: "" },
+      { english: "Fruit", transliteration: "Phal", devanagari: "फल", tip: "" },
+      { english: "Milk", transliteration: "Doodh", devanagari: "दूध", tip: "" },
+      { english: "Sugar", transliteration: "Cheeni", devanagari: "चीनी", tip: "Literally means 'Chinese'" },
+      { english: "Food / Meal", transliteration: "Khaana", devanagari: "खाना", tip: "Also means 'to eat' as a verb" },
+      { english: "Delicious", transliteration: "Swaadisht", devanagari: "स्वादिष्ट", tip: "" },
+      { english: "Sweet", transliteration: "Meetha", devanagari: "मीठा", tip: "" },
+      { english: "Spicy", transliteration: "Teekha", devanagari: "तीखा", tip: "" },
+      { english: "Restaurant", transliteration: "Dhaba / Restaurant", devanagari: "ढाबा", tip: "Dhaba = roadside eatery" },
+    ]
+  },
+  time: {
+    title: "Time & Days",
+    icon: "📅",
+    words: [
+      { english: "Today", transliteration: "Aaj", devanagari: "आज", tip: "" },
+      { english: "Tomorrow / Yesterday", transliteration: "Kal", devanagari: "कल", tip: "Same word! Context tells you which" },
+      { english: "Now", transliteration: "Abhi", devanagari: "अभी", tip: "" },
+      { english: "Monday", transliteration: "Somvaar", devanagari: "सोमवार", tip: "" },
+      { english: "Tuesday", transliteration: "Mangalvaar", devanagari: "मंगलवार", tip: "" },
+      { english: "Wednesday", transliteration: "Budhvaar", devanagari: "बुधवार", tip: "" },
+      { english: "Thursday", transliteration: "Guruvaar", devanagari: "गुरुवार", tip: "" },
+      { english: "Friday", transliteration: "Shukravaar", devanagari: "शुक्रवार", tip: "" },
+      { english: "Saturday", transliteration: "Shanivaar", devanagari: "शनिवार", tip: "" },
+      { english: "Sunday", transliteration: "Ravivaar", devanagari: "रविवार", tip: "" },
+      { english: "Morning", transliteration: "Subah", devanagari: "सुबह", tip: "" },
+      { english: "Evening", transliteration: "Shaam", devanagari: "शाम", tip: "" },
+      { english: "Night", transliteration: "Raat", devanagari: "रात", tip: "" },
+    ]
+  },
+};
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let learned = JSON.parse(localStorage.getItem('seekho-learned') || '{}');
+let quizHistory = JSON.parse(localStorage.getItem('seekho-quiz') || '[]');
+
+let flashcards = [];
+let fcIndex = 0;
+let isFlipped = false;
+let currentCard = null;
+
+let quizQuestions = [];
+let qIndex = 0;
+let qScore = 0;
+let qResults = [];
+
+// ════════════════════════════════════════
+// SPEECH
+// ════════════════════════════════════════
+const synth = window.speechSynthesis;
+let voices = [];
+let hindiVoice = null;
+
+function loadVoices() {
+  voices = synth.getVoices();
+  hindiVoice = voices.find(v => v.lang === 'hi-IN') ||
+               voices.find(v => v.lang.startsWith('hi')) ||
+               null;
+  if (!synth || voices.length === 0) {
+    document.getElementById('speech-warning').style.display = 'block';
+  }
+}
+
+if (synth) {
+  synth.onvoiceschanged = loadVoices;
+  loadVoices();
+} else {
+  document.getElementById('speech-warning').style.display = 'block';
+}
+
+function speakWord(devanagari) {
+  if (!synth) return;
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(devanagari);
+  utt.lang = 'hi-IN';
+  utt.rate = 0.85;
+  if (hindiVoice) utt.voice = hindiVoice;
+  synth.speak(utt);
+}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'progress') renderProgress();
+  if (name === 'flashcards') initFlashcards();
+  if (name === 'lessons') renderCategories();
+}
+
+// ════════════════════════════════════════
+// LESSONS
+// ════════════════════════════════════════
+let activeCategory = null;
+
+function learnedKey(cat, idx) { return cat + ':' + idx; }
+
+function renderCategories() {
+  const grid = document.getElementById('category-grid');
+  const total = Object.values(curriculum).reduce((s, c) => s + c.words.length, 0);
+  const totalLearned = Object.values(curriculum).reduce((s, c, i) => {
+    const key = Object.keys(curriculum)[i];
+    return s + c.words.filter((_, j) => learned[learnedKey(key, j)]).length;
+  }, 0);
+  document.getElementById('overall-bar').style.width = total ? (totalLearned / total * 100) + '%' : '0%';
+  document.getElementById('overall-count').textContent = totalLearned + ' / ' + total + ' learned';
+
+  grid.innerHTML = '';
+  Object.entries(curriculum).forEach(([key, cat]) => {
+    const n = cat.words.length;
+    const nLearned = cat.words.filter((_, j) => learned[learnedKey(key, j)]).length;
+    const card = document.createElement('div');
+    card.className = 'category-card' + (activeCategory === key ? ' selected' : '');
+    card.innerHTML = `<div class="cat-icon">${cat.icon}</div>
+      <div class="cat-title">${cat.title}</div>
+      <div class="cat-count">${n} words</div>
+      <div class="cat-progress">${nLearned > 0 ? nLearned + '/' + n + ' learned' : 'Not started'}</div>`;
+    card.onclick = () => selectCategory(key);
+    grid.appendChild(card);
+  });
+
+  if (activeCategory) renderWordList(activeCategory);
+}
+
+function selectCategory(key) {
+  activeCategory = key;
+  renderCategories();
+}
+
+function renderWordList(key) {
+  const cat = curriculum[key];
+  const section = document.getElementById('word-section');
+  const title = document.getElementById('word-section-title');
+  const list = document.getElementById('word-list');
+  section.style.display = 'block';
+  title.textContent = cat.icon + ' ' + cat.title;
+  list.innerHTML = '';
+  cat.words.forEach((word, j) => {
+    const k = learnedKey(key, j);
+    const isLearned = !!learned[k];
+    const row = document.createElement('div');
+    row.className = 'word-row' + (isLearned ? ' learned' : '');
+    row.innerHTML = `
+      <div class="word-info">
+        <div class="word-transliteration">${word.transliteration}</div>
+        <div class="word-english">${word.english}</div>
+        ${word.tip ? '<div class="word-tip">💡 ' + word.tip + '</div>' : ''}
+      </div>
+      <button class="speak-btn" title="Hear pronunciation">🔊</button>
+      ${isLearned
+        ? '<span class="learned-badge">✓ Learned</span>'
+        : '<button class="mark-learned-btn">Mark learned</button>'}
+    `;
+    row.querySelector('.speak-btn').onclick = (e) => {
+      e.stopPropagation();
+      const btn = e.currentTarget;
+      btn.classList.add('speaking');
+      speakWord(word.devanagari);
+      setTimeout(() => btn.classList.remove('speaking'), 1500);
+    };
+    const mlBtn = row.querySelector('.mark-learned-btn');
+    if (mlBtn) mlBtn.onclick = (e) => { e.stopPropagation(); toggleLearned(key, j); };
+    list.appendChild(row);
+  });
+}
+
+function toggleLearned(key, j) {
+  const k = learnedKey(key, j);
+  if (learned[k]) delete learned[k]; else learned[k] = true;
+  localStorage.setItem('seekho-learned', JSON.stringify(learned));
+  renderCategories();
+  showToast(learned[k] ? '✅ Marked as learned!' : 'Removed from learned');
+}
+
+// ════════════════════════════════════════
+// FLASHCARDS
+// ════════════════════════════════════════
+function getAllWords() {
+  return Object.entries(curriculum).flatMap(([key, cat]) =>
+    cat.words.map((w, j) => ({ ...w, catKey: key, wordIdx: j, catTitle: cat.title }))
+  );
+}
+
+function initFlashcards() {
+  const sel = document.getElementById('fc-category');
+  if (sel.options.length === 1) {
+    Object.entries(curriculum).forEach(([key, cat]) => {
+      const opt = document.createElement('option');
+      opt.value = key; opt.textContent = cat.icon + ' ' + cat.title;
+      sel.appendChild(opt);
+    });
+  }
+  loadFlashcards();
+}
+
+function loadFlashcards() {
+  const cat = document.getElementById('fc-category').value;
+  if (cat === 'all') flashcards = getAllWords();
+  else flashcards = (curriculum[cat]?.words || []).map((w, j) => ({ ...w, catKey: cat, wordIdx: j }));
+  fcIndex = 0;
+  isFlipped = false;
+  showCard();
+}
+
+function showCard() {
+  if (!flashcards.length) return;
+  currentCard = flashcards[fcIndex];
+  const card = document.getElementById('flashcard');
+  card.classList.remove('flipped');
+  isFlipped = false;
+  document.getElementById('fc-english').textContent = currentCard.english;
+  document.getElementById('fc-hindi').textContent = currentCard.transliteration;
+  document.getElementById('fc-english-back').textContent = currentCard.english;
+  document.getElementById('fc-tip').textContent = currentCard.tip ? '💡 ' + currentCard.tip : '';
+  document.getElementById('card-counter').textContent = (fcIndex + 1) + ' / ' + flashcards.length;
+}
+
+function flipCard() {
+  const card = document.getElementById('flashcard');
+  isFlipped = !isFlipped;
+  card.classList.toggle('flipped', isFlipped);
+  if (isFlipped && currentCard) speakWord(currentCard.devanagari);
+}
+
+function nextCard() { fcIndex = (fcIndex + 1) % flashcards.length; showCard(); }
+function prevCard() { fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; showCard(); }
+
+function shuffleFlashcards() {
+  for (let i = flashcards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+  }
+  fcIndex = 0; showCard(); showToast('🔀 Shuffled!');
+}
+
+function markCardLearned() {
+  if (!currentCard) return;
+  const k = learnedKey(currentCard.catKey, currentCard.wordIdx);
+  learned[k] = true;
+  localStorage.setItem('seekho-learned', JSON.stringify(learned));
+  showToast('✅ Marked as learned!');
+  nextCard();
+}
+
+document.getElementById('fc-category').addEventListener('change', loadFlashcards);
+
+// ════════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════════
+function populateQuizDropdowns() {
+  ['q-category'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (sel.options.length === 1) {
+      Object.entries(curriculum).forEach(([key, cat]) => {
+        const opt = document.createElement('option');
+        opt.value = key; opt.textContent = cat.icon + ' ' + cat.title;
+        sel.appendChild(opt);
+      });
+    }
+  });
+}
+populateQuizDropdowns();
+
+function startQuiz() {
+  const cat = document.getElementById('q-category').value;
+  const type = document.getElementById('q-type').value;
+  const count = parseInt(document.getElementById('q-count').value);
+
+  let pool = cat === 'all' ? getAllWords() :
+    (curriculum[cat]?.words || []).map((w, j) => ({ ...w, catKey: cat, wordIdx: j }));
+
+  if (pool.length < 4) { showToast('Need at least 4 words. Choose a bigger category.'); return; }
+
+  // Shuffle and pick
+  pool = pool.slice().sort(() => Math.random() - 0.5);
+  const selected = pool.slice(0, Math.min(count, pool.length));
+
+  quizQuestions = selected.map(word => {
+    let qType = type;
+    if (type === 'mixed') qType = ['en-to-hi', 'hi-to-en', 'audio'][Math.floor(Math.random() * 3)];
+    const distractors = pool.filter(w => w !== word).sort(() => Math.random() - 0.5).slice(0, 3);
+    const choices = [word, ...distractors].sort(() => Math.random() - 0.5);
+    return { word, type: qType, choices };
+  });
+
+  qIndex = 0; qScore = 0; qResults = [];
+  document.getElementById('quiz-setup').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-active').style.display = 'block';
+  renderQuestion();
+}
+
+let currentQuiz = null;
+
+function renderQuestion() {
+  if (qIndex >= quizQuestions.length) { showResult(); return; }
+  const q = quizQuestions[qIndex];
+  currentQuiz = q.word;
+  document.getElementById('q-progress').textContent = (qIndex + 1) + ' / ' + quizQuestions.length;
+  document.getElementById('q-score').textContent = qScore;
+  document.getElementById('q-feedback').className = 'quiz-feedback';
+  document.getElementById('q-next').style.display = 'none';
+
+  let questionText, badgeText, showSpeak = false;
+  if (q.type === 'en-to-hi') {
+    questionText = 'How do you say this in Hindi?';
+    badgeText = 'English → Hindi';
+    document.getElementById('q-question').innerHTML = '<strong style="color:var(--saffron);font-size:1.4rem">' + q.word.english + '</strong><br><span style="font-size:0.9rem;color:var(--text-muted)">Pick the correct transliteration</span>';
+  } else if (q.type === 'hi-to-en') {
+    badgeText = 'Hindi → English';
+    document.getElementById('q-question').innerHTML = '<strong style="color:var(--saffron);font-size:1.4rem">' + q.word.transliteration + '</strong><br><span style="font-size:0.9rem;color:var(--text-muted)">Pick the English meaning</span>';
+    showSpeak = true;
+  } else {
+    badgeText = '🔊 Listen → English';
+    document.getElementById('q-question').textContent = 'What does this word mean?';
+    showSpeak = true;
+    setTimeout(() => speakWord(q.word.devanagari), 300);
+  }
+  document.getElementById('q-type-badge').textContent = badgeText;
+  document.getElementById('q-speak-btn').style.display = showSpeak ? 'inline-flex' : 'none';
+
+  const choicesEl = document.getElementById('q-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-choice';
+    if (q.type === 'en-to-hi') btn.textContent = choice.transliteration;
+    else btn.textContent = choice.english;
+    btn.onclick = () => selectAnswer(choice, q.word, q.type);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function selectAnswer(chosen, correct, type) {
+  const isCorrect = chosen === correct;
+  document.querySelectorAll('.quiz-choice').forEach(btn => {
+    btn.disabled = true;
+    const answerText = type === 'en-to-hi' ? btn.textContent : btn.textContent;
+    const correctText = type === 'en-to-hi' ? correct.transliteration : correct.english;
+    if (btn.textContent === correctText) btn.classList.add('correct');
+    else if (btn.textContent === (type === 'en-to-hi' ? chosen.transliteration : chosen.english) && !isCorrect)
+      btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('q-feedback');
+  if (isCorrect) {
+    qScore++;
+    fb.className = 'quiz-feedback correct';
+    fb.textContent = '✅ Correct! ' + correct.transliteration + ' = ' + correct.english;
+    speakWord(correct.devanagari);
+    const k = learnedKey(correct.catKey, correct.wordIdx);
+    learned[k] = true;
+    localStorage.setItem('seekho-learned', JSON.stringify(learned));
+  } else {
+    fb.className = 'quiz-feedback wrong';
+    fb.textContent = '❌ The answer was: ' + correct.transliteration + ' (' + correct.english + ')';
+  }
+
+  qResults.push({ word: correct, correct: isCorrect, yourAnswer: chosen });
+  document.getElementById('q-next').style.display = 'block';
+}
+
+function nextQuestion() { qIndex++; renderQuestion(); }
+
+function showResult() {
+  document.getElementById('quiz-active').style.display = 'none';
+  const res = document.getElementById('quiz-result');
+  res.style.display = 'block';
+  const pct = Math.round(qScore / quizQuestions.length * 100);
+  document.getElementById('r-score').textContent = qScore + ' / ' + quizQuestions.length;
+  let emoji, msg;
+  if (pct === 100) { emoji = '🏆'; msg = 'Perfect! Bahut accha! You nailed it!'; }
+  else if (pct >= 80) { emoji = '🌟'; msg = 'Excellent work! Almost perfect!'; }
+  else if (pct >= 60) { emoji = '👍'; msg = 'Good job! Keep practicing!'; }
+  else if (pct >= 40) { emoji = '📚'; msg = 'Not bad! Review the lessons and try again.'; }
+  else { emoji = '💪'; msg = 'Keep going! Practice makes perfect. Koshish karte raho!'; }
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-msg').textContent = msg;
+
+  const breakdown = document.getElementById('r-breakdown');
+  const wrongs = qResults.filter(r => !r.correct);
+  if (wrongs.length === 0) {
+    breakdown.innerHTML = '<h4>Review</h4><div style="color:var(--green);font-weight:600;padding:8px 0">🎉 You got every question right!</div>';
+  } else {
+    breakdown.innerHTML = '<h4>Review wrong answers</h4>' +
+      wrongs.map(r => `<div class="breakdown-item">
+        <span>${r.word.english}</span>
+        <span class="correct-ans">${r.word.transliteration}</span>
+      </div>`).join('');
+  }
+
+  quizHistory.push({ date: new Date().toISOString(), score: qScore, total: quizQuestions.length });
+  localStorage.setItem('seekho-quiz', JSON.stringify(quizHistory.slice(-50)));
+}
+
+function showQuizSetup() {
+  document.getElementById('quiz-active').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-setup').style.display = 'block';
+}
+
+// ════════════════════════════════════════
+// PROGRESS
+// ════════════════════════════════════════
+function renderProgress() {
+  const allWords = getAllWords();
+  const totalWords = allWords.length;
+  const totalLearned = allWords.filter(w => learned[learnedKey(w.catKey, w.wordIdx)]).length;
+  const totalQuizzes = quizHistory.length;
+  const avgScore = totalQuizzes
+    ? Math.round(quizHistory.reduce((s, q) => s + (q.score / q.total * 100), 0) / totalQuizzes)
+    : 0;
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${totalLearned}</div><div class="stat-label">Words learned</div></div>
+    <div class="stat-card"><div class="stat-num">${totalWords}</div><div class="stat-label">Total words</div></div>
+    <div class="stat-card"><div class="stat-num">${totalQuizzes}</div><div class="stat-label">Quizzes taken</div></div>
+    <div class="stat-card"><div class="stat-num">${avgScore}%</div><div class="stat-label">Avg quiz score</div></div>
+  `;
+
+  const catList = document.getElementById('cat-progress-list');
+  catList.innerHTML = '';
+  Object.entries(curriculum).forEach(([key, cat]) => {
+    const n = cat.words.length;
+    const nL = cat.words.filter((_, j) => learned[learnedKey(key, j)]).length;
+    const pct = Math.round(nL / n * 100);
+    const row = document.createElement('div');
+    row.className = 'cat-prog-row';
+    row.innerHTML = `
+      <div class="cat-prog-header">
+        <span class="cat-prog-name">${cat.icon} ${cat.title}</span>
+        <span class="cat-prog-frac">${nL} / ${n}</span>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
+    `;
+    catList.appendChild(row);
+  });
+}
+
+function confirmReset() {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    learned = {};
+    quizHistory = [];
+    localStorage.removeItem('seekho-learned');
+    localStorage.removeItem('seekho-quiz');
+    renderProgress();
+    renderCategories();
+    showToast('Progress reset');
+  }
+}
+
+// ════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+renderCategories();
+</script>
+</body>
+</html>
