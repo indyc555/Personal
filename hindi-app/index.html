@@ -3,1122 +3,1035 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seekho Hindi — Learn Hindi</title>
+<title>Seekho Hindi 🎬 Bollywood Edition</title>
 <style>
-  :root {
-    --saffron: #FF9933;
-    --saffron-light: #FFB347;
-    --saffron-pale: #FFF3E0;
-    --green: #138808;
-    --green-light: #4CAF50;
-    --navy: #000080;
-    --text: #1a1a2e;
-    --text-muted: #6b7280;
-    --bg: #fafafa;
-    --card: #ffffff;
-    --border: #e5e7eb;
-    --radius: 16px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.08);
-    --shadow-hover: 0 8px 32px rgba(255,153,51,0.2);
-  }
+:root{--gold:#FFD700;--pink:#FF1493;--saffron:#FF9933;--bg:#0f0f1e;--card:rgba(255,255,255,0.07);--card2:rgba(255,255,255,0.12);--text:#f0e6d3;--muted:#a89880;--border:rgba(255,215,0,0.25);--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);background-image:radial-gradient(ellipse at top,rgba(255,20,147,0.12) 0%,transparent 55%),radial-gradient(ellipse at bottom,rgba(255,153,51,0.09) 0%,transparent 55%);color:var(--text);min-height:100vh}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* film strip header */
+header{background:linear-gradient(135deg,#1a0a2e,#2d0a1e);border-bottom:2px solid var(--gold);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:0;left:0;right:0;height:8px;background:repeating-linear-gradient(90deg,#000 0px,#000 14px,var(--gold) 14px,var(--gold) 18px);opacity:.6}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:8px;background:repeating-linear-gradient(90deg,#000 0px,#000 14px,var(--gold) 14px,var(--gold) 18px);opacity:.6}
+.header-inner{padding:18px 20px 10px;display:flex;align-items:center;gap:14px}
+.header-logo{font-size:2.2rem}
+.header-text h1{font-size:1.5rem;font-weight:800;background:linear-gradient(90deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header-text p{font-size:.8rem;color:var(--muted);margin-top:2px}
+nav{display:flex;gap:3px;padding:0 12px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.nav-btn{flex-shrink:0;background:rgba(255,255,255,0.05);border:1px solid transparent;border-radius:10px 10px 0 0;color:var(--muted);padding:9px 16px;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn:hover{background:rgba(255,215,0,.1);color:var(--gold)}
+.nav-btn.active{background:rgba(255,215,0,.15);border-color:var(--gold);color:var(--gold);font-weight:700}
+main{max-width:920px;margin:0 auto;padding:24px 16px}
+.view{display:none}.view.active{display:block}
 
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+/* cards */
+.g-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;backdrop-filter:blur(4px)}
+.g-card:hover{background:var(--card2);border-color:rgba(255,215,0,.5)}
 
-  /* ── Header ── */
-  header {
-    background: linear-gradient(135deg, var(--saffron) 0%, #e67e22 100%);
-    color: white;
-    padding: 20px 24px 0;
-    box-shadow: 0 2px 12px rgba(255,153,51,0.4);
-  }
-  .header-top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 16px;
-  }
-  .logo { font-size: 2rem; }
-  .header-text h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
-  .header-text p { font-size: 0.85rem; opacity: 0.9; }
+/* home */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:560px){.home-grid{grid-template-columns:1fr}}
+.starlet-card{background:var(--card);border:2px solid var(--gold);border-radius:var(--r);padding:24px;text-align:center;position:relative;overflow:hidden}
+.starlet-card::before{content:'✨';position:absolute;top:10px;left:14px;font-size:1rem;opacity:.6}
+.starlet-card::after{content:'✨';position:absolute;top:10px;right:14px;font-size:1rem;opacity:.6}
+.starlet-emoji{font-size:3.5rem;margin-bottom:8px;display:block}
+.starlet-name{font-size:1.3rem;font-weight:800;color:var(--gold)}
+.starlet-title{font-size:.8rem;color:var(--pink);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.starlet-quote{font-size:.82rem;color:var(--muted);font-style:italic;margin-top:10px;padding:8px;background:rgba(0,0,0,.3);border-radius:8px;border-left:3px solid var(--gold)}
+.pts-bar-wrap{background:rgba(255,255,255,.1);border-radius:20px;height:10px;overflow:hidden;margin-top:14px}
+.pts-bar-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--gold));border-radius:20px;transition:width .6s}
+.pts-label{font-size:.78rem;color:var(--muted);margin-top:6px;text-align:center}
+.quote-card{background:linear-gradient(135deg,rgba(139,0,0,.4),rgba(75,0,130,.4));border:1px solid rgba(255,215,0,.3);border-radius:var(--r);padding:20px}
+.quote-card .quote-text{font-size:1.05rem;font-style:italic;color:var(--gold);margin-bottom:6px}
+.quote-card .quote-film{font-size:.78rem;color:var(--muted)}
+.quote-card .quote-eng{font-size:.82rem;color:var(--text);margin-top:4px}
+.section-title{font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.recent-list{display:grid;gap:8px}
+.recent-item{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem}
+.recent-score{font-weight:700;color:var(--gold)}
 
-  nav {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  nav::-webkit-scrollbar { display: none; }
-  .nav-btn {
-    flex-shrink: 0;
-    background: rgba(255,255,255,0.2);
-    border: none;
-    border-radius: 12px 12px 0 0;
-    color: white;
-    padding: 10px 18px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .nav-btn:hover { background: rgba(255,255,255,0.35); }
-  .nav-btn.active { background: var(--bg); color: var(--saffron); font-weight: 700; }
+/* chapters grid */
+.chapters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:24px}
+.chapter-card{border-radius:var(--r);padding:0;cursor:pointer;transition:transform .2s,box-shadow .2s;overflow:hidden;border:2px solid transparent}
+.chapter-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(255,215,0,.2);border-color:var(--gold)}
+.chapter-poster{padding:20px;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.chapter-poster-emojis{font-size:1.8rem;margin-bottom:6px}
+.chapter-poster-title{font-size:1rem;font-weight:800;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+.chapter-poster-year{font-size:.75rem;font-weight:600;background:rgba(0,0,0,.5);color:#fff;display:inline-block;padding:2px 8px;border-radius:20px;margin-top:4px}
+.chapter-poster-meta{font-size:.73rem;color:rgba(255,255,255,.8);margin-top:4px}
+.chapter-poster-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:var(--gold);font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:20px;border:1px solid var(--gold)}
 
-  /* ── Main ── */
-  main { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+/* lesson detail */
+.lesson-header{border-radius:var(--r);padding:24px;margin-bottom:20px;position:relative;overflow:hidden}
+.lesson-header-content{position:relative;z-index:1}
+.lesson-back{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:.82rem;margin-bottom:14px;display:inline-block}
+.lesson-back:hover{background:rgba(255,215,0,.2)}
+.lesson-title{font-size:1.5rem;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.lesson-meta{font-size:.82rem;color:rgba(255,255,255,.8);margin-top:4px}
+.dialogue-section{margin-bottom:24px}
+.dialogue-line{background:rgba(0,0,0,.4);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:10px}
+.dialogue-speaker{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-weight:700;margin-bottom:4px}
+.dialogue-hindi{font-size:1rem;font-weight:600;color:#fff;margin-bottom:3px}
+.dialogue-eng{font-size:.82rem;color:var(--muted)}
+.dialogue-speak{background:rgba(255,153,51,.2);border:1px solid var(--saffron);border-radius:50%;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;float:right;margin-top:-4px;transition:all .15s}
+.dialogue-speak:hover{background:var(--saffron)}
 
-  .view { display: none; }
-  .view.active { display: block; }
+/* word list */
+.word-list{display:grid;gap:8px}
+.word-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;transition:all .15s}
+.word-row:hover{background:var(--card2);border-color:var(--gold)}
+.word-row.learned{border-left:3px solid #4CAF50}
+.word-info{flex:1}
+.word-translit{font-size:1rem;font-weight:700;color:var(--saffron)}
+.word-eng{font-size:.82rem;color:var(--muted);margin-top:2px}
+.word-tip{font-size:.73rem;color:#9c5;font-style:italic;margin-top:3px}
+.speak-btn{background:rgba(255,153,51,.15);border:1px solid var(--saffron);border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;color:inherit}
+.speak-btn:hover{background:var(--saffron)}
+.speak-btn.speaking{animation:pulse .6s infinite alternate;background:var(--saffron)}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.15)}}
+.learned-badge{font-size:.7rem;background:rgba(76,175,80,.2);color:#4CAF50;border:1px solid #4CAF50;border-radius:20px;padding:2px 8px;font-weight:600;flex-shrink:0}
+.mark-btn{font-size:.73rem;background:none;border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;cursor:pointer;color:var(--muted);flex-shrink:0;transition:all .15s}
+.mark-btn:hover{border-color:#4CAF50;color:#4CAF50}
+.chapter-quiz-btn{width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,var(--pink),var(--saffron));border:none;border-radius:var(--r);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .15s}
+.chapter-quiz-btn:hover{opacity:.85}
 
-  /* ── Progress bar ── */
-  .progress-strip {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    box-shadow: var(--shadow);
-  }
-  .progress-strip .label { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
-  .progress-bar-wrap { flex: 1; background: #f0f0f0; border-radius: 20px; height: 10px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--saffron), var(--green-light)); border-radius: 20px; transition: width 0.5s ease; }
-  .progress-strip .count { font-weight: 700; color: var(--saffron); font-size: 0.9rem; white-space: nowrap; }
+/* flashcards */
+.fc-controls{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.fc-controls select{flex:1;min-width:160px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:.88rem;background:#1a1a2e;color:var(--text);cursor:pointer}
+.btn{padding:10px 18px;border-radius:10px;font-size:.88rem;font-weight:600;border:none;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--saffron));color:#000}
+.btn-gold:hover{opacity:.85;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--gold);border:1.5px solid var(--gold)}
+.btn-outline:hover{background:rgba(255,215,0,.1)}
+.btn-pink{background:linear-gradient(135deg,var(--pink),#c2185b);color:#fff}
+.btn-pink:hover{opacity:.85}
+.card-area{perspective:1000px;margin-bottom:18px}
+.flashcard{width:100%;max-width:500px;margin:0 auto;height:260px;position:relative;cursor:pointer;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.flashcard.flipped{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;padding:28px;text-align:center}
+.card-front{background:linear-gradient(135deg,rgba(255,20,147,.15),rgba(255,153,51,.1));border:2px solid rgba(255,215,0,.4)}
+.card-back{background:linear-gradient(135deg,rgba(75,0,130,.4),rgba(139,0,0,.3));border:2px solid var(--gold);transform:rotateY(180deg)}
+.card-label{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
+.card-main{font-size:1.7rem;font-weight:800;color:var(--gold);margin-bottom:6px}
+.card-back .card-main{color:var(--saffron);font-size:1.4rem}
+.card-sub{font-size:.9rem;color:var(--muted)}
+.card-hint{font-size:.72rem;color:rgba(255,255,255,.3);margin-top:14px}
+.card-speak-btn{margin-top:12px;background:var(--saffron);border:none;border-radius:50%;width:40px;height:40px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.card-speak-btn:hover{transform:scale(1.1);background:var(--gold)}
+.card-tip{font-size:.75rem;color:#9c5;font-style:italic;margin-top:8px}
+.card-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:16px}
+.nav-arrow{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--border);background:var(--card);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--text)}
+.nav-arrow:hover{border-color:var(--gold);color:var(--gold)}
+.card-counter{font-size:.88rem;color:var(--muted);font-weight:500;min-width:70px;text-align:center}
 
-  /* ── Lesson View ── */
-  .section-heading { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
-  .category-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 14px;
-    margin-bottom: 32px;
-  }
-  .category-card {
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-  .category-card:hover { border-color: var(--saffron); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
-  .category-card.selected { border-color: var(--saffron); background: var(--saffron-pale); }
-  .category-card .cat-icon { font-size: 2.2rem; margin-bottom: 8px; }
-  .category-card .cat-title { font-weight: 600; font-size: 0.95rem; }
-  .category-card .cat-count { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
-  .category-card .cat-progress { font-size: 0.75rem; color: var(--green); font-weight: 600; margin-top: 4px; }
+/* quiz */
+.quiz-setup-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;max-width:500px;margin:0 auto;text-align:center}
+.quiz-setup-wrap h2{font-size:1.3rem;margin-bottom:6px;color:var(--gold)}
+.quiz-setup-wrap p{color:var(--muted);margin-bottom:22px;font-size:.88rem}
+.q-option{margin-bottom:14px;text-align:left}
+.q-option label{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.q-option select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:.88rem;background:#1a1a2e;color:var(--text)}
+.quiz-active-wrap{max-width:600px;margin:0 auto}
+.quiz-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.quiz-pts{font-size:.9rem;color:var(--gold);font-weight:700}
+.quiz-streak{font-size:.88rem;color:var(--saffron)}
+.quiz-prog{font-size:.88rem;color:var(--muted)}
+.quiz-card-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:14px}
+.q-badge{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--pink);font-weight:700;margin-bottom:8px}
+.q-question{font-size:1.2rem;font-weight:700;margin-bottom:18px;color:var(--text)}
+.q-speak{background:rgba(255,153,51,.15);border:1px solid var(--saffron);border-radius:20px;padding:6px 16px;font-size:.83rem;cursor:pointer;color:var(--saffron);font-weight:600;margin-bottom:18px;display:none;align-items:center;gap:6px;font-family:inherit}
+.q-speak:hover{background:var(--saffron);color:#000}
+.q-choices{display:grid;gap:8px}
+.q-choice{width:100%;text-align:left;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;background:rgba(255,255,255,.04);font-size:.9rem;cursor:pointer;transition:all .15s;font-family:inherit;color:var(--text)}
+.q-choice:hover:not(:disabled){border-color:var(--gold);background:rgba(255,215,0,.1)}
+.q-choice.correct{border-color:#4CAF50;background:rgba(76,175,80,.15);color:#4CAF50;font-weight:700}
+.q-choice.wrong{border-color:#e53e3e;background:rgba(229,62,62,.1);color:#e53e3e}
+.q-choice:disabled{cursor:default}
+.q-feedback{padding:10px 14px;border-radius:8px;font-weight:600;font-size:.88rem;margin-top:12px;display:none}
+.q-feedback.correct{background:rgba(76,175,80,.15);color:#4CAF50;display:block}
+.q-feedback.wrong{background:rgba(229,62,62,.1);color:#e53e3e;display:block}
+.q-next{margin-top:14px;width:100%}
+.quiz-result-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:32px 24px;text-align:center;max-width:480px;margin:0 auto}
+.r-emoji{font-size:3.5rem;margin-bottom:10px}
+.r-score{font-size:2.2rem;font-weight:800;color:var(--gold)}
+.r-pts-earned{font-size:1rem;color:var(--pink);font-weight:700;margin:6px 0}
+.r-msg{font-size:.95rem;margin:10px 0 20px;color:var(--text)}
+.r-starlet{background:rgba(255,215,0,.1);border:1px solid var(--gold);border-radius:10px;padding:12px;margin-bottom:18px;font-size:.88rem}
+.r-breakdown{text-align:left;background:rgba(0,0,0,.3);border-radius:10px;padding:14px;margin-bottom:20px}
+.r-breakdown h4{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.bd-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:.83rem}
+.bd-item:last-child{border:none}
+.bd-correct{color:#4CAF50;font-weight:600}
+.bd-wrong{color:#e53e3e}
 
-  .word-list { display: grid; gap: 10px; }
-  .word-row {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .word-row:hover { border-color: var(--saffron); background: var(--saffron-pale); }
-  .word-row.learned { border-left: 4px solid var(--green); }
-  .word-info { flex: 1 }
-  .word-transliteration { font-size: 1.1rem; font-weight: 700; color: var(--saffron); }
-  .word-english { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
-  .word-tip { font-size: 0.75rem; color: #9c5; font-style: italic; margin-top: 3px; }
-  .speak-btn {
-    background: var(--saffron-pale);
-    border: 1.5px solid var(--saffron);
-    border-radius: 50%;
-    width: 40px; height: 40px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .speak-btn:hover { background: var(--saffron); }
-  .speak-btn.speaking { animation: pulse 0.6s infinite alternate; background: var(--saffron); }
-  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
-  .learned-badge { font-size: 0.7rem; background: #e8f5e9; color: var(--green); border: 1px solid #c8e6c9; border-radius: 20px; padding: 2px 8px; font-weight: 600; flex-shrink: 0; }
-  .mark-learned-btn { font-size: 0.75rem; background: none; border: 1.5px solid #ccc; border-radius: 20px; padding: 3px 10px; cursor: pointer; color: var(--text-muted); flex-shrink: 0; transition: all 0.15s; }
-  .mark-learned-btn:hover { border-color: var(--green); color: var(--green); }
+/* star journey */
+.journey-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:24px}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
+.stat-num{font-size:1.8rem;font-weight:800;color:var(--gold)}
+.stat-label{font-size:.75rem;color:var(--muted);margin-top:3px}
+.starlet-ladder{display:grid;gap:10px}
+.ladder-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;gap:14px;align-items:center;opacity:.45;transition:all .2s}
+.ladder-item.unlocked{opacity:1;border-color:rgba(255,215,0,.4)}
+.ladder-item.current{border-color:var(--gold);background:rgba(255,215,0,.08);box-shadow:0 0 20px rgba(255,215,0,.15)}
+.ladder-item.current .ladder-name{color:var(--gold)}
+.ladder-emoji-big{font-size:2.2rem;flex-shrink:0}
+.ladder-info{flex:1}
+.ladder-name{font-size:1rem;font-weight:700}
+.ladder-title{font-size:.73rem;color:var(--pink);text-transform:uppercase;letter-spacing:.8px}
+.ladder-desc{font-size:.78rem;color:var(--muted);margin-top:3px}
+.ladder-pts{font-size:.75rem;color:var(--gold);font-weight:600;margin-top:4px}
+.ladder-lock{font-size:1.2rem;color:var(--muted)}
+.current-badge{background:var(--gold);color:#000;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:8px}
 
-  /* ── Flashcard View ── */
-  .flashcard-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .flashcard-controls select {
-    flex: 1;
-    min-width: 160px;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-size: 0.9rem;
-    background: var(--card);
-    cursor: pointer;
-  }
-  .btn {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-primary { background: var(--saffron); color: white; }
-  .btn-primary:hover { background: #e67e22; transform: translateY(-1px); }
-  .btn-secondary { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
-  .btn-secondary:hover { border-color: var(--saffron); color: var(--saffron); }
-  .btn-green { background: var(--green); color: white; }
-  .btn-green:hover { background: #0d6b06; }
+/* modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:linear-gradient(135deg,#1a0a2e,#2d0a1e);border:2px solid var(--gold);border-radius:20px;padding:36px 28px;text-align:center;max-width:420px;width:100%;position:relative;animation:modalIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes modalIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-emoji{font-size:4rem;margin-bottom:12px;display:block}
+.modal-title{font-size:1.5rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+.modal-subtitle{font-size:.9rem;color:var(--pink);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.modal-quote{font-size:.9rem;font-style:italic;color:var(--text);background:rgba(0,0,0,.4);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:20px}
+.modal-close{background:linear-gradient(135deg,var(--gold),var(--saffron));border:none;border-radius:10px;padding:12px 28px;font-size:1rem;font-weight:700;cursor:pointer;color:#000;transition:opacity .15s}
+.modal-close:hover{opacity:.85}
+.confetti{position:absolute;width:8px;height:8px;border-radius:50%;animation:confettiFall 1.5s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(200px) rotate(720deg);opacity:0}}
 
-  .card-area { perspective: 1000px; margin-bottom: 20px; }
-  .flashcard {
-    width: 100%;
-    max-width: 520px;
-    margin: 0 auto;
-    height: 280px;
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-style: preserve-3d;
-  }
-  .flashcard.flipped { transform: rotateY(180deg); }
-  .card-face {
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    backface-visibility: hidden;
-    padding: 30px;
-    box-shadow: var(--shadow);
-    text-align: center;
-  }
-  .card-front {
-    background: linear-gradient(135deg, var(--saffron-pale), #fff8f0);
-    border: 2px solid var(--saffron);
-  }
-  .card-back {
-    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-    border: 2px solid var(--green);
-    transform: rotateY(180deg);
-  }
-  .card-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
-  .card-main { font-size: 1.8rem; font-weight: 800; color: var(--saffron); margin-bottom: 6px; }
-  .card-back .card-main { color: var(--green); font-size: 1.4rem; }
-  .card-sub { font-size: 1rem; color: var(--text-muted); }
-  .card-hint { font-size: 0.78rem; color: #aaa; margin-top: 16px; }
-  .card-speak {
-    margin-top: 14px;
-    background: var(--saffron);
-    border: none;
-    border-radius: 50%;
-    width: 44px; height: 44px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: white;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .card-speak:hover { background: #e67e22; transform: scale(1.1); }
-  .card-tip-text { font-size: 0.82rem; color: var(--green); font-style: italic; margin-top: 10px; }
+/* progress bar strip */
+.progress-strip{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.prog-label{font-size:.8rem;color:var(--muted);white-space:nowrap}
+.prog-bar{flex:1;background:rgba(255,255,255,.1);border-radius:20px;height:9px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--gold));border-radius:20px;transition:width .5s}
+.prog-count{font-size:.82rem;font-weight:700;color:var(--gold);white-space:nowrap}
 
-  .card-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-  .card-nav .nav-arrow {
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: var(--card);
-    font-size: 1.2rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .card-nav .nav-arrow:hover { border-color: var(--saffron); color: var(--saffron); }
-  .card-counter { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; min-width: 80px; text-align: center; }
-
-  /* ── Quiz View ── */
-  .quiz-setup {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    box-shadow: var(--shadow);
-    max-width: 520px;
-    margin: 0 auto;
-    text-align: center;
-  }
-  .quiz-setup h2 { font-size: 1.4rem; margin-bottom: 8px; }
-  .quiz-setup p { color: var(--text-muted); margin-bottom: 24px; font-size: 0.9rem; }
-  .quiz-options { display: grid; gap: 12px; margin-bottom: 24px; text-align: left; }
-  .quiz-option-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
-  .quiz-option-group select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.9rem; background: var(--bg); }
-
-  .quiz-active { max-width: 600px; margin: 0 auto; }
-  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .quiz-score { font-size: 0.9rem; color: var(--text-muted); }
-  .quiz-score span { color: var(--green); font-weight: 700; }
-  .quiz-progress-nums { font-size: 0.9rem; font-weight: 600; }
-
-  .quiz-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 28px;
-    box-shadow: var(--shadow);
-    margin-bottom: 16px;
-  }
-  .quiz-type-badge { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--saffron); font-weight: 700; margin-bottom: 10px; }
-  .quiz-question { font-size: 1.25rem; font-weight: 700; margin-bottom: 22px; color: var(--text); }
-  .quiz-speak-btn { background: var(--saffron-pale); border: 1.5px solid var(--saffron); border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; cursor: pointer; color: var(--saffron); font-weight: 600; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; }
-  .quiz-speak-btn:hover { background: var(--saffron); color: white; }
-
-  .quiz-choices { display: grid; gap: 10px; }
-  .quiz-choice {
-    width: 100%;
-    text-align: left;
-    padding: 14px 18px;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg);
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: inherit;
-  }
-  .quiz-choice:hover:not(:disabled) { border-color: var(--saffron); background: var(--saffron-pale); }
-  .quiz-choice.correct { border-color: var(--green); background: #e8f5e9; color: var(--green); font-weight: 700; }
-  .quiz-choice.wrong { border-color: #e53e3e; background: #fff5f5; color: #e53e3e; }
-  .quiz-choice:disabled { cursor: default; }
-
-  .quiz-feedback {
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-top: 14px;
-    display: none;
-  }
-  .quiz-feedback.correct { background: #e8f5e9; color: var(--green); display: block; }
-  .quiz-feedback.wrong { background: #fff5f5; color: #e53e3e; display: block; }
-
-  .quiz-next-btn { margin-top: 16px; width: 100%; }
-
-  .quiz-result {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 36px 28px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  .result-emoji { font-size: 4rem; margin-bottom: 12px; }
-  .result-score { font-size: 2.5rem; font-weight: 800; color: var(--saffron); }
-  .result-label { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 6px; }
-  .result-msg { font-size: 1rem; margin-bottom: 24px; color: var(--text); }
-  .result-breakdown { text-align: left; background: var(--bg); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
-  .result-breakdown h4 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .breakdown-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
-  .breakdown-item:last-child { border-bottom: none; }
-  .breakdown-item .correct-ans { color: var(--green); font-weight: 600; }
-  .breakdown-item .your-ans { color: #e53e3e; }
-
-  /* ── Progress View ── */
-  .progress-view-header { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
-  .stat-card { background: var(--card); border-radius: var(--radius); padding: 18px; text-align: center; border: 1px solid var(--border); box-shadow: var(--shadow); }
-  .stat-num { font-size: 2rem; font-weight: 800; color: var(--saffron); }
-  .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
-  .category-progress-list { display: grid; gap: 10px; }
-  .cat-prog-row { background: var(--card); border-radius: 12px; padding: 14px 18px; border: 1px solid var(--border); }
-  .cat-prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .cat-prog-name { font-weight: 600; font-size: 0.9rem; }
-  .cat-prog-frac { font-size: 0.8rem; color: var(--text-muted); }
-  .mini-bar { background: #f0f0f0; border-radius: 20px; height: 8px; overflow: hidden; }
-  .mini-bar-fill { height: 100%; background: linear-gradient(90deg, var(--saffron), var(--green-light)); border-radius: 20px; transition: width 0.5s; }
-  .reset-btn { margin-top: 24px; background: none; border: 2px solid #fee; color: #e53e3e; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.15s; }
-  .reset-btn:hover { background: #fff5f5; }
-
-  /* ── Toasts & misc ── */
-  .toast {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--text);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-size: 0.88rem;
-    font-weight: 500;
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 999;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  .no-speech-warning { background: #fff8e1; border: 1px solid #ffc107; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: #856404; margin-bottom: 16px; }
-
-  @media (max-width: 500px) {
-    .flashcard { height: 240px; }
-    .card-main { font-size: 1.5rem; }
-  }
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a0a2e;border:1px solid var(--gold);color:var(--gold);padding:10px 22px;border-radius:20px;font-size:.86rem;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.no-speech{background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.4);border-radius:10px;padding:10px 14px;font-size:.8rem;color:#ffc107;margin-bottom:14px;display:none}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="header-top">
-    <div class="logo">🇮🇳</div>
+  <div class="header-inner">
+    <div class="header-logo">🎬</div>
     <div class="header-text">
-      <h1>Seekho Hindi</h1>
-      <p>Hindi for English speakers — using transliteration & audio</p>
+      <h1>Seekho Hindi ✨ Bollywood Edition</h1>
+      <p>Learn Hindi through iconic Bollywood films</p>
     </div>
   </div>
   <nav>
-    <button class="nav-btn active" onclick="showView('lessons')" id="tab-lessons">📚 Lessons</button>
+    <button class="nav-btn active" onclick="showView('home')" id="tab-home">🏠 Home</button>
+    <button class="nav-btn" onclick="showView('chapters')" id="tab-chapters">📚 Chapters</button>
     <button class="nav-btn" onclick="showView('flashcards')" id="tab-flashcards">🃏 Flashcards</button>
     <button class="nav-btn" onclick="showView('quiz')" id="tab-quiz">✏️ Quiz</button>
-    <button class="nav-btn" onclick="showView('progress')" id="tab-progress">📊 Progress</button>
+    <button class="nav-btn" onclick="showView('journey')" id="tab-journey">🌟 Star Journey</button>
   </nav>
 </header>
 
 <main>
-  <!-- ═══ LESSONS VIEW ═══ -->
-  <div class="view active" id="view-lessons">
-    <div class="progress-strip">
-      <span class="label">Overall progress</span>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="overall-bar" style="width:0%"></div></div>
-      <span class="count" id="overall-count">0 / 0</span>
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="home-grid">
+      <div class="starlet-card" id="home-starlet-card"></div>
+      <div class="quote-card" id="home-quote"></div>
     </div>
-    <div id="speech-warning" class="no-speech-warning" style="display:none">
-      ⚠️ Your browser doesn't support speech synthesis. Audio playback won't work. Try Chrome or Edge.
-    </div>
-    <div class="section-heading">Choose a category</div>
-    <div class="category-grid" id="category-grid"></div>
-    <div id="word-section" style="display:none">
-      <div class="section-heading" id="word-section-title"></div>
-      <div class="word-list" id="word-list"></div>
-    </div>
+    <div class="section-title">🎯 Recent Quizzes</div>
+    <div class="recent-list" id="home-recent"></div>
+    <button class="btn btn-gold" style="margin-top:20px;width:100%;padding:14px;font-size:1rem" onclick="showView('chapters')">🎬 Start Learning →</button>
   </div>
 
-  <!-- ═══ FLASHCARD VIEW ═══ -->
+  <!-- CHAPTERS -->
+  <div class="view" id="view-chapters">
+    <div class="progress-strip">
+      <span class="prog-label">Overall progress</span>
+      <div class="prog-bar"><div class="prog-fill" id="overall-fill" style="width:0%"></div></div>
+      <span class="prog-count" id="overall-count">0 / 0</span>
+    </div>
+    <div class="no-speech" id="speech-warn">⚠️ Your browser doesn't support speech synthesis. Try Chrome or Edge.</div>
+    <div class="chapters-grid" id="chapters-grid"></div>
+  </div>
+
+  <!-- LESSON DETAIL -->
+  <div class="view" id="view-lesson">
+    <div class="lesson-header" id="lesson-header">
+      <div class="lesson-header-content">
+        <button class="lesson-back" onclick="showView('chapters')">← Back to Chapters</button>
+        <div class="lesson-title" id="lesson-title"></div>
+        <div class="lesson-meta" id="lesson-meta"></div>
+      </div>
+    </div>
+    <div class="dialogue-section" id="lesson-dialogue"></div>
+    <div class="section-title">📖 Vocabulary</div>
+    <div class="word-list" id="lesson-words"></div>
+    <button class="chapter-quiz-btn" id="lesson-quiz-btn">✏️ Quiz This Chapter →</button>
+  </div>
+
+  <!-- FLASHCARDS -->
   <div class="view" id="view-flashcards">
-    <div class="flashcard-controls">
-      <select id="fc-category">
-        <option value="all">All categories</option>
-      </select>
-      <button class="btn btn-secondary" onclick="shuffleFlashcards()">🔀 Shuffle</button>
-      <button class="btn btn-primary" onclick="markCardLearned()">✅ Mark learned</button>
+    <div class="fc-controls">
+      <select id="fc-cat"><option value="all">All chapters</option></select>
+      <button class="btn btn-outline" onclick="shuffleFC()">🔀 Shuffle</button>
+      <button class="btn btn-pink" onclick="markFCLearned()">✅ Learned</button>
     </div>
     <div class="card-area">
       <div class="flashcard" id="flashcard" onclick="flipCard()">
-        <div class="card-face card-front" id="card-front">
+        <div class="card-face card-front">
           <div class="card-label">English</div>
-          <div class="card-main" id="fc-english"></div>
+          <div class="card-main" id="fc-eng"></div>
           <div class="card-hint">Tap to reveal Hindi</div>
         </div>
-        <div class="card-face card-back" id="card-back">
+        <div class="card-face card-back">
           <div class="card-label">Hindi (transliteration)</div>
           <div class="card-main" id="fc-hindi"></div>
-          <div class="card-sub" id="fc-english-back"></div>
-          <button class="card-speak" onclick="event.stopPropagation(); speakWord(currentCard.devanagari)">🔊</button>
-          <div class="card-tip-text" id="fc-tip"></div>
+          <div class="card-sub" id="fc-eng-back"></div>
+          <button class="card-speak-btn" onclick="event.stopPropagation();speakWord(currentFC&&currentFC.devanagari)">🔊</button>
+          <div class="card-tip" id="fc-tip"></div>
         </div>
       </div>
     </div>
     <div class="card-nav">
-      <button class="nav-arrow" onclick="prevCard()">◀</button>
-      <span class="card-counter" id="card-counter">1 / 1</span>
-      <button class="nav-arrow" onclick="nextCard()">▶</button>
+      <button class="nav-arrow" onclick="prevFC()">◀</button>
+      <span class="card-counter" id="fc-counter">1 / 1</span>
+      <button class="nav-arrow" onclick="nextFC()">▶</button>
     </div>
-    <div style="text-align:center; color:var(--text-muted); font-size:0.82rem">Tap the card to flip • Use arrows to navigate</div>
+    <div style="text-align:center;color:var(--muted);font-size:.78rem">Tap card to flip • Auto-speaks Hindi on reveal</div>
   </div>
 
-  <!-- ═══ QUIZ VIEW ═══ -->
+  <!-- QUIZ -->
   <div class="view" id="view-quiz">
-    <div id="quiz-setup" class="quiz-setup">
-      <h2>Test your Hindi!</h2>
-      <p>Choose your settings and start a quiz</p>
-      <div class="quiz-options">
-        <div class="quiz-option-group">
-          <label>Category</label>
-          <select id="q-category">
-            <option value="all">All categories</option>
-          </select>
-        </div>
-        <div class="quiz-option-group">
-          <label>Quiz type</label>
-          <select id="q-type">
-            <option value="en-to-hi">English → Hindi (transliteration)</option>
-            <option value="hi-to-en">Hindi → English</option>
-            <option value="audio">Hear it → Pick English</option>
-            <option value="mixed">Mixed</option>
-          </select>
-        </div>
-        <div class="quiz-option-group">
-          <label>Number of questions</label>
-          <select id="q-count">
-            <option value="5">5 questions</option>
-            <option value="10" selected>10 questions</option>
-            <option value="15">15 questions</option>
-            <option value="20">20 questions</option>
-          </select>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="width:100%; padding:14px" onclick="startQuiz()">Start Quiz →</button>
+    <div id="quiz-setup" class="quiz-setup-wrap">
+      <h2>🎬 Bollywood Quiz!</h2>
+      <p>Test your Hindi and climb the starlet ladder</p>
+      <div class="q-option"><label>Chapter</label>
+        <select id="q-cat"><option value="all">All chapters</option></select></div>
+      <div class="q-option"><label>Quiz Type</label>
+        <select id="q-type">
+          <option value="en-to-hi">English → Hindi</option>
+          <option value="hi-to-en">Hindi → English</option>
+          <option value="audio">Hear it → Pick English</option>
+          <option value="mixed">Mixed</option>
+        </select></div>
+      <div class="q-option"><label>Questions</label>
+        <select id="q-count">
+          <option value="5">5 questions</option>
+          <option value="10" selected>10 questions</option>
+          <option value="15">15 questions</option>
+        </select></div>
+      <button class="btn btn-gold" style="width:100%;padding:14px;font-size:1rem;margin-top:6px" onclick="startQuiz()">Start Quiz →</button>
     </div>
-
-    <div id="quiz-active" class="quiz-active" style="display:none">
-      <div class="quiz-header">
-        <div class="quiz-score">Score: <span id="q-score">0</span></div>
-        <div class="quiz-progress-nums" id="q-progress">1 / 10</div>
+    <div id="quiz-active" class="quiz-active-wrap" style="display:none">
+      <div class="quiz-hdr">
+        <div class="quiz-pts">⭐ <span id="q-pts-display">0</span> pts</div>
+        <div class="quiz-streak" id="q-streak-display"></div>
+        <div class="quiz-prog" id="q-prog">1 / 10</div>
       </div>
-      <div class="quiz-card">
-        <div class="quiz-type-badge" id="q-type-badge"></div>
-        <div class="quiz-question" id="q-question"></div>
-        <button class="quiz-speak-btn" id="q-speak-btn" style="display:none" onclick="speakWord(currentQuiz.devanagari)">🔊 Hear it</button>
-        <div class="quiz-choices" id="q-choices"></div>
-        <div class="quiz-feedback" id="q-feedback"></div>
-        <button class="btn btn-primary quiz-next-btn" id="q-next" style="display:none" onclick="nextQuestion()">Next →</button>
+      <div class="quiz-card-wrap">
+        <div class="q-badge" id="q-badge"></div>
+        <div class="q-question" id="q-question"></div>
+        <button class="q-speak" id="q-speak" onclick="speakWord(currentQWord&&currentQWord.devanagari)">🔊 Hear it</button>
+        <div class="q-choices" id="q-choices"></div>
+        <div class="q-feedback" id="q-feedback"></div>
+        <button class="btn btn-gold q-next" id="q-next" style="display:none" onclick="nextQ()">Next →</button>
       </div>
     </div>
-
-    <div id="quiz-result" class="quiz-result" style="display:none">
-      <div class="result-emoji" id="r-emoji"></div>
-      <div class="result-label">Your score</div>
-      <div class="result-score" id="r-score"></div>
-      <div class="result-msg" id="r-msg"></div>
-      <div class="result-breakdown" id="r-breakdown"></div>
-      <button class="btn btn-primary" style="width:100%; margin-bottom:10px" onclick="startQuiz()">Try again</button>
-      <button class="btn btn-secondary" style="width:100%" onclick="showQuizSetup()">Change settings</button>
+    <div id="quiz-result" class="quiz-result-wrap" style="display:none">
+      <div class="r-emoji" id="r-emoji"></div>
+      <div style="color:var(--muted);font-size:.82rem;margin-bottom:4px">Your score</div>
+      <div class="r-score" id="r-score"></div>
+      <div class="r-pts-earned" id="r-pts-earned"></div>
+      <div class="r-msg" id="r-msg"></div>
+      <div class="r-starlet" id="r-starlet"></div>
+      <div class="r-breakdown" id="r-breakdown"></div>
+      <button class="btn btn-gold" style="width:100%;margin-bottom:10px;padding:12px" onclick="startQuiz()">Try Again</button>
+      <button class="btn btn-outline" style="width:100%;padding:12px" onclick="showQuizSetup()">Change Settings</button>
     </div>
   </div>
 
-  <!-- ═══ PROGRESS VIEW ═══ -->
-  <div class="view" id="view-progress">
-    <div class="progress-view-header">Your progress</div>
-    <div class="stats-grid" id="stats-grid"></div>
-    <div class="section-heading">By category</div>
-    <div class="category-progress-list" id="cat-progress-list"></div>
-    <button class="reset-btn" onclick="confirmReset()">🗑 Reset all progress</button>
+  <!-- STAR JOURNEY -->
+  <div class="view" id="view-journey">
+    <div class="section-title">🌟 Your Bollywood Star Journey</div>
+    <div class="journey-stats" id="journey-stats"></div>
+    <div class="section-title">🎭 Starlet Ladder</div>
+    <div class="starlet-ladder" id="starlet-ladder"></div>
   </div>
 </main>
 
 <div class="toast" id="toast"></div>
+<div id="modal-overlay" class="modal-overlay" style="display:none">
+  <div class="modal-box" id="modal-box"></div>
+</div>
 
 <script>
-// ════════════════════════════════════════
+// ═══════════════════════════════════
 // DATA
-// ════════════════════════════════════════
-const curriculum = {
-  greetings: {
-    title: "Greetings & Basics",
-    icon: "🙏",
-    words: [
-      { english: "Hello / Greetings", transliteration: "Namaste", devanagari: "नमस्ते", tip: "Press palms together while saying this" },
-      { english: "Thank you", transliteration: "Dhanyavaad", devanagari: "धन्यवाद", tip: "" },
-      { english: "You're welcome", transliteration: "Koi baat nahi", devanagari: "कोई बात नहीं", tip: "Literally: 'It's nothing'" },
-      { english: "Please", transliteration: "Kripaya", devanagari: "कृपया", tip: "" },
-      { english: "Sorry / Excuse me", transliteration: "Maafi kijiye", devanagari: "माफी कीजिए", tip: "" },
-      { english: "Yes", transliteration: "Haan", devanagari: "हाँ", tip: "" },
-      { english: "No", transliteration: "Nahi", devanagari: "नहीं", tip: "" },
-      { english: "Good morning", transliteration: "Suprabhat", devanagari: "सुप्रभात", tip: "" },
-      { english: "Good night", transliteration: "Shubh ratri", devanagari: "शुभ रात्रि", tip: "" },
-      { english: "How are you?", transliteration: "Aap kaise hain?", devanagari: "आप कैसे हैं?", tip: "Formal. Use 'Tum kaise ho?' with friends" },
-      { english: "I'm fine", transliteration: "Main theek hoon", devanagari: "मैं ठीक हूँ", tip: "" },
-      { english: "What is your name?", transliteration: "Aapka naam kya hai?", devanagari: "आपका नाम क्या है?", tip: "" },
-      { english: "My name is…", transliteration: "Mera naam … hai", devanagari: "मेरा नाम … है", tip: "" },
-      { english: "Goodbye", transliteration: "Alvida / Phir milenge", devanagari: "अलविदा / फिर मिलेंगे", tip: "'Phir milenge' means 'We'll meet again'" },
+// ═══════════════════════════════════
+const starlets = [
+  {name:"Nayi Ladki",title:"New on Set",emoji:"🌸",points:0,color:"#FF69B4",desc:"Every star starts somewhere! The set awaits.",quote:"Sapne dekhna shuru karo. (Start dreaming.)"},
+  {name:"Rekha",title:"Classic Icon",emoji:"💄",points:50,color:"#8B0000",desc:"1970s–80s legend. Umrao Jaan. Grace personified.",quote:"Mohabbat kabhi nahi marti. (Love never dies.)"},
+  {name:"Sridevi",title:"First Female Superstar",emoji:"🌪️",points:150,color:"#4B0082",desc:"The original No. 1. Mr. India. English Vinglish.",quote:"Hawa Hawai! (Gone with the wind!)"},
+  {name:"Madhuri Dixit",title:"Dancing Queen",emoji:"💃",points:300,color:"#FF1493",desc:"Dhak Dhak! Devdas. Hum Aapke Hain Koun.",quote:"Ek do teen, chaar paanch chhe! (One two three, four five six!)"},
+  {name:"Kajol",title:"Queen of Drama",emoji:"❤️",points:500,color:"#DC143C",desc:"DDLJ forever. Kabhi Khushi. Kuch Kuch Hota Hai.",quote:"Tujhe dekha toh yeh jaana sanam. (When I saw you, I understood, beloved.)"},
+  {name:"Deepika Padukone",title:"Modern Bollywood Icon",emoji:"✨",points:750,color:"#DAA520",desc:"Bajirao Mastani. Padmaavat. Piku. Global superstar.",quote:"Deewani Mastani hoon main! (I am a crazy lover!)"},
+  {name:"Aishwarya Rai Bachchan",title:"The Eternal Queen 👑",emoji:"👑",points:1000,color:"#FFD700",desc:"Miss World 1994. Devdas. Jodhaa Akbar. The most beautiful.",quote:"Nimbooda nimbooda nimbooda... (From Hum Dil De Chuke Sanam)"}
+];
+
+const bollywoodQuotes=[
+  {quote:"Pyaar kiya toh darna kya?",film:"Mughal-E-Azam (1960)",meaning:"Why fear when you have loved?"},
+  {quote:"Kitne aadmi the?",film:"Sholay (1975)",meaning:"How many men were there?"},
+  {quote:"Jo darr gaya, samjho marr gaya.",film:"Sholay (1975)",meaning:"He who feared, consider him dead."},
+  {quote:"Ja Simran, jee le apni zindagi!",film:"DDLJ (1995)",meaning:"Go Simran, live your life!"},
+  {quote:"Aal izz well!",film:"3 Idiots (2009)",meaning:"All is well!"},
+  {quote:"Bade bade deshon mein aisi choti choti baatein hoti rehti hain.",film:"DDLJ (1995)",meaning:"In big countries, such small things keep happening."},
+  {quote:"Dil chahta hai!",film:"Dil Chahta Hai (2001)",meaning:"The heart desires!"},
+  {quote:"Main tumhara Rocky hoon!",film:"Rocky Aur Rani (2023)",meaning:"I am your Rocky!"},
+  {quote:"Kuch kuch hota hai, Anjali — tum nahi samjhogi.",film:"Kuch Kuch Hota Hai (1998)",meaning:"Something happens, Anjali — you won't understand."},
+  {quote:"Pushpa, I hate tears.",film:"Amar Prem (1972)",meaning:"The classic line of endearment."}
+];
+
+const chapterMeta={
+  basics:{key:"basics",title:"Basics",subtitle:"Beginner vocabulary",emoji:"📖",type:"basics",gradient:"linear-gradient(135deg,#1a3a1a,#0d2e3a)",badge:"Chapter 1",year:""},
+  rocky:{key:"rocky",title:"Rocky Aur Rani Ki Prem Kahani",subtitle:"A modern love story",emoji:"🌹",type:"film",gradient:"linear-gradient(135deg,#8B0050,#3d0030)",badge:"Chapter 2",year:"2023",
+    director:"Karan Johar",stars:"Ranveer Singh · Alia Bhatt",genre:"Romance / Drama",emojis:"🌹💑🎊",
+    dialogue:[
+      {speaker:"Rocky",hindi:"Oye suno! Aap kaun hain?",eng:"Hey listen! Who are you?",dev:"ओये सुनो! आप कौन हैं?"},
+      {speaker:"Rani",hindi:"Main Rani hoon. Journalist. Aur aap?",eng:"I am Rani. A journalist. And you?",dev:"मैं रानी हूँ। जर्नलिस्ट। और आप?"},
+      {speaker:"Rocky",hindi:"Main Rocky hoon. Yaar, aap bahut sundar hain!",eng:"I am Rocky. Friend, you are very beautiful!",dev:"मैं रॉकी हूँ। यार, आप बहुत सुंदर हैं!"},
+      {speaker:"Rani",hindi:"Yeh kya tarika hai baat karne ka?",eng:"What kind of way is this to speak?",dev:"यह क्या तरीका है बात करने का?"},
+      {speaker:"Rocky",hindi:"Sacchi baat bolna galat nahi hai!",eng:"Speaking the truth is not wrong!",dev:"सच्ची बात बोलना गलत नहीं है!"},
+      {speaker:"Rani",hindi:"Aap pagal hain!",eng:"You are crazy!",dev:"आप पागल हैं!"}
+    ],
+    words:[
+      {english:"Beautiful",transliteration:"Sundar",devanagari:"सुंदर",tip:"Used for people, places, or things"},
+      {english:"True / Really (informal)",transliteration:"Sacchi",devanagari:"सच्ची",tip:"Very common in spoken Hindi"},
+      {english:"Wrong",transliteration:"Galat",devanagari:"गलत",tip:"Opposite: Sahi (correct)"},
+      {english:"Way / Manner",transliteration:"Tarika",devanagari:"तरीका",tip:"'Yeh kya tarika hai?' = What kind of way is this?"},
+      {english:"To speak",transliteration:"Bolna",devanagari:"बोलना",tip:"'Bol' = speak (command)"},
+      {english:"Who",transliteration:"Kaun",devanagari:"कौन",tip:"'Kaun hai?' = Who is it?"},
+      {english:"Very",transliteration:"Bahut",devanagari:"बहुत",tip:"Use before adjectives: bahut accha = very good"},
+      {english:"Friend / Buddy (informal)",transliteration:"Yaar",devanagari:"यार",tip:"Extremely common in casual speech"},
+      {english:"Listen! (command)",transliteration:"Suno",devanagari:"सुनो",tip:"Polite: 'Suniye'. Informal: 'Sun'"},
+      {english:"Crazy",transliteration:"Pagal",devanagari:"पागल",tip:"Said affectionately or as an insult"}
     ]
   },
-  numbers: {
-    title: "Numbers 1–20",
-    icon: "🔢",
-    words: [
-      { english: "One", transliteration: "Ek", devanagari: "एक", tip: "" },
-      { english: "Two", transliteration: "Do", devanagari: "दो", tip: "" },
-      { english: "Three", transliteration: "Teen", devanagari: "तीन", tip: "" },
-      { english: "Four", transliteration: "Chaar", devanagari: "चार", tip: "" },
-      { english: "Five", transliteration: "Paanch", devanagari: "पाँच", tip: "" },
-      { english: "Six", transliteration: "Chhe", devanagari: "छह", tip: "" },
-      { english: "Seven", transliteration: "Saat", devanagari: "सात", tip: "" },
-      { english: "Eight", transliteration: "Aath", devanagari: "आठ", tip: "" },
-      { english: "Nine", transliteration: "Nau", devanagari: "नौ", tip: "" },
-      { english: "Ten", transliteration: "Das", devanagari: "दस", tip: "" },
-      { english: "Eleven", transliteration: "Gyaarah", devanagari: "ग्यारह", tip: "" },
-      { english: "Twelve", transliteration: "Baarah", devanagari: "बारह", tip: "" },
-      { english: "Thirteen", transliteration: "Terah", devanagari: "तेरह", tip: "" },
-      { english: "Fourteen", transliteration: "Chaudah", devanagari: "चौदह", tip: "" },
-      { english: "Fifteen", transliteration: "Pandrah", devanagari: "पंद्रह", tip: "" },
-      { english: "Twenty", transliteration: "Bees", devanagari: "बीस", tip: "" },
-      { english: "Hundred", transliteration: "Sau", devanagari: "सौ", tip: "" },
-      { english: "Thousand", transliteration: "Hazaar", devanagari: "हज़ार", tip: "" },
+  idiots:{key:"idiots",title:"3 Idiots",subtitle:"Chase dreams, not grades",emoji:"🎓",type:"film",gradient:"linear-gradient(135deg,#0a2a4a,#0d3d2a)",badge:"Chapter 3",year:"2009",
+    director:"Rajkumar Hirani",stars:"Aamir Khan · R. Madhavan · Sharman Joshi",genre:"Comedy / Drama",emojis:"🎓📚✏️",
+    dialogue:[
+      {speaker:"Rancho",hindi:"Yaar, engineering kyon padh rahe ho?",eng:"Friend, why are you studying engineering?",dev:"यार, इंजीनियरिंग क्यों पढ़ रहे हो?"},
+      {speaker:"Farhan",hindi:"Papa chahte hain. Unki marzi hai.",eng:"Father wants it. It is his wish.",dev:"पापा चाहते हैं। उनकी मर्ज़ी है।"},
+      {speaker:"Rancho",hindi:"Apni marzi se kuch karo! Dil ki suno.",eng:"Do something by your own will! Listen to your heart.",dev:"अपनी मर्ज़ी से कुछ करो! दिल की सुनो।"},
+      {speaker:"Raju",hindi:"Mushkil hai yaar. Ghar ki zaroorat hai.",eng:"It's difficult friend. The family needs it.",dev:"मुश्किल है यार। घर की ज़रूरत है।"},
+      {speaker:"Rancho",hindi:"Daro mat. Aal izz well!",eng:"Don't be afraid. All is well!",dev:"डरो मत। ऑल इज़ वेल!"}
+    ],
+    words:[
+      {english:"Why",transliteration:"Kyon",devanagari:"क्यों",tip:"'Kyon nahi?' = Why not?"},
+      {english:"Studies / Education",transliteration:"Padhai",devanagari:"पढ़ाई",tip:"'Padhai karo!' = Study!"},
+      {english:"Difficult",transliteration:"Mushkil",devanagari:"मुश्किल",tip:"Opposite: Aasaan (easy)"},
+      {english:"Wish / Will",transliteration:"Marzi",devanagari:"मर्ज़ी",tip:"'Apni marzi' = your own choice"},
+      {english:"To want",transliteration:"Chahna",devanagari:"चाहना",tip:"'Main chahta hoon' = I want"},
+      {english:"Heart",transliteration:"Dil",devanagari:"दिल",tip:"One of the most used words in Bollywood!"},
+      {english:"Be afraid (command)",transliteration:"Daro",devanagari:"डरो",tip:"'Daro mat' = Don't be afraid"},
+      {english:"Necessity / Need",transliteration:"Zaroorat",devanagari:"ज़रूरत",tip:"'Zaroorat nahi' = no need"},
+      {english:"Own / Your own",transliteration:"Apna / Apni",devanagari:"अपना / अपनी",tip:"'Apna' (m), 'Apni' (f)"},
+      {english:"Amazing / Incredible",transliteration:"Kamaal",devanagari:"कमाल",tip:"'Kamaal hai!' = That's amazing!"}
     ]
   },
-  colors: {
-    title: "Colors",
-    icon: "🎨",
-    words: [
-      { english: "Red", transliteration: "Laal", devanagari: "लाल", tip: "" },
-      { english: "Blue", transliteration: "Neela", devanagari: "नीला", tip: "" },
-      { english: "Green", transliteration: "Hara", devanagari: "हरा", tip: "" },
-      { english: "Yellow", transliteration: "Peela", devanagari: "पीला", tip: "" },
-      { english: "White", transliteration: "Safed", devanagari: "सफ़ेद", tip: "" },
-      { english: "Black", transliteration: "Kaala", devanagari: "काला", tip: "" },
-      { english: "Orange", transliteration: "Narangi", devanagari: "नारंगी", tip: "" },
-      { english: "Pink", transliteration: "Gulaabi", devanagari: "गुलाबी", tip: "Literally 'rose-colored'" },
-      { english: "Purple", transliteration: "Baingani", devanagari: "बैंगनी", tip: "" },
-      { english: "Brown", transliteration: "Bhoora", devanagari: "भूरा", tip: "" },
-      { english: "Grey", transliteration: "Slatee / Dhoosra", devanagari: "स्लेटी / धूसरा", tip: "" },
-      { english: "Golden", transliteration: "Sona", devanagari: "सोना", tip: "" },
+  k3g:{key:"k3g",title:"Kabhi Khushi Kabhie Gham",subtitle:"It's all about loving your parents",emoji:"👨‍👩‍👧",type:"film",gradient:"linear-gradient(135deg,#3d2800,#6b4400)",badge:"Chapter 4",year:"2001",
+    director:"Karan Johar",stars:"Amitabh Bachchan · Shah Rukh Khan · Kajol · Hrithik Roshan",genre:"Family / Drama",emojis:"👨‍👩‍👧💛🏠",
+    dialogue:[
+      {speaker:"Rohan",hindi:"Papa! Bhaiya aa gaye! Ghar aa gaye!",eng:"Father! Big brother has come! He has come home!",dev:"पापा! भैया आ गए! घर आ गए!"},
+      {speaker:"Yash",hindi:"Mere ghar mein uska koi jagah nahi hai.",eng:"He has no place in my house.",dev:"मेरे घर में उसका कोई जगह नहीं है।"},
+      {speaker:"Nandini",hindi:"Yeh parivaar hai, pyaar hai. Sab bhool jaao.",eng:"This is family, this is love. Forget everything.",dev:"यह परिवार है, प्यार है। सब भूल जाओ।"},
+      {speaker:"Rahul",hindi:"Papa, main maafi maangta hoon.",eng:"Father, I ask for forgiveness.",dev:"पापा, मैं माफी माँगता हूँ।"},
+      {speaker:"Yash",hindi:"Ghar wapas aa jao, beta.",eng:"Come back home, son.",dev:"घर वापस आ जाओ, बेटा।"}
+    ],
+    words:[
+      {english:"Home / House",transliteration:"Ghar",devanagari:"घर",tip:"'Ghar jaana' = to go home"},
+      {english:"Family",transliteration:"Parivaar",devanagari:"परिवार",tip:"Core concept in Indian culture"},
+      {english:"Forgiveness / Sorry",transliteration:"Maafi",devanagari:"माफी",tip:"'Maafi maangna' = to ask for forgiveness"},
+      {english:"Place / Space",transliteration:"Jagah",devanagari:"जगह",tip:"'Jagah hai?' = Is there space/room?"},
+      {english:"To forget",transliteration:"Bhoolna",devanagari:"भूलना",tip:"'Bhool gaya' = I forgot"},
+      {english:"To come / Has arrived",transliteration:"Aa jaana",devanagari:"आ जाना",tip:"'Aa gaye' = (they) have come"},
+      {english:"Son (also term of endearment)",transliteration:"Beta",devanagari:"बेटा",tip:"Elders use 'beta' for any young person"},
+      {english:"Back / Return",transliteration:"Wapas",devanagari:"वापस",tip:"'Wapas aao' = come back"},
+      {english:"Relationship / Bond",transliteration:"Rishta",devanagari:"रिश्ता",tip:"'Kya rishta hai?' = What is the relationship?"},
+      {english:"All / Everyone",transliteration:"Sab",devanagari:"सब",tip:"'Sab theek hai' = everything is fine"}
     ]
   },
-  family: {
-    title: "Family",
-    icon: "👨‍👩‍👧",
-    words: [
-      { english: "Mother", transliteration: "Maa / Maata ji", devanagari: "माँ", tip: "Add 'ji' for extra respect" },
-      { english: "Father", transliteration: "Pita ji / Baap", devanagari: "पिता जी", tip: "" },
-      { english: "Older brother", transliteration: "Bhaiya", devanagari: "भैया", tip: "Also used to address young men respectfully" },
-      { english: "Older sister", transliteration: "Didi", devanagari: "दीदी", tip: "" },
-      { english: "Younger brother/sister", transliteration: "Bhai / Behen", devanagari: "भाई / बहन", tip: "" },
-      { english: "Son", transliteration: "Beta", devanagari: "बेटा", tip: "" },
-      { english: "Daughter", transliteration: "Beti", devanagari: "बेटी", tip: "" },
-      { english: "Grandfather (paternal)", transliteration: "Dada ji", devanagari: "दादा जी", tip: "" },
-      { english: "Grandmother (paternal)", transliteration: "Dadi ji", devanagari: "दादी जी", tip: "" },
-      { english: "Husband", transliteration: "Pati", devanagari: "पति", tip: "" },
-      { english: "Wife", transliteration: "Patni", devanagari: "पत्नी", tip: "" },
-      { english: "Friend", transliteration: "Dost", devanagari: "दोस्त", tip: "" },
+  ddlj:{key:"ddlj",title:"Dilwale Dulhania Le Jayenge",subtitle:"The brave-hearted shall take the bride",emoji:"🌾",type:"film",gradient:"linear-gradient(135deg,#3d3000,#5a4500)",badge:"Chapter 5",year:"1995",
+    director:"Aditya Chopra",stars:"Shah Rukh Khan · Kajol",genre:"Romance / Drama",emojis:"🌾💛🚂",
+    dialogue:[
+      {speaker:"Raj",hindi:"Simran, seedha khadi ho. Aankhein band kar.",eng:"Simran, stand straight. Close your eyes.",dev:"सिमरन, सीधी खड़ी हो। आँखें बंद कर।"},
+      {speaker:"Raj",hindi:"Dil ki baat sun. Kya sun rahi ho?",eng:"Listen to what your heart says. Are you listening?",dev:"दिल की बात सुन। क्या सुन रही हो?"},
+      {speaker:"Simran",hindi:"Mujhe dar lag raha hai, Raj.",eng:"I am feeling afraid, Raj.",dev:"मुझे डर लग रहा है, राज।"},
+      {speaker:"Raj",hindi:"Darr mat. Apni zindagi jee le, Simran.",eng:"Don't be afraid. Live your life, Simran.",dev:"डर मत। अपनी ज़िंदगी जी ले, सिमरन।"},
+      {speaker:"Raj",hindi:"Ja Simran, jaa! Jee le apni zindagi!",eng:"Go Simran, go! Live your life!",dev:"जा सिमरन, जा! जी ले अपनी ज़िंदगी!"}
+    ],
+    words:[
+      {english:"Straight / Directly",transliteration:"Seedha",devanagari:"सीधा",tip:"'Seedha jao' = go straight"},
+      {english:"Eyes",transliteration:"Aankhein",devanagari:"आँखें",tip:"Singular: Aankh. 'Badi aankhein' = big eyes"},
+      {english:"Closed / Shut",transliteration:"Band",devanagari:"बंद",tip:"'Band karo' = close/shut it. Also: shop/office closed"},
+      {english:"Fear",transliteration:"Dar",devanagari:"डर",tip:"'Dar mat' = don't fear. 'Darr gaya' = became afraid"},
+      {english:"Life",transliteration:"Zindagi",devanagari:"ज़िंदगी",tip:"One of the most poetic Hindi words"},
+      {english:"Live! (imperative)",transliteration:"Jee le",devanagari:"जी ले",tip:"'Jee le apni zindagi' — live your life!"},
+      {english:"To know",transliteration:"Pata (hona)",devanagari:"पता (होना)",tip:"'Mujhe pata hai' = I know"},
+      {english:"Dream",transliteration:"Sapna",devanagari:"सपना",tip:"'Sapne dekhna' = to dream"},
+      {english:"Go! (command)",transliteration:"Ja",devanagari:"जा",tip:"Polite: 'Jaiye'. Informal: 'Ja'"},
+      {english:"Brave-hearted person",transliteration:"Dilwala",devanagari:"दिलवाला",tip:"The title! 'Dil' = heart, 'wala' = one who has"}
     ]
   },
-  phrases: {
-    title: "Useful Phrases",
-    icon: "💬",
-    words: [
-      { english: "Where is the bathroom?", transliteration: "Bathroom kahan hai?", devanagari: "बाथरूम कहाँ है?", tip: "" },
-      { english: "How much does it cost?", transliteration: "Yeh kitne ka hai?", devanagari: "यह कितने का है?", tip: "" },
-      { english: "I don't understand", transliteration: "Mujhe samajh nahi aaya", devanagari: "मुझे समझ नहीं आया", tip: "" },
-      { english: "Please speak slowly", transliteration: "Dhire boliye", devanagari: "धीरे बोलिए", tip: "" },
-      { english: "I am hungry", transliteration: "Mujhe bhookh lagi hai", devanagari: "मुझे भूख लगी है", tip: "" },
-      { english: "I am thirsty", transliteration: "Mujhe pyaas lagi hai", devanagari: "मुझे प्यास लगी है", tip: "" },
-      { english: "I don't know", transliteration: "Mujhe nahi pata", devanagari: "मुझे नहीं पता", tip: "" },
-      { english: "Good / Okay", transliteration: "Accha", devanagari: "अच्छा", tip: "Very versatile — 'Accha!' can mean 'Oh really?'" },
-      { english: "Let's go!", transliteration: "Chalo!", devanagari: "चलो!", tip: "" },
-      { english: "Come here", transliteration: "Idhar aao", devanagari: "इधर आओ", tip: "" },
-      { english: "I love you", transliteration: "Main tumse pyaar karta hoon", devanagari: "मैं तुमसे प्यार करता हूँ", tip: "Use 'karti' instead of 'karta' if the speaker is female" },
-      { english: "What is this?", transliteration: "Yeh kya hai?", devanagari: "यह क्या है?", tip: "" },
-      { english: "Very good!", transliteration: "Bahut accha!", devanagari: "बहुत अच्छा!", tip: "" },
+  sholay:{key:"sholay",title:"Sholay",subtitle:"The greatest Bollywood film ever made",emoji:"🔥",type:"film",gradient:"linear-gradient(135deg,#5a1a00,#3d0d00)",badge:"Chapter 6",year:"1975",
+    director:"Ramesh Sippy",stars:"Amitabh Bachchan · Dharmendra · Hema Malini · Amjad Khan",genre:"Action / Drama",emojis:"🔥⚔️🌵",
+    dialogue:[
+      {speaker:"Gabbar Singh",hindi:"Kitne aadmi the?",eng:"How many men were there?",dev:"कितने आदमी थे?"},
+      {speaker:"Samba",hindi:"Sardar, do.",eng:"Leader, two.",dev:"सरदार, दो।"},
+      {speaker:"Gabbar Singh",hindi:"Bahut nainsaafi hai!",eng:"This is very unjust!",dev:"बहुत नाइंसाफी है!"},
+      {speaker:"Jai",hindi:"Jo darr gaya, samjho marr gaya.",eng:"He who feared, consider him dead.",dev:"जो डर गया, समझो मर गया।"},
+      {speaker:"Veeru",hindi:"Hum dono milke ladenge. Dost dost na raha toh kya raha?",eng:"We two will fight together. What's left if friendship is gone?",dev:"हम दोनों मिलके लड़ेंगे। दोस्त दोस्त न रहा तो क्या रहा?"}
+    ],
+    words:[
+      {english:"How many",transliteration:"Kitne",devanagari:"कितने",tip:"'Kitna?' (m) 'Kitni?' (f) 'Kitne?' (pl)"},
+      {english:"Man / Person",transliteration:"Aadmi",devanagari:"आदमी",tip:"Plural: Aadmi (same). 'Aadmi kaun?' = Who is this person?"},
+      {english:"Leader / Chief",transliteration:"Sardar",devanagari:"सरदार",tip:"Also a Sikh honorific title"},
+      {english:"Injustice",transliteration:"Nainsaafi",devanagari:"नाइंसाफी",tip:"'Insaafi' = justice. 'Nai' prefix = negation"},
+      {english:"Fear (noun/verb)",transliteration:"Darr",devanagari:"डर",tip:"'Darr gaya' = became afraid"},
+      {english:"Consider / Understand",transliteration:"Samjho",devanagari:"समझो",tip:"'Samajh gaya?' = Did you understand?"},
+      {english:"We",transliteration:"Hum",devanagari:"हम",tip:"'Hum dono' = we two. 'Hum sab' = all of us"},
+      {english:"Friend",transliteration:"Dost",devanagari:"दोस्त",tip:"'Dost hai?' = Are you a friend?"},
+      {english:"To fight",transliteration:"Ladna",devanagari:"लड़ना",tip:"'Ladenge' = will fight"},
+      {english:"Free / Independent",transliteration:"Azaad",devanagari:"आज़ाद",tip:"India's freedom fighters are called 'azaad'"}
     ]
   },
-  food: {
-    title: "Food & Drink",
-    icon: "🍛",
-    words: [
-      { english: "Water", transliteration: "Paani", devanagari: "पानी", tip: "" },
-      { english: "Tea", transliteration: "Chai", devanagari: "चाय", tip: "Indian masala chai is spiced milk tea" },
-      { english: "Rice", transliteration: "Chawal", devanagari: "चावल", tip: "" },
-      { english: "Flatbread", transliteration: "Roti", devanagari: "रोटी", tip: "Also called 'chapati'" },
-      { english: "Vegetables / Curry", transliteration: "Sabzi", devanagari: "सब्जी", tip: "" },
-      { english: "Fruit", transliteration: "Phal", devanagari: "फल", tip: "" },
-      { english: "Milk", transliteration: "Doodh", devanagari: "दूध", tip: "" },
-      { english: "Sugar", transliteration: "Cheeni", devanagari: "चीनी", tip: "Literally means 'Chinese'" },
-      { english: "Food / Meal", transliteration: "Khaana", devanagari: "खाना", tip: "Also means 'to eat' as a verb" },
-      { english: "Delicious", transliteration: "Swaadisht", devanagari: "स्वादिष्ट", tip: "" },
-      { english: "Sweet", transliteration: "Meetha", devanagari: "मीठा", tip: "" },
-      { english: "Spicy", transliteration: "Teekha", devanagari: "तीखा", tip: "" },
-      { english: "Restaurant", transliteration: "Dhaba / Restaurant", devanagari: "ढाबा", tip: "Dhaba = roadside eatery" },
+  mughal:{key:"mughal",title:"Mughal-E-Azam",subtitle:"Why fear when you have loved?",emoji:"👑",type:"film",gradient:"linear-gradient(135deg,#2d0050,#1a0030)",badge:"Chapter 7",year:"1960",
+    director:"K. Asif",stars:"Dilip Kumar · Madhubala · Prithviraj Kapoor",genre:"Historical / Epic",emojis:"👑🌸⚜️",
+    dialogue:[
+      {speaker:"Anarkali",hindi:"Pyaar kiya toh darna kya? Pyaar kiya koi chori nahi ki!",eng:"Why fear when you have loved? Loving is not a crime!",dev:"प्यार किया तो डरना क्या? प्यार किया कोई चोरी नहीं की!"},
+      {speaker:"Akbar",hindi:"Tune kisne izazat di mohabbat karne ki?",eng:"Who gave you permission to love?",dev:"तूने किसने इजाज़त दी मोहब्बत करने की?"},
+      {speaker:"Anarkali",hindi:"Mohabbat ki koi izazat nahi maangti, huzoor.",eng:"Love does not ask permission, your majesty.",dev:"मोहब्बत की कोई इजाज़त नहीं माँगती, हुज़ूर।"},
+      {speaker:"Salim",hindi:"Meri zindagi ki wajah tum ho, Anarkali.",eng:"You are the reason for my life, Anarkali.",dev:"मेरी ज़िंदगी की वजह तुम हो, अनारकली।"},
+      {speaker:"Anarkali",hindi:"Mohabbat zindagi hai.",eng:"Love is life.",dev:"मोहब्बत ज़िंदगी है।"}
+    ],
+    words:[
+      {english:"To fear",transliteration:"Darna",devanagari:"डरना",tip:"'Darna kya?' = Why fear?"},
+      {english:"Theft / Crime",transliteration:"Chori",devanagari:"चोरी",tip:"'Chori karna' = to steal"},
+      {english:"Permission",transliteration:"Izazat",devanagari:"इजाज़त",tip:"'Izazat hai?' = Do I have permission?"},
+      {english:"Love (deep/Urdu)",transliteration:"Mohabbat",devanagari:"मोहब्बत",tip:"More poetic than 'pyaar'. Common in Urdu poetry"},
+      {english:"Your Majesty / Sir",transliteration:"Huzoor",devanagari:"हुज़ूर",tip:"Used for royalty or deep respect"},
+      {english:"Reason / Cause",transliteration:"Wajah",devanagari:"वजह",tip:"'Kis wajah se?' = For what reason?"},
+      {english:"Fate / Destiny",transliteration:"Taqdeer",devanagari:"तक़दीर",tip:"Very common in Bollywood songs"},
+      {english:"Lover",transliteration:"Aashiq",devanagari:"आशिक़",tip:"'Aashiqui' = the state of being in love"},
+      {english:"Sacrifice",transliteration:"Qurban",devanagari:"क़ुर्बान",tip:"'Main qurban hoon' = I sacrifice myself"},
+      {english:"Love (classic)",transliteration:"Pyaar",devanagari:"प्यार",tip:"The most common word for love in Hindi"}
     ]
-  },
-  time: {
-    title: "Time & Days",
-    icon: "📅",
-    words: [
-      { english: "Today", transliteration: "Aaj", devanagari: "आज", tip: "" },
-      { english: "Tomorrow / Yesterday", transliteration: "Kal", devanagari: "कल", tip: "Same word! Context tells you which" },
-      { english: "Now", transliteration: "Abhi", devanagari: "अभी", tip: "" },
-      { english: "Monday", transliteration: "Somvaar", devanagari: "सोमवार", tip: "" },
-      { english: "Tuesday", transliteration: "Mangalvaar", devanagari: "मंगलवार", tip: "" },
-      { english: "Wednesday", transliteration: "Budhvaar", devanagari: "बुधवार", tip: "" },
-      { english: "Thursday", transliteration: "Guruvaar", devanagari: "गुरुवार", tip: "" },
-      { english: "Friday", transliteration: "Shukravaar", devanagari: "शुक्रवार", tip: "" },
-      { english: "Saturday", transliteration: "Shanivaar", devanagari: "शनिवार", tip: "" },
-      { english: "Sunday", transliteration: "Ravivaar", devanagari: "रविवार", tip: "" },
-      { english: "Morning", transliteration: "Subah", devanagari: "सुबह", tip: "" },
-      { english: "Evening", transliteration: "Shaam", devanagari: "शाम", tip: "" },
-      { english: "Night", transliteration: "Raat", devanagari: "रात", tip: "" },
-    ]
-  },
+  }
 };
 
-// ════════════════════════════════════════
+// Beginner chapter data (Chapter 1)
+const beginnerCats={
+  greetings:{title:"Greetings & Basics",icon:"🙏",words:[
+    {english:"Hello / Greetings",transliteration:"Namaste",devanagari:"नमस्ते",tip:"Press palms together while saying this"},
+    {english:"Thank you",transliteration:"Dhanyavaad",devanagari:"धन्यवाद",tip:""},
+    {english:"You're welcome",transliteration:"Koi baat nahi",devanagari:"कोई बात नहीं",tip:"Literally: It's nothing"},
+    {english:"Please",transliteration:"Kripaya",devanagari:"कृपया",tip:""},
+    {english:"Sorry / Excuse me",transliteration:"Maafi kijiye",devanagari:"माफी कीजिए",tip:""},
+    {english:"Yes",transliteration:"Haan",devanagari:"हाँ",tip:""},
+    {english:"No",transliteration:"Nahi",devanagari:"नहीं",tip:""},
+    {english:"Good morning",transliteration:"Suprabhat",devanagari:"सुप्रभात",tip:""},
+    {english:"Good night",transliteration:"Shubh ratri",devanagari:"शुभ रात्रि",tip:""},
+    {english:"How are you?",transliteration:"Aap kaise hain?",devanagari:"आप कैसे हैं?",tip:"Formal. Informal: Tum kaise ho?"},
+    {english:"I'm fine",transliteration:"Main theek hoon",devanagari:"मैं ठीक हूँ",tip:""},
+    {english:"What is your name?",transliteration:"Aapka naam kya hai?",devanagari:"आपका नाम क्या है?",tip:""},
+    {english:"My name is…",transliteration:"Mera naam … hai",devanagari:"मेरा नाम … है",tip:""},
+    {english:"Goodbye",transliteration:"Alvida / Phir milenge",devanagari:"अलविदा / फिर मिलेंगे",tip:"Phir milenge = We'll meet again"}
+  ]},
+  numbers:{title:"Numbers 1–20",icon:"🔢",words:[
+    {english:"One",transliteration:"Ek",devanagari:"एक",tip:""},{english:"Two",transliteration:"Do",devanagari:"दो",tip:""},{english:"Three",transliteration:"Teen",devanagari:"तीन",tip:""},{english:"Four",transliteration:"Chaar",devanagari:"चार",tip:""},{english:"Five",transliteration:"Paanch",devanagari:"पाँच",tip:""},{english:"Six",transliteration:"Chhe",devanagari:"छह",tip:""},{english:"Seven",transliteration:"Saat",devanagari:"सात",tip:""},{english:"Eight",transliteration:"Aath",devanagari:"आठ",tip:""},{english:"Nine",transliteration:"Nau",devanagari:"नौ",tip:""},{english:"Ten",transliteration:"Das",devanagari:"दस",tip:""},
+    {english:"Eleven",transliteration:"Gyaarah",devanagari:"ग्यारह",tip:""},{english:"Twelve",transliteration:"Baarah",devanagari:"बारह",tip:""},{english:"Twenty",transliteration:"Bees",devanagari:"बीस",tip:""},{english:"Hundred",transliteration:"Sau",devanagari:"सौ",tip:""},{english:"Thousand",transliteration:"Hazaar",devanagari:"हज़ार",tip:""}
+  ]},
+  colors:{title:"Colors",icon:"🎨",words:[
+    {english:"Red",transliteration:"Laal",devanagari:"लाल",tip:""},{english:"Blue",transliteration:"Neela",devanagari:"नीला",tip:""},{english:"Green",transliteration:"Hara",devanagari:"हरा",tip:""},{english:"Yellow",transliteration:"Peela",devanagari:"पीला",tip:""},{english:"White",transliteration:"Safed",devanagari:"सफ़ेद",tip:""},{english:"Black",transliteration:"Kaala",devanagari:"काला",tip:""},{english:"Orange",transliteration:"Narangi",devanagari:"नारंगी",tip:""},{english:"Pink",transliteration:"Gulaabi",devanagari:"गुलाबी",tip:"Literally rose-colored"},{english:"Purple",transliteration:"Baingani",devanagari:"बैंगनी",tip:""},{english:"Brown",transliteration:"Bhoora",devanagari:"भूरा",tip:""}
+  ]},
+  family:{title:"Family",icon:"👨‍👩‍👧",words:[
+    {english:"Mother",transliteration:"Maa / Maata ji",devanagari:"माँ",tip:"Add ji for extra respect"},{english:"Father",transliteration:"Pita ji / Baap",devanagari:"पिता जी",tip:""},{english:"Older brother",transliteration:"Bhaiya",devanagari:"भैया",tip:""},{english:"Older sister",transliteration:"Didi",devanagari:"दीदी",tip:""},{english:"Son",transliteration:"Beta",devanagari:"बेटा",tip:""},{english:"Daughter",transliteration:"Beti",devanagari:"बेटी",tip:""},{english:"Husband",transliteration:"Pati",devanagari:"पति",tip:""},{english:"Wife",transliteration:"Patni",devanagari:"पत्नी",tip:""},{english:"Friend",transliteration:"Dost",devanagari:"दोस्त",tip:""}
+  ]},
+  phrases:{title:"Useful Phrases",icon:"💬",words:[
+    {english:"Where is the bathroom?",transliteration:"Bathroom kahan hai?",devanagari:"बाथरूम कहाँ है?",tip:""},{english:"How much does it cost?",transliteration:"Yeh kitne ka hai?",devanagari:"यह कितने का है?",tip:""},{english:"I don't understand",transliteration:"Mujhe samajh nahi aaya",devanagari:"मुझे समझ नहीं आया",tip:""},{english:"Please speak slowly",transliteration:"Dhire boliye",devanagari:"धीरे बोलिए",tip:""},{english:"I am hungry",transliteration:"Mujhe bhookh lagi hai",devanagari:"मुझे भूख लगी है",tip:""},{english:"I am thirsty",transliteration:"Mujhe pyaas lagi hai",devanagari:"मुझे प्यास लगी है",tip:""},{english:"Good / Okay",transliteration:"Accha",devanagari:"अच्छा",tip:"Very versatile — can mean Oh really?"},{english:"Let's go!",transliteration:"Chalo!",devanagari:"चलो!",tip:""},{english:"Very good!",transliteration:"Bahut accha!",devanagari:"बहुत अच्छा!",tip:""}
+  ]},
+  food:{title:"Food & Drink",icon:"🍛",words:[
+    {english:"Water",transliteration:"Paani",devanagari:"पानी",tip:""},{english:"Tea",transliteration:"Chai",devanagari:"चाय",tip:"Indian masala chai is spiced milk tea"},{english:"Rice",transliteration:"Chawal",devanagari:"चावल",tip:""},{english:"Flatbread",transliteration:"Roti",devanagari:"रोटी",tip:"Also called chapati"},{english:"Vegetables / Curry",transliteration:"Sabzi",devanagari:"सब्जी",tip:""},{english:"Milk",transliteration:"Doodh",devanagari:"दूध",tip:""},{english:"Food / Meal",transliteration:"Khaana",devanagari:"खाना",tip:"Also means to eat"},{english:"Delicious",transliteration:"Swaadisht",devanagari:"स्वादिष्ट",tip:""},{english:"Spicy",transliteration:"Teekha",devanagari:"तीखा",tip:""}
+  ]}
+};
+
+// ═══════════════════════════════════
 // STATE
-// ════════════════════════════════════════
-let learned = JSON.parse(localStorage.getItem('seekho-learned') || '{}');
-let quizHistory = JSON.parse(localStorage.getItem('seekho-quiz') || '[]');
+// ═══════════════════════════════════
+let learned=JSON.parse(localStorage.getItem('seekho-learned')||'{}');
+let quizHistory=JSON.parse(localStorage.getItem('seekho-quiz')||'[]');
+let totalPoints=parseInt(localStorage.getItem('seekho-points')||'0');
+let streak=0;
 
-let flashcards = [];
-let fcIndex = 0;
-let isFlipped = false;
-let currentCard = null;
-
-let quizQuestions = [];
-let qIndex = 0;
-let qScore = 0;
-let qResults = [];
-
-// ════════════════════════════════════════
-// SPEECH
-// ════════════════════════════════════════
-const synth = window.speechSynthesis;
-let voices = [];
-let hindiVoice = null;
-
-function loadVoices() {
-  voices = synth.getVoices();
-  hindiVoice = voices.find(v => v.lang === 'hi-IN') ||
-               voices.find(v => v.lang.startsWith('hi')) ||
-               null;
-  if (!synth || voices.length === 0) {
-    document.getElementById('speech-warning').style.display = 'block';
-  }
+function saveState(){
+  localStorage.setItem('seekho-learned',JSON.stringify(learned));
+  localStorage.setItem('seekho-quiz',JSON.stringify(quizHistory.slice(-50)));
+  localStorage.setItem('seekho-points',totalPoints);
 }
 
-if (synth) {
-  synth.onvoiceschanged = loadVoices;
-  loadVoices();
-} else {
-  document.getElementById('speech-warning').style.display = 'block';
+function getStarletLevel(){
+  let lvl=0;
+  for(let i=starlets.length-1;i>=0;i--){if(totalPoints>=starlets[i].points){lvl=i;break;}}
+  return lvl;
 }
 
-function speakWord(devanagari) {
-  if (!synth) return;
-  synth.cancel();
-  const utt = new SpeechSynthesisUtterance(devanagari);
-  utt.lang = 'hi-IN';
-  utt.rate = 0.85;
-  if (hindiVoice) utt.voice = hindiVoice;
-  synth.speak(utt);
+// ═══════════════════════════════════
+// AUDIO
+// ═══════════════════════════════════
+const synth=window.speechSynthesis;
+let voices=[],hindiVoice=null,audioCtx=null;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function loadVoices(){voices=synth?synth.getVoices():[];hindiVoice=voices.find(v=>v.lang==='hi-IN')||voices.find(v=>v.lang.startsWith('hi'))||null;if(!synth||voices.length===0)document.getElementById('speech-warn').style.display='block';}
+if(synth){synth.onvoiceschanged=loadVoices;loadVoices();}else{document.getElementById('speech-warn').style.display='block';}
+function speakWord(dev){if(!synth||!dev)return;synth.cancel();const u=new SpeechSynthesisUtterance(dev);u.lang='hi-IN';u.rate=0.82;if(hindiVoice)u.voice=hindiVoice;synth.speak(u);}
+function playTone(f,s,d,g=0.25,t='triangle'){try{const c=getCtx(),o=c.createOscillator(),gn=c.createGain();o.connect(gn);gn.connect(c.destination);o.type=t;o.frequency.value=f;const ts=c.currentTime+s;gn.gain.setValueAtTime(g,ts);gn.gain.exponentialRampToValueAtTime(0.001,ts+d);o.start(ts);o.stop(ts+d+0.05);}catch(e){}}
+function playCorrect(){playTone(784,0,0.1,0.2);playTone(1047,0.12,0.15,0.2);}
+function playNoise(s,d,g=0.4,fr=180){try{const c=getCtx(),buf=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;const src=c.createBufferSource();src.buffer=buf;const filt=c.createBiquadFilter();filt.type='bandpass';filt.frequency.value=fr;const gn=c.createGain();gn.gain.setValueAtTime(g,c.currentTime+s);gn.gain.exponentialRampToValueAtTime(0.001,c.currentTime+s+d);src.connect(filt);filt.connect(gn);gn.connect(c.destination);src.start(c.currentTime+s);src.stop(c.currentTime+s+d+0.05);}catch(e){}}
+function playFanfare(){[262,294,330,349,392,440,494,523].forEach((f,i)=>playTone(f,i*0.13,0.22,0.28));[0,0.26,0.52,0.78].forEach(t=>playNoise(t,0.08,0.4,180));}
+function playLevelUp(){const mel=[392,440,494,523,587,659,698,784,659,784,880,1047];const durs=[.15,.15,.15,.3,.15,.15,.15,.3,.15,.15,.15,.45];let t=0;mel.forEach((f,i)=>{playTone(f,t,durs[i]+.1,.3,'sine');t+=durs[i];});[0,.3,.6,.9,1.2,1.5].forEach(bt=>playNoise(bt,.1,.5,200));}
+
+// ═══════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════
+let toastT;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+
+function getAllFilmWords(){
+  return Object.values(chapterMeta).filter(c=>c.type==='film').flatMap(c=>c.words.map(w=>({...w,chapterKey:c.key,chapterTitle:c.title})));
+}
+function getAllBeginnerWords(){
+  return Object.entries(beginnerCats).flatMap(([catKey,cat])=>cat.words.map((w,j)=>({...w,chapterKey:'basics_'+catKey,wordIdx:j,catKey})));
+}
+function getAllWords(){return[...getAllBeginnerWords(),...getAllFilmWords()];}
+
+function learnedKey(k,j){return k+':'+j;}
+
+function getTotalLearned(){
+  const allW=getAllWords();
+  return allW.filter(w=>{
+    if(w.chapterKey&&w.chapterKey.startsWith('basics_'))return learned[learnedKey(w.chapterKey,w.wordIdx)];
+    return learned['film:'+w.chapterKey+':'+w.transliteration];
+  }).length;
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════
 // NAVIGATION
-// ════════════════════════════════════════
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'progress') renderProgress();
-  if (name === 'flashcards') initFlashcards();
-  if (name === 'lessons') renderCategories();
+// ═══════════════════════════════════
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='home')renderHome();
+  if(name==='chapters')renderChapters();
+  if(name==='flashcards')initFlashcards();
+  if(name==='journey')renderJourney();
+  if(name==='quiz')populateQuizDropdowns();
 }
 
-// ════════════════════════════════════════
-// LESSONS
-// ════════════════════════════════════════
-let activeCategory = null;
+// ═══════════════════════════════════
+// HOME
+// ═══════════════════════════════════
+function renderHome(){
+  const lvl=getStarletLevel();
+  const s=starlets[lvl];
+  const nextS=starlets[lvl+1];
+  const pct=nextS?Math.round((totalPoints-s.points)/(nextS.points-s.points)*100):100;
+  document.getElementById('home-starlet-card').innerHTML=`
+    <span class="starlet-emoji">${s.emoji}</span>
+    <div class="starlet-name">${s.name}</div>
+    <div class="starlet-title">${s.title}</div>
+    <div class="starlet-quote">"${s.quote}"</div>
+    <div class="pts-bar-wrap"><div class="pts-bar-fill" style="width:${pct}%"></div></div>
+    <div class="pts-label">${totalPoints} pts${nextS?' · '+nextS.points+' to become '+nextS.name:' · MAX LEVEL 👑'}</div>`;
+  const q=bollywoodQuotes[new Date().getDate()%bollywoodQuotes.length];
+  document.getElementById('home-quote').innerHTML=`
+    <div style="font-size:.7rem;color:var(--pink);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🎬 Quote of the Day</div>
+    <div class="quote-text">"${q.quote}"</div>
+    <div class="quote-film">— ${q.film}</div>
+    <div class="quote-eng">${q.meaning}</div>`;
+  const recent=quizHistory.slice(-3).reverse();
+  const recentEl=document.getElementById('home-recent');
+  if(!recent.length){recentEl.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:14px 0">No quizzes yet — start one!</div>';return;}
+  recentEl.innerHTML=recent.map(r=>`
+    <div class="recent-item">
+      <span>${new Date(r.date).toLocaleDateString()} · ${r.chapter||'All chapters'}</span>
+      <span class="recent-score">${r.score}/${r.total} · +${r.pts||0}pts</span>
+    </div>`).join('');
+}
 
-function learnedKey(cat, idx) { return cat + ':' + idx; }
+// ═══════════════════════════════════
+// CHAPTERS
+// ═══════════════════════════════════
+function renderChapters(){
+  const allW=getAllWords();
+  const totalLearned=getTotalLearned();
+  document.getElementById('overall-fill').style.width=allW.length?(totalLearned/allW.length*100)+'%':'0%';
+  document.getElementById('overall-count').textContent=totalLearned+' / '+allW.length;
 
-function renderCategories() {
-  const grid = document.getElementById('category-grid');
-  const total = Object.values(curriculum).reduce((s, c) => s + c.words.length, 0);
-  const totalLearned = Object.values(curriculum).reduce((s, c, i) => {
-    const key = Object.keys(curriculum)[i];
-    return s + c.words.filter((_, j) => learned[learnedKey(key, j)]).length;
-  }, 0);
-  document.getElementById('overall-bar').style.width = total ? (totalLearned / total * 100) + '%' : '0%';
-  document.getElementById('overall-count').textContent = totalLearned + ' / ' + total + ' learned';
+  const grid=document.getElementById('chapters-grid');
+  grid.innerHTML='';
 
-  grid.innerHTML = '';
-  Object.entries(curriculum).forEach(([key, cat]) => {
-    const n = cat.words.length;
-    const nLearned = cat.words.filter((_, j) => learned[learnedKey(key, j)]).length;
-    const card = document.createElement('div');
-    card.className = 'category-card' + (activeCategory === key ? ' selected' : '');
-    card.innerHTML = `<div class="cat-icon">${cat.icon}</div>
-      <div class="cat-title">${cat.title}</div>
-      <div class="cat-count">${n} words</div>
-      <div class="cat-progress">${nLearned > 0 ? nLearned + '/' + n + ' learned' : 'Not started'}</div>`;
-    card.onclick = () => selectCategory(key);
+  // Chapter 1 - Basics
+  const bc=Object.values(beginnerCats);
+  const bl=bc.reduce((s,cat,i)=>s+cat.words.filter((_,j)=>learned[learnedKey('basics_'+Object.keys(beginnerCats)[i],j)]).length,0);
+  const btotal=bc.reduce((s,cat)=>s+cat.words.length,0);
+  const bCard=document.createElement('div');
+  bCard.className='chapter-card';
+  bCard.innerHTML=`<div class="chapter-poster" style="background:linear-gradient(135deg,#1a3a1a,#0d2e3a)">
+    <div class="chapter-poster-badge">Chapter 1</div>
+    <div class="chapter-poster-emojis">📖✨🙏</div>
+    <div class="chapter-poster-title">Beginner Basics</div>
+    <div class="chapter-poster-year">Foundation</div>
+    <div class="chapter-poster-meta">${bl}/${btotal} learned · 7 topics</div>
+  </div>`;
+  bCard.onclick=()=>openBasicsChapter();
+  grid.appendChild(bCard);
+
+  Object.values(chapterMeta).filter(c=>c.type==='film').forEach(ch=>{
+    const wLearned=ch.words.filter(w=>learned['film:'+ch.key+':'+w.transliteration]).length;
+    const card=document.createElement('div');
+    card.className='chapter-card';
+    card.innerHTML=`<div class="chapter-poster" style="background:${ch.gradient}">
+      <div class="chapter-poster-badge">${ch.badge}</div>
+      <div class="chapter-poster-emojis">${ch.emojis}</div>
+      <div class="chapter-poster-title">${ch.title}</div>
+      <div class="chapter-poster-year">${ch.year} · ${ch.genre}</div>
+      <div class="chapter-poster-meta">Dir: ${ch.director} · ${wLearned}/${ch.words.length} learned</div>
+    </div>`;
+    card.onclick=()=>openFilmChapter(ch.key);
     grid.appendChild(card);
   });
-
-  if (activeCategory) renderWordList(activeCategory);
 }
 
-function selectCategory(key) {
-  activeCategory = key;
-  renderCategories();
+let activeBasicsCat=null;
+function openBasicsChapter(){
+  showView('lesson');
+  document.getElementById('lesson-header').style.background='linear-gradient(135deg,#1a3a1a,#0d2e3a)';
+  document.getElementById('lesson-title').textContent='📖 Beginner Basics';
+  document.getElementById('lesson-meta').textContent='7 vocabulary topics · Foundation for all chapters';
+  document.getElementById('lesson-quiz-btn').onclick=()=>{document.getElementById('q-cat').value='basics';startQuiz();showView('quiz');};
+
+  const dialogue=document.getElementById('lesson-dialogue');
+  dialogue.innerHTML='<div class="section-title">📂 Topics</div>';
+  const catGrid=document.createElement('div');
+  catGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px';
+  Object.entries(beginnerCats).forEach(([key,cat])=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;color:var(--text);font-family:inherit;text-align:center;transition:all .15s';
+    btn.innerHTML=`<div style="font-size:1.5rem">${cat.icon}</div><div style="font-size:.85rem;font-weight:700;margin-top:4px">${cat.title}</div>`;
+    btn.onmouseover=()=>{btn.style.borderColor='var(--gold)';btn.style.background='var(--card2)';};
+    btn.onmouseout=()=>{btn.style.borderColor='var(--border)';btn.style.background='var(--card)';};
+    btn.onclick=()=>renderBasicsCatWords(key);
+    catGrid.appendChild(btn);
+  });
+  dialogue.appendChild(catGrid);
+  renderBasicsCatWords(Object.keys(beginnerCats)[0]);
 }
 
-function renderWordList(key) {
-  const cat = curriculum[key];
-  const section = document.getElementById('word-section');
-  const title = document.getElementById('word-section-title');
-  const list = document.getElementById('word-list');
-  section.style.display = 'block';
-  title.textContent = cat.icon + ' ' + cat.title;
-  list.innerHTML = '';
-  cat.words.forEach((word, j) => {
-    const k = learnedKey(key, j);
-    const isLearned = !!learned[k];
-    const row = document.createElement('div');
-    row.className = 'word-row' + (isLearned ? ' learned' : '');
-    row.innerHTML = `
-      <div class="word-info">
-        <div class="word-transliteration">${word.transliteration}</div>
-        <div class="word-english">${word.english}</div>
-        ${word.tip ? '<div class="word-tip">💡 ' + word.tip + '</div>' : ''}
-      </div>
-      <button class="speak-btn" title="Hear pronunciation">🔊</button>
-      ${isLearned
-        ? '<span class="learned-badge">✓ Learned</span>'
-        : '<button class="mark-learned-btn">Mark learned</button>'}
-    `;
-    row.querySelector('.speak-btn').onclick = (e) => {
-      e.stopPropagation();
-      const btn = e.currentTarget;
-      btn.classList.add('speaking');
-      speakWord(word.devanagari);
-      setTimeout(() => btn.classList.remove('speaking'), 1500);
-    };
-    const mlBtn = row.querySelector('.mark-learned-btn');
-    if (mlBtn) mlBtn.onclick = (e) => { e.stopPropagation(); toggleLearned(key, j); };
+function renderBasicsCatWords(catKey){
+  activeBasicsCat=catKey;
+  const cat=beginnerCats[catKey];
+  const list=document.getElementById('lesson-words');
+  list.innerHTML='';
+  cat.words.forEach((w,j)=>{
+    const k=learnedKey('basics_'+catKey,j);
+    const isL=!!learned[k];
+    const row=document.createElement('div');
+    row.className='word-row'+(isL?' learned':'');
+    row.innerHTML=`<div class="word-info"><div class="word-translit">${w.transliteration}</div><div class="word-eng">${w.english}</div>${w.tip?'<div class="word-tip">💡 '+w.tip+'</div>':''}</div>
+      <button class="speak-btn" title="Hear it">🔊</button>
+      ${isL?'<span class="learned-badge">✓ Learned</span>':'<button class="mark-btn">Mark learned</button>'}`;
+    row.querySelector('.speak-btn').onclick=e=>{e.stopPropagation();speakWord(w.devanagari);};
+    const mb=row.querySelector('.mark-btn');
+    if(mb)mb.onclick=e=>{e.stopPropagation();learned[k]=true;saveState();renderBasicsCatWords(catKey);showToast('✅ Marked as learned!');};
     list.appendChild(row);
   });
 }
 
-function toggleLearned(key, j) {
-  const k = learnedKey(key, j);
-  if (learned[k]) delete learned[k]; else learned[k] = true;
-  localStorage.setItem('seekho-learned', JSON.stringify(learned));
-  renderCategories();
-  showToast(learned[k] ? '✅ Marked as learned!' : 'Removed from learned');
+function openFilmChapter(key){
+  const ch=chapterMeta[key];
+  showView('lesson');
+  document.getElementById('lesson-header').style.background=ch.gradient;
+  document.getElementById('lesson-title').textContent=ch.emojis+' '+ch.title+' ('+ch.year+')';
+  document.getElementById('lesson-meta').textContent='Dir: '+ch.director+' · '+ch.stars;
+  document.getElementById('lesson-quiz-btn').onclick=()=>{document.getElementById('q-cat').value=key;startQuiz();showView('quiz');};
+
+  const dialogueEl=document.getElementById('lesson-dialogue');
+  dialogueEl.innerHTML='<div class="section-title">🎬 Scene</div>';
+  ch.dialogue.forEach(line=>{
+    const d=document.createElement('div');
+    d.className='dialogue-line';
+    d.innerHTML=`<button class="dialogue-speak" onclick="speakWord('${line.dev.replace(/'/g,"\\'")}')">🔊</button>
+      <div class="dialogue-speaker">${line.speaker}</div>
+      <div class="dialogue-hindi">${line.hindi}</div>
+      <div class="dialogue-eng">${line.eng}</div>`;
+    dialogueEl.appendChild(d);
+  });
+
+  const list=document.getElementById('lesson-words');
+  list.innerHTML='';
+  ch.words.forEach(w=>{
+    const k='film:'+key+':'+w.transliteration;
+    const isL=!!learned[k];
+    const row=document.createElement('div');
+    row.className='word-row'+(isL?' learned':'');
+    row.innerHTML=`<div class="word-info"><div class="word-translit">${w.transliteration}</div><div class="word-eng">${w.english}</div>${w.tip?'<div class="word-tip">💡 '+w.tip+'</div>':''}</div>
+      <button class="speak-btn">🔊</button>
+      ${isL?'<span class="learned-badge">✓ Learned</span>':'<button class="mark-btn">Mark learned</button>'}`;
+    row.querySelector('.speak-btn').onclick=e=>{e.stopPropagation();speakWord(w.devanagari);};
+    const mb=row.querySelector('.mark-btn');
+    if(mb)mb.onclick=e=>{e.stopPropagation();learned[k]=true;saveState();openFilmChapter(key);showToast('✅ Marked as learned!');};
+    list.appendChild(row);
+  });
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════
 // FLASHCARDS
-// ════════════════════════════════════════
-function getAllWords() {
-  return Object.entries(curriculum).flatMap(([key, cat]) =>
-    cat.words.map((w, j) => ({ ...w, catKey: key, wordIdx: j, catTitle: cat.title }))
-  );
+// ═══════════════════════════════════
+let fcCards=[],fcIdx=0,fcFlipped=false,currentFC=null;
+
+function initFlashcards(){
+  const sel=document.getElementById('fc-cat');
+  if(sel.options.length<=1){
+    sel.innerHTML='<option value="all">All chapters</option><option value="basics">Basics (all topics)</option>';
+    Object.values(chapterMeta).filter(c=>c.type==='film').forEach(ch=>{
+      const o=document.createElement('option');o.value=ch.key;o.textContent=ch.emojis+' '+ch.title+' ('+ch.year+')';sel.appendChild(o);
+    });
+    sel.onchange=loadFC;
+  }
+  loadFC();
 }
 
-function initFlashcards() {
-  const sel = document.getElementById('fc-category');
-  if (sel.options.length === 1) {
-    Object.entries(curriculum).forEach(([key, cat]) => {
-      const opt = document.createElement('option');
-      opt.value = key; opt.textContent = cat.icon + ' ' + cat.title;
-      sel.appendChild(opt);
+function loadFC(){
+  const val=document.getElementById('fc-cat').value;
+  if(val==='all')fcCards=getAllWords().map((w,i)=>({...w,fcKey:'all_'+i}));
+  else if(val==='basics')fcCards=getAllBeginnerWords();
+  else fcCards=(chapterMeta[val]?.words||[]).map(w=>({...w,chapterKey:val,fcKey:'film:'+val+':'+w.transliteration}));
+  fcIdx=0;fcFlipped=false;showFC();
+}
+
+function showFC(){
+  if(!fcCards.length)return;
+  currentFC=fcCards[fcIdx];
+  const card=document.getElementById('flashcard');
+  card.classList.remove('flipped');fcFlipped=false;
+  document.getElementById('fc-eng').textContent=currentFC.english;
+  document.getElementById('fc-hindi').textContent=currentFC.transliteration;
+  document.getElementById('fc-eng-back').textContent=currentFC.english;
+  document.getElementById('fc-tip').textContent=currentFC.tip?'💡 '+currentFC.tip:'';
+  document.getElementById('fc-counter').textContent=(fcIdx+1)+' / '+fcCards.length;
+}
+function flipCard(){const card=document.getElementById('flashcard');fcFlipped=!fcFlipped;card.classList.toggle('flipped',fcFlipped);if(fcFlipped&&currentFC)speakWord(currentFC.devanagari);}
+function nextFC(){fcIdx=(fcIdx+1)%fcCards.length;showFC();}
+function prevFC(){fcIdx=(fcIdx-1+fcCards.length)%fcCards.length;showFC();}
+function shuffleFC(){for(let i=fcCards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[fcCards[i],fcCards[j]]=[fcCards[j],fcCards[i]];}fcIdx=0;showFC();showToast('🔀 Shuffled!');}
+function markFCLearned(){if(!currentFC)return;const k=currentFC.fcKey||('film:'+(currentFC.chapterKey||'?')+':'+currentFC.transliteration);learned[k]=true;saveState();showToast('✅ Marked as learned!');nextFC();}
+
+// ═══════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════
+function populateQuizDropdowns(){
+  const sel=document.getElementById('q-cat');
+  if(sel.options.length<=1){
+    sel.innerHTML='<option value="all">All chapters</option><option value="basics">Basics</option>';
+    Object.values(chapterMeta).filter(c=>c.type==='film').forEach(ch=>{
+      const o=document.createElement('option');o.value=ch.key;o.textContent=ch.emojis+' '+ch.title;sel.appendChild(o);
     });
   }
-  loadFlashcards();
 }
 
-function loadFlashcards() {
-  const cat = document.getElementById('fc-category').value;
-  if (cat === 'all') flashcards = getAllWords();
-  else flashcards = (curriculum[cat]?.words || []).map((w, j) => ({ ...w, catKey: cat, wordIdx: j }));
-  fcIndex = 0;
-  isFlipped = false;
-  showCard();
+let quizQs=[],qIdx=0,qScore=0,qResults=[],qStreakNow=0,qPtsEarned=0;
+let currentQWord=null;
+
+function getQuizPool(cat){
+  if(cat==='all')return getAllWords();
+  if(cat==='basics')return getAllBeginnerWords();
+  return(chapterMeta[cat]?.words||[]).map(w=>({...w,chapterKey:cat}));
 }
 
-function showCard() {
-  if (!flashcards.length) return;
-  currentCard = flashcards[fcIndex];
-  const card = document.getElementById('flashcard');
-  card.classList.remove('flipped');
-  isFlipped = false;
-  document.getElementById('fc-english').textContent = currentCard.english;
-  document.getElementById('fc-hindi').textContent = currentCard.transliteration;
-  document.getElementById('fc-english-back').textContent = currentCard.english;
-  document.getElementById('fc-tip').textContent = currentCard.tip ? '💡 ' + currentCard.tip : '';
-  document.getElementById('card-counter').textContent = (fcIndex + 1) + ' / ' + flashcards.length;
-}
-
-function flipCard() {
-  const card = document.getElementById('flashcard');
-  isFlipped = !isFlipped;
-  card.classList.toggle('flipped', isFlipped);
-  if (isFlipped && currentCard) speakWord(currentCard.devanagari);
-}
-
-function nextCard() { fcIndex = (fcIndex + 1) % flashcards.length; showCard(); }
-function prevCard() { fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length; showCard(); }
-
-function shuffleFlashcards() {
-  for (let i = flashcards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
-  }
-  fcIndex = 0; showCard(); showToast('🔀 Shuffled!');
-}
-
-function markCardLearned() {
-  if (!currentCard) return;
-  const k = learnedKey(currentCard.catKey, currentCard.wordIdx);
-  learned[k] = true;
-  localStorage.setItem('seekho-learned', JSON.stringify(learned));
-  showToast('✅ Marked as learned!');
-  nextCard();
-}
-
-document.getElementById('fc-category').addEventListener('change', loadFlashcards);
-
-// ════════════════════════════════════════
-// QUIZ
-// ════════════════════════════════════════
-function populateQuizDropdowns() {
-  ['q-category'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (sel.options.length === 1) {
-      Object.entries(curriculum).forEach(([key, cat]) => {
-        const opt = document.createElement('option');
-        opt.value = key; opt.textContent = cat.icon + ' ' + cat.title;
-        sel.appendChild(opt);
-      });
-    }
+function startQuiz(){
+  populateQuizDropdowns();
+  const cat=document.getElementById('q-cat').value;
+  const type=document.getElementById('q-type').value;
+  const count=parseInt(document.getElementById('q-count').value);
+  let pool=getQuizPool(cat);
+  const allForDistractors=getAllWords();
+  if(pool.length<4){showToast('Need at least 4 words. Choose a bigger category.');return;}
+  pool=[...pool].sort(()=>Math.random()-.5).slice(0,Math.min(count,pool.length));
+  quizQs=pool.map(word=>{
+    let t=type==='mixed'?['en-to-hi','hi-to-en','audio'][Math.floor(Math.random()*3)]:type;
+    const dis=[...allForDistractors].filter(w=>w.transliteration!==word.transliteration).sort(()=>Math.random()-.5).slice(0,3);
+    return{word,type:t,choices:[word,...dis].sort(()=>Math.random()-.5)};
   });
-}
-populateQuizDropdowns();
-
-function startQuiz() {
-  const cat = document.getElementById('q-category').value;
-  const type = document.getElementById('q-type').value;
-  const count = parseInt(document.getElementById('q-count').value);
-
-  let pool = cat === 'all' ? getAllWords() :
-    (curriculum[cat]?.words || []).map((w, j) => ({ ...w, catKey: cat, wordIdx: j }));
-
-  if (pool.length < 4) { showToast('Need at least 4 words. Choose a bigger category.'); return; }
-
-  // Shuffle and pick
-  pool = pool.slice().sort(() => Math.random() - 0.5);
-  const selected = pool.slice(0, Math.min(count, pool.length));
-
-  quizQuestions = selected.map(word => {
-    let qType = type;
-    if (type === 'mixed') qType = ['en-to-hi', 'hi-to-en', 'audio'][Math.floor(Math.random() * 3)];
-    const distractors = pool.filter(w => w !== word).sort(() => Math.random() - 0.5).slice(0, 3);
-    const choices = [word, ...distractors].sort(() => Math.random() - 0.5);
-    return { word, type: qType, choices };
-  });
-
-  qIndex = 0; qScore = 0; qResults = [];
-  document.getElementById('quiz-setup').style.display = 'none';
-  document.getElementById('quiz-result').style.display = 'none';
-  document.getElementById('quiz-active').style.display = 'block';
-  renderQuestion();
+  qIdx=0;qScore=0;qResults=[];qStreakNow=0;qPtsEarned=0;streak=0;
+  document.getElementById('quiz-setup').style.display='none';
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-active').style.display='block';
+  renderQ();
 }
 
-let currentQuiz = null;
-
-function renderQuestion() {
-  if (qIndex >= quizQuestions.length) { showResult(); return; }
-  const q = quizQuestions[qIndex];
-  currentQuiz = q.word;
-  document.getElementById('q-progress').textContent = (qIndex + 1) + ' / ' + quizQuestions.length;
-  document.getElementById('q-score').textContent = qScore;
-  document.getElementById('q-feedback').className = 'quiz-feedback';
-  document.getElementById('q-next').style.display = 'none';
-
-  let questionText, badgeText, showSpeak = false;
-  if (q.type === 'en-to-hi') {
-    questionText = 'How do you say this in Hindi?';
-    badgeText = 'English → Hindi';
-    document.getElementById('q-question').innerHTML = '<strong style="color:var(--saffron);font-size:1.4rem">' + q.word.english + '</strong><br><span style="font-size:0.9rem;color:var(--text-muted)">Pick the correct transliteration</span>';
-  } else if (q.type === 'hi-to-en') {
-    badgeText = 'Hindi → English';
-    document.getElementById('q-question').innerHTML = '<strong style="color:var(--saffron);font-size:1.4rem">' + q.word.transliteration + '</strong><br><span style="font-size:0.9rem;color:var(--text-muted)">Pick the English meaning</span>';
-    showSpeak = true;
-  } else {
-    badgeText = '🔊 Listen → English';
-    document.getElementById('q-question').textContent = 'What does this word mean?';
-    showSpeak = true;
-    setTimeout(() => speakWord(q.word.devanagari), 300);
+function renderQ(){
+  if(qIdx>=quizQs.length){showResult();return;}
+  const q=quizQs[qIdx];
+  currentQWord=q.word;
+  document.getElementById('q-prog').textContent=(qIdx+1)+' / '+quizQs.length;
+  document.getElementById('q-pts-display').textContent=totalPoints;
+  document.getElementById('q-streak-display').textContent=qStreakNow>=2?'🔥 Streak x'+qStreakNow:'';
+  document.getElementById('q-feedback').className='q-feedback';
+  document.getElementById('q-next').style.display='none';
+  const speakBtn=document.getElementById('q-speak');
+  if(q.type==='hi-to-en'||q.type==='audio'){speakBtn.style.display='inline-flex';}else{speakBtn.style.display='none';}
+  if(q.type==='audio')setTimeout(()=>speakWord(q.word.devanagari),300);
+  const badges={'hi-to-en':'Hindi → English','en-to-hi':'English → Hindi',audio:'🔊 Listen → English'};
+  document.getElementById('q-badge').textContent=badges[q.type]||q.type;
+  if(q.type==='en-to-hi'){
+    document.getElementById('q-question').innerHTML='<strong style="color:var(--gold);font-size:1.3rem">'+q.word.english+'</strong><br><span style="font-size:.82rem;color:var(--muted)">Pick the Hindi transliteration</span>';
+  }else if(q.type==='hi-to-en'){
+    document.getElementById('q-question').innerHTML='<strong style="color:var(--saffron);font-size:1.3rem">'+q.word.transliteration+'</strong><br><span style="font-size:.82rem;color:var(--muted)">Pick the English meaning</span>';
+  }else{
+    document.getElementById('q-question').innerHTML='<span style="font-size:1rem;color:var(--muted)">What does this word mean?</span>';
   }
-  document.getElementById('q-type-badge').textContent = badgeText;
-  document.getElementById('q-speak-btn').style.display = showSpeak ? 'inline-flex' : 'none';
-
-  const choicesEl = document.getElementById('q-choices');
-  choicesEl.innerHTML = '';
-  q.choices.forEach(choice => {
-    const btn = document.createElement('button');
-    btn.className = 'quiz-choice';
-    if (q.type === 'en-to-hi') btn.textContent = choice.transliteration;
-    else btn.textContent = choice.english;
-    btn.onclick = () => selectAnswer(choice, q.word, q.type);
+  const choicesEl=document.getElementById('q-choices');
+  choicesEl.innerHTML='';
+  q.choices.forEach(ch=>{
+    const btn=document.createElement('button');
+    btn.className='q-choice';
+    btn.textContent=q.type==='en-to-hi'?ch.transliteration:ch.english;
+    btn.onclick=()=>selectAnswer(ch,q.word,q.type);
     choicesEl.appendChild(btn);
   });
 }
 
-function selectAnswer(chosen, correct, type) {
-  const isCorrect = chosen === correct;
-  document.querySelectorAll('.quiz-choice').forEach(btn => {
-    btn.disabled = true;
-    const answerText = type === 'en-to-hi' ? btn.textContent : btn.textContent;
-    const correctText = type === 'en-to-hi' ? correct.transliteration : correct.english;
-    if (btn.textContent === correctText) btn.classList.add('correct');
-    else if (btn.textContent === (type === 'en-to-hi' ? chosen.transliteration : chosen.english) && !isCorrect)
-      btn.classList.add('wrong');
+function selectAnswer(chosen,correct,type){
+  const isOk=chosen.transliteration===correct.transliteration;
+  document.querySelectorAll('.q-choice').forEach(btn=>{
+    btn.disabled=true;
+    const t=type==='en-to-hi'?btn.textContent:btn.textContent;
+    const cText=type==='en-to-hi'?correct.transliteration:correct.english;
+    if(btn.textContent===cText)btn.classList.add('correct');
+    else if(btn.textContent===(type==='en-to-hi'?chosen.transliteration:chosen.english)&&!isOk)btn.classList.add('wrong');
   });
-
-  const fb = document.getElementById('q-feedback');
-  if (isCorrect) {
-    qScore++;
-    fb.className = 'quiz-feedback correct';
-    fb.textContent = '✅ Correct! ' + correct.transliteration + ' = ' + correct.english;
-    speakWord(correct.devanagari);
-    const k = learnedKey(correct.catKey, correct.wordIdx);
-    learned[k] = true;
-    localStorage.setItem('seekho-learned', JSON.stringify(learned));
-  } else {
-    fb.className = 'quiz-feedback wrong';
-    fb.textContent = '❌ The answer was: ' + correct.transliteration + ' (' + correct.english + ')';
+  const fb=document.getElementById('q-feedback');
+  const prevLevel=getStarletLevel();
+  if(isOk){
+    qScore++;qStreakNow++;
+    let pts=10;if(qStreakNow>=3)pts+=5;
+    totalPoints+=pts;qPtsEarned+=pts;
+    const k=chosen.chapterKey?'film:'+chosen.chapterKey+':'+chosen.transliteration:(chosen.fcKey||'?');
+    learned[k]=true;saveState();
+    fb.className='q-feedback correct';fb.textContent='✅ Correct! +'+pts+' pts! '+correct.transliteration+' = '+correct.english;
+    speakWord(correct.devanagari);playCorrect();
+    document.getElementById('q-pts-display').textContent=totalPoints;
+    document.getElementById('q-streak-display').textContent=qStreakNow>=2?'🔥 Streak x'+qStreakNow:'';
+    const newLevel=getStarletLevel();
+    if(newLevel>prevLevel)setTimeout(()=>showLevelUpModal(newLevel),800);
+  }else{
+    qStreakNow=0;
+    fb.className='q-feedback wrong';fb.textContent='❌ Answer: '+correct.transliteration+' ('+correct.english+')';
+    saveState();
   }
-
-  qResults.push({ word: correct, correct: isCorrect, yourAnswer: chosen });
-  document.getElementById('q-next').style.display = 'block';
+  qResults.push({word:correct,correct:isOk,yourAnswer:chosen});
+  document.getElementById('q-next').style.display='block';
 }
 
-function nextQuestion() { qIndex++; renderQuestion(); }
+function nextQ(){qIdx++;renderQ();}
 
-function showResult() {
-  document.getElementById('quiz-active').style.display = 'none';
-  const res = document.getElementById('quiz-result');
-  res.style.display = 'block';
-  const pct = Math.round(qScore / quizQuestions.length * 100);
-  document.getElementById('r-score').textContent = qScore + ' / ' + quizQuestions.length;
-  let emoji, msg;
-  if (pct === 100) { emoji = '🏆'; msg = 'Perfect! Bahut accha! You nailed it!'; }
-  else if (pct >= 80) { emoji = '🌟'; msg = 'Excellent work! Almost perfect!'; }
-  else if (pct >= 60) { emoji = '👍'; msg = 'Good job! Keep practicing!'; }
-  else if (pct >= 40) { emoji = '📚'; msg = 'Not bad! Review the lessons and try again.'; }
-  else { emoji = '💪'; msg = 'Keep going! Practice makes perfect. Koshish karte raho!'; }
-  document.getElementById('r-emoji').textContent = emoji;
-  document.getElementById('r-msg').textContent = msg;
-
-  const breakdown = document.getElementById('r-breakdown');
-  const wrongs = qResults.filter(r => !r.correct);
-  if (wrongs.length === 0) {
-    breakdown.innerHTML = '<h4>Review</h4><div style="color:var(--green);font-weight:600;padding:8px 0">🎉 You got every question right!</div>';
-  } else {
-    breakdown.innerHTML = '<h4>Review wrong answers</h4>' +
-      wrongs.map(r => `<div class="breakdown-item">
-        <span>${r.word.english}</span>
-        <span class="correct-ans">${r.word.transliteration}</span>
-      </div>`).join('');
-  }
-
-  quizHistory.push({ date: new Date().toISOString(), score: qScore, total: quizQuestions.length });
-  localStorage.setItem('seekho-quiz', JSON.stringify(quizHistory.slice(-50)));
+function showResult(){
+  document.getElementById('quiz-active').style.display='none';
+  const res=document.getElementById('quiz-result');
+  res.style.display='block';
+  const pct=Math.round(qScore/quizQs.length*100);
+  const bonusPts=pct===100?25:0;
+  if(bonusPts){totalPoints+=bonusPts;qPtsEarned+=bonusPts;saveState();}
+  let emoji,msg;
+  if(pct===100){emoji='🏆';msg='Shabash! Perfect score! Bonus +25pts! 🌟';}
+  else if(pct>=80){emoji='🌟';msg='Bahut accha! Excellent work!';}
+  else if(pct>=60){emoji='👍';msg='Theek hai! Good job! Keep practicing.';}
+  else{emoji='💪';msg='Koshish karte raho! Keep trying!';}
+  document.getElementById('r-emoji').textContent=emoji;
+  document.getElementById('r-score').textContent=qScore+' / '+quizQs.length;
+  document.getElementById('r-pts-earned').textContent='+'+qPtsEarned+' pts earned!';
+  document.getElementById('r-msg').textContent=msg;
+  if(pct>=60)playFanfare();
+  const lvl=getStarletLevel();const s=starlets[lvl];
+  document.getElementById('r-starlet').innerHTML=s.emoji+' <strong>'+s.name+'</strong> · '+s.title+'<br><span style="font-size:.78rem;color:var(--muted)">Total: '+totalPoints+' pts</span>';
+  const wrongs=qResults.filter(r=>!r.correct);
+  document.getElementById('r-breakdown').innerHTML='<h4>Review</h4>'+(wrongs.length?wrongs.map(r=>'<div class="bd-item"><span>'+r.word.english+'</span><span class="bd-correct">'+r.word.transliteration+'</span></div>').join(''):'<div style="color:#4CAF50;font-weight:600;padding:6px 0">🎉 Perfect! No mistakes!</div>');
+  quizHistory.push({date:new Date().toISOString(),score:qScore,total:quizQs.length,pts:qPtsEarned,chapter:document.getElementById('q-cat').value});
+  saveState();
 }
+function showQuizSetup(){document.getElementById('quiz-active').style.display='none';document.getElementById('quiz-result').style.display='none';document.getElementById('quiz-setup').style.display='block';}
 
-function showQuizSetup() {
-  document.getElementById('quiz-active').style.display = 'none';
-  document.getElementById('quiz-result').style.display = 'none';
-  document.getElementById('quiz-setup').style.display = 'block';
-}
-
-// ════════════════════════════════════════
-// PROGRESS
-// ════════════════════════════════════════
-function renderProgress() {
-  const allWords = getAllWords();
-  const totalWords = allWords.length;
-  const totalLearned = allWords.filter(w => learned[learnedKey(w.catKey, w.wordIdx)]).length;
-  const totalQuizzes = quizHistory.length;
-  const avgScore = totalQuizzes
-    ? Math.round(quizHistory.reduce((s, q) => s + (q.score / q.total * 100), 0) / totalQuizzes)
-    : 0;
-
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${totalLearned}</div><div class="stat-label">Words learned</div></div>
-    <div class="stat-card"><div class="stat-num">${totalWords}</div><div class="stat-label">Total words</div></div>
-    <div class="stat-card"><div class="stat-num">${totalQuizzes}</div><div class="stat-label">Quizzes taken</div></div>
-    <div class="stat-card"><div class="stat-num">${avgScore}%</div><div class="stat-label">Avg quiz score</div></div>
-  `;
-
-  const catList = document.getElementById('cat-progress-list');
-  catList.innerHTML = '';
-  Object.entries(curriculum).forEach(([key, cat]) => {
-    const n = cat.words.length;
-    const nL = cat.words.filter((_, j) => learned[learnedKey(key, j)]).length;
-    const pct = Math.round(nL / n * 100);
-    const row = document.createElement('div');
-    row.className = 'cat-prog-row';
-    row.innerHTML = `
-      <div class="cat-prog-header">
-        <span class="cat-prog-name">${cat.icon} ${cat.title}</span>
-        <span class="cat-prog-frac">${nL} / ${n}</span>
+// ═══════════════════════════════════
+// STAR JOURNEY
+// ═══════════════════════════════════
+function renderJourney(){
+  const lvl=getStarletLevel();
+  const totalW=getAllWords().length;
+  const totalL=getTotalLearned();
+  document.getElementById('journey-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${totalPoints}</div><div class="stat-label">Total pts</div></div>
+    <div class="stat-box"><div class="stat-num">${totalL}</div><div class="stat-label">Words learned</div></div>
+    <div class="stat-box"><div class="stat-num">${quizHistory.length}</div><div class="stat-label">Quizzes taken</div></div>
+    <div class="stat-box"><div class="stat-num">${quizHistory.length?Math.round(quizHistory.reduce((s,q)=>s+(q.score/q.total*100),0)/quizHistory.length):0}%</div><div class="stat-label">Avg score</div></div>`;
+  const ladder=document.getElementById('starlet-ladder');
+  ladder.innerHTML='';
+  starlets.forEach((s,i)=>{
+    const unlocked=totalPoints>=s.points;
+    const current=i===lvl;
+    const item=document.createElement('div');
+    item.className='ladder-item'+(unlocked?' unlocked':'')+(current?' current':'');
+    item.innerHTML=`<div class="ladder-emoji-big">${s.emoji}</div>
+      <div class="ladder-info">
+        <div class="ladder-name">${s.name}${current?'<span class="current-badge">YOU ARE HERE</span>':''}</div>
+        <div class="ladder-title">${s.title}</div>
+        <div class="ladder-desc">${s.desc}</div>
+        <div class="ladder-pts">${s.points > 0 ? s.points+' pts required' : 'Starting level'}</div>
+        <div style="font-size:.78rem;color:var(--gold);font-style:italic;margin-top:4px">"${s.quote}"</div>
       </div>
-      <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
-    `;
-    catList.appendChild(row);
+      ${!unlocked?'<div class="ladder-lock">🔒</div>':'<div style="color:#4CAF50;font-size:1.3rem">✓</div>'}`;
+    ladder.appendChild(item);
   });
 }
 
-function confirmReset() {
-  if (confirm('Reset all progress? This cannot be undone.')) {
-    learned = {};
-    quizHistory = [];
-    localStorage.removeItem('seekho-learned');
-    localStorage.removeItem('seekho-quiz');
-    renderProgress();
-    renderCategories();
-    showToast('Progress reset');
+// ═══════════════════════════════════
+// LEVEL UP MODAL
+// ═══════════════════════════════════
+function showLevelUpModal(newLvl){
+  const s=starlets[newLvl];
+  playLevelUp();
+  const box=document.getElementById('modal-box');
+  box.innerHTML=`
+    <span class="modal-emoji">${s.emoji}</span>
+    <div class="modal-title">Level Up! 🎉</div>
+    <div class="modal-subtitle">You are now ${s.title}</div>
+    <div style="font-size:1.2rem;font-weight:800;color:var(--gold);margin-bottom:8px">${s.name}</div>
+    <div class="modal-quote">"${s.quote}"</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:20px">${s.desc}</div>
+    <button class="modal-close" onclick="closeModal()">Shadabaad! (Bravo!) 🌟</button>`;
+  // confetti
+  const colors=['#FFD700','#FF1493','#FF9933','#fff','#FF69B4'];
+  for(let i=0;i<18;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.cssText=`left:${Math.random()*100}%;top:${10+Math.random()*20}%;background:${colors[i%colors.length]};animation-delay:${Math.random()*.5}s;animation-duration:${1+Math.random()}s`;
+    box.appendChild(c);
   }
+  document.getElementById('modal-overlay').style.display='flex';
 }
+function closeModal(){document.getElementById('modal-overlay').style.display='none';}
 
-// ════════════════════════════════════════
-// UTILITIES
-// ════════════════════════════════════════
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
-}
-
-// ════════════════════════════════════════
+// ═══════════════════════════════════
 // INIT
-// ════════════════════════════════════════
-renderCategories();
+// ═══════════════════════════════════
+renderHome();
 </script>
 </body>
 </html>
