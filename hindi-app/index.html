@@ -208,6 +208,13 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a0a2e;border:1px solid var(--gold);color:var(--gold);padding:10px 22px;border-radius:20px;font-size:.86rem;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .no-speech{background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.4);border-radius:10px;padding:10px 14px;font-size:.8rem;color:#ffc107;margin-bottom:14px;display:none}
+.word-sentence{margin-top:8px;padding:8px 12px;background:rgba(255,215,0,.06);border-left:2px solid var(--saffron);border-radius:0 8px 8px 0}
+.sent-row{display:flex;align-items:flex-start;gap:8px}
+.sent-hi{font-size:.88rem;color:var(--saffron);font-style:italic;margin-bottom:2px}
+.sent-en{font-size:.78rem;color:var(--muted)}
+.sent-speak{flex-shrink:0;background:none;border:1px solid var(--saffron);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:.72rem;display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .15s;margin-top:2px}
+.sent-speak:hover{background:var(--saffron)}
+.sec-heading{font-size:.82rem;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:1px;padding:12px 0 6px;border-bottom:1px solid var(--border);margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -526,38 +533,150 @@ const chapterMeta={
 };
 
 // Beginner chapter data (Chapter 1)
+const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 const beginnerCats={
   greetings:{title:"Greetings & Basics",icon:"🙏",words:[
-    {english:"Hello / Greetings",transliteration:"Namaste",devanagari:"नमस्ते",tip:"Press palms together while saying this"},
-    {english:"Thank you",transliteration:"Dhanyavaad",devanagari:"धन्यवाद",tip:""},
-    {english:"You're welcome",transliteration:"Koi baat nahi",devanagari:"कोई बात नहीं",tip:"Literally: It's nothing"},
-    {english:"Please",transliteration:"Kripaya",devanagari:"कृपया",tip:""},
-    {english:"Sorry / Excuse me",transliteration:"Maafi kijiye",devanagari:"माफी कीजिए",tip:""},
-    {english:"Yes",transliteration:"Haan",devanagari:"हाँ",tip:""},
-    {english:"No",transliteration:"Nahi",devanagari:"नहीं",tip:""},
-    {english:"Good morning",transliteration:"Suprabhat",devanagari:"सुप्रभात",tip:""},
-    {english:"Good night",transliteration:"Shubh ratri",devanagari:"शुभ रात्रि",tip:""},
-    {english:"How are you?",transliteration:"Aap kaise hain?",devanagari:"आप कैसे हैं?",tip:"Formal. Informal: Tum kaise ho?"},
-    {english:"I'm fine",transliteration:"Main theek hoon",devanagari:"मैं ठीक हूँ",tip:""},
-    {english:"What is your name?",transliteration:"Aapka naam kya hai?",devanagari:"आपका नाम क्या है?",tip:""},
-    {english:"My name is…",transliteration:"Mera naam … hai",devanagari:"मेरा नाम … है",tip:""},
-    {english:"Goodbye",transliteration:"Alvida / Phir milenge",devanagari:"अलविदा / फिर मिलेंगे",tip:"Phir milenge = We'll meet again"}
+    W("Hello / Greetings","Namaste","नमस्ते","Main aapko namaste karta hoon.","मैं आपको नमस्ते करता हूँ।","I greet you with namaste.","Press palms together — the classic Indian greeting"),
+    W("Thank you","Dhanyavaad","धन्यवाद","Aapki madad ke liye dhanyavaad.","आपकी मदद के लिए धन्यवाद।","Thank you for your help.","Shukriya is the informal version"),
+    W("Thanks (informal)","Shukriya","शुक्रिया","Shukriya, aap bahut achche hain.","शुक्रिया, आप बहुत अच्छे हैं।","Thanks, you are very nice."),
+    W("You're welcome","Koi baat nahi","कोई बात नहीं","Koi baat nahi, yeh toh mera farz hai.","कोई बात नहीं, यह तो मेरा फर्ज़ है।","You're welcome, it's my duty.","Literally: It's nothing"),
+    W("Please","Kripaya","कृपया","Kripaya yahan baitho.","कृपया यहाँ बैठो।","Please sit here."),
+    W("Sorry / Excuse me","Maafi kijiye","माफी कीजिए","Maafi kijiye, main der se aaya.","माफी कीजिए, मैं देर से आया।","Sorry, I came late."),
+    W("Yes","Haan","हाँ","Haan, main aa jaunga.","हाँ, मैं आ जाऊँगा।","Yes, I will come."),
+    W("No","Nahi","नहीं","Nahi, mujhe pata nahi.","नहीं, मुझे पता नहीं।","No, I don't know."),
+    W("Good morning","Suprabhat","सुप्रभात","Suprabhat! Aaj ka din shubh ho.","सुप्रभात! आज का दिन शुभ हो।","Good morning! May today be auspicious."),
+    W("Good night","Shubh ratri","शुभ रात्रि","Shubh ratri, meethe sapne aayein.","शुभ रात्रि, मीठे सपने आएँ।","Good night, may sweet dreams come."),
+    W("How are you?","Aap kaise hain?","आप कैसे हैं?","Aap kaise hain? Sab theek hai na?","आप कैसे हैं? सब ठीक है ना?","How are you? Is everything okay?","Formal. Use 'Tum kaise ho?' with friends"),
+    W("I'm fine","Main theek hoon","मैं ठीक हूँ","Main bilkul theek hoon, shukriya.","मैं बिल्कुल ठीक हूँ, शुक्रिया।","I am perfectly fine, thanks."),
+    W("What is your name?","Aapka naam kya hai?","आपका नाम क्या है?","Aapka naam kya hai? Main Rahul hoon.","आपका नाम क्या है? मैं राहुल हूँ।","What is your name? I am Rahul."),
+    W("My name is…","Mera naam … hai","मेरा नाम … है","Mera naam Priya hai, khushi hui.","मेरा नाम प्रिया है, खुशी हुई।","My name is Priya, pleased to meet you."),
+    W("Goodbye","Alvida","अलविदा","Alvida! Phir milenge jaldi.","अलविदा! फिर मिलेंगे जल्दी।","Goodbye! We'll meet again soon."),
+    W("See you again","Phir milenge","फिर मिलेंगे","Theek hai, phir milenge kal.","ठीक है, फिर मिलेंगे कल।","Okay, see you again tomorrow."),
+    W("Absolutely / Of course","Bilkul","बिल्कुल","Bilkul, main aapki madad karunga.","बिल्कुल, मैं आपकी मदद करूँगा।","Absolutely, I will help you."),
+    W("Welcome (to a place)","Swagat hai","स्वागत है","Aapka swagat hai hamare ghar mein.","आपका स्वागत है हमारे घर में।","You are welcome in our home.")
   ]},
-  numbers:{title:"Numbers 1–20",icon:"🔢",words:[
-    {english:"One",transliteration:"Ek",devanagari:"एक",tip:""},{english:"Two",transliteration:"Do",devanagari:"दो",tip:""},{english:"Three",transliteration:"Teen",devanagari:"तीन",tip:""},{english:"Four",transliteration:"Chaar",devanagari:"चार",tip:""},{english:"Five",transliteration:"Paanch",devanagari:"पाँच",tip:""},{english:"Six",transliteration:"Chhe",devanagari:"छह",tip:""},{english:"Seven",transliteration:"Saat",devanagari:"सात",tip:""},{english:"Eight",transliteration:"Aath",devanagari:"आठ",tip:""},{english:"Nine",transliteration:"Nau",devanagari:"नौ",tip:""},{english:"Ten",transliteration:"Das",devanagari:"दस",tip:""},
-    {english:"Eleven",transliteration:"Gyaarah",devanagari:"ग्यारह",tip:""},{english:"Twelve",transliteration:"Baarah",devanagari:"बारह",tip:""},{english:"Twenty",transliteration:"Bees",devanagari:"बीस",tip:""},{english:"Hundred",transliteration:"Sau",devanagari:"सौ",tip:""},{english:"Thousand",transliteration:"Hazaar",devanagari:"हज़ार",tip:""}
+  numbers:{title:"Numbers & Counting",icon:"🔢",words:[
+    W("One","Ek","एक","Ek chai dena please.","एक चाय देना प्लीज़।","Give me one tea please."),
+    W("Two","Do","दो","Do roti chahiye mujhe.","दो रोटी चाहिए मुझे।","I need two flatbreads."),
+    W("Three","Teen","तीन","Teen din mein wapas aaunga.","तीन दिन में वापस आऊँगा।","I will come back in three days."),
+    W("Four","Chaar","चार","Chaar baje milte hain.","चार बजे मिलते हैं।","Let's meet at four o'clock."),
+    W("Five","Paanch","पाँच","Paanch rupaye de do.","पाँच रुपये दे दो।","Give five rupees."),
+    W("Six","Chhe","छह","Chhe ghante so gaya woh.","छह घंटे सो गया वह।","He slept for six hours."),
+    W("Seven","Saat","सात","Saat baje uthna hai subah.","सात बजे उठना है सुबह।","Have to wake up at seven in the morning."),
+    W("Eight","Aath","आठ","Aath log party mein aayenge.","आठ लोग पार्टी में आएँगे।","Eight people will come to the party."),
+    W("Nine","Nau","नौ","Nau baje khaana khao.","नौ बजे खाना खाओ।","Eat food at nine o'clock."),
+    W("Ten","Das","दस","Das rupaye kitne ka hai?","दस रुपये कितने का है?","How much is ten rupees worth?"),
+    W("Eleven","Gyaarah","ग्यारह","Gyaarah baje school jaata hoon.","ग्यारह बजे स्कूल जाता हूँ।","I go to school at eleven."),
+    W("Twelve","Baarah","बारह","Baarah mahine mein ek saal hota hai.","बारह महीने में एक साल होता है।","There are twelve months in a year."),
+    W("Twenty","Bees","बीस","Main bees saal ka hoon.","मैं बीस साल का हूँ।","I am twenty years old."),
+    W("Fifty","Pachaas","पचास","Pachaas rupaye kafi hain.","पचास रुपये काफी हैं।","Fifty rupees is enough."),
+    W("Hundred","Sau","सौ","Ek sau log wahan the.","एक सौ लोग वहाँ थे।","One hundred people were there."),
+    W("Thousand","Hazaar","हज़ार","Ek hazaar rupaye mein kya milega?","एक हज़ार रुपये में क्या मिलेगा?","What will I get for one thousand rupees?"),
+    W("How many?","Kitne?","कितने?","Kitne log aayenge party mein?","कितने लोग आएँगे पार्टी में?","How many people will come to the party?"),
+    W("Half","Aadha","आधा","Aadha khaana bacha hai.","आधा खाना बचा है।","Half the food is left.")
   ]},
   colors:{title:"Colors",icon:"🎨",words:[
-    {english:"Red",transliteration:"Laal",devanagari:"लाल",tip:""},{english:"Blue",transliteration:"Neela",devanagari:"नीला",tip:""},{english:"Green",transliteration:"Hara",devanagari:"हरा",tip:""},{english:"Yellow",transliteration:"Peela",devanagari:"पीला",tip:""},{english:"White",transliteration:"Safed",devanagari:"सफ़ेद",tip:""},{english:"Black",transliteration:"Kaala",devanagari:"काला",tip:""},{english:"Orange",transliteration:"Narangi",devanagari:"नारंगी",tip:""},{english:"Pink",transliteration:"Gulaabi",devanagari:"गुलाबी",tip:"Literally rose-colored"},{english:"Purple",transliteration:"Baingani",devanagari:"बैंगनी",tip:""},{english:"Brown",transliteration:"Bhoora",devanagari:"भूरा",tip:""}
+    W("Red","Laal","लाल","Mujhe laal saari bahut pasand hai.","मुझे लाल साड़ी बहुत पसंद है।","I really like the red saree."),
+    W("Blue","Neela","नीला","Aasman aaj bahut neela hai.","आसमान आज बहुत नीला है।","The sky is very blue today."),
+    W("Green","Hara","हरा","Yeh hara rang bahut taza lagta hai.","यह हरा रंग बहुत ताज़ा लगता है।","This green color looks very fresh."),
+    W("Yellow","Peela","पीला","Peele phool bahut sundar hote hain.","पीले फूल बहुत सुंदर होते हैं।","Yellow flowers are very beautiful."),
+    W("White","Safed","सफ़ेद","Woh hamesha safed kapde pahanta hai.","वह हमेशा सफ़ेद कपड़े पहनता है।","He always wears white clothes."),
+    W("Black","Kaala","काला","Uski gaadi kaali aur sundar hai.","उसकी गाड़ी काली और सुंदर है।","His car is black and beautiful."),
+    W("Orange","Narangi","नारंगी","Narangi rang mujhe bahut pasand hai.","नारंगी रंग मुझे बहुत पसंद है।","I like orange color very much."),
+    W("Pink","Gulaabi","गुलाबी","Uska gulaabi dress bahut pyaara hai.","उसका गुलाबी ड्रेस बहुत प्यारा है।","Her pink dress is very lovely.","Literally: rose-colored"),
+    W("Purple","Baingani","बैंगनी","Baingani rang royalty ka rang hai.","बैंगनी रंग रॉयल्टी का रंग है।","Purple is the color of royalty."),
+    W("Brown","Bhoora","भूरा","Uske bhoore baal bahut lambe hain.","उसके भूरे बाल बहुत लंबे हैं।","His/her brown hair is very long."),
+    W("Golden","Sona / Sunahla","सुनहला","Uska taj sona rang ka hai.","उसका ताज सुनहले रंग का है।","Her crown is golden colored."),
+    W("Silver","Chandi","चाँदी","Chandi ka kya rang hota hai?","चाँदी का क्या रंग होता है?","What color is silver?"),
+    W("What color?","Kaun sa rang?","कौन सा रंग?","Tumhara favorite kaun sa rang hai?","तुम्हारा फेवरेट कौन सा रंग है?","What is your favorite color?"),
+    W("Dark","Gahra","गहरा","Mujhe gahra neela rang pasand hai.","मुझे गहरा नीला रंग पसंद है।","I like dark blue color."),
+    W("Light","Halka","हल्का","Halka peela rang aankhon ko accha lagta hai.","हल्का पीला रंग आँखों को अच्छा लगता है।","Light yellow color is pleasing to the eyes.")
   ]},
   family:{title:"Family",icon:"👨‍👩‍👧",words:[
-    {english:"Mother",transliteration:"Maa / Maata ji",devanagari:"माँ",tip:"Add ji for extra respect"},{english:"Father",transliteration:"Pita ji / Baap",devanagari:"पिता जी",tip:""},{english:"Older brother",transliteration:"Bhaiya",devanagari:"भैया",tip:""},{english:"Older sister",transliteration:"Didi",devanagari:"दीदी",tip:""},{english:"Son",transliteration:"Beta",devanagari:"बेटा",tip:""},{english:"Daughter",transliteration:"Beti",devanagari:"बेटी",tip:""},{english:"Husband",transliteration:"Pati",devanagari:"पति",tip:""},{english:"Wife",transliteration:"Patni",devanagari:"पत्नी",tip:""},{english:"Friend",transliteration:"Dost",devanagari:"दोस्त",tip:""}
+    W("Mother","Maa","माँ","Meri maa duniya ki sabse achchi hain.","मेरी माँ दुनिया की सबसे अच्छी हैं।","My mother is the best in the world.","Add 'ji' for extra respect: Maa ji"),
+    W("Father","Pita ji","पिता जी","Pita ji aaj office gaye hain.","पिता जी आज ऑफिस गए हैं।","Father has gone to the office today."),
+    W("Older brother","Bhaiya","भैया","Mera bhaiya bahut lamba hai.","मेरा भैया बहुत लंबा है।","My older brother is very tall.","Also used respectfully for young men"),
+    W("Older sister","Didi","दीदी","Didi ne mujhe yeh sikhaaya.","दीदी ने मुझे यह सिखाया।","Elder sister taught me this."),
+    W("Younger brother","Chhota bhai","छोटा भाई","Mera chhota bhai school jaata hai.","मेरा छोटा भाई स्कूल जाता है।","My younger brother goes to school."),
+    W("Son","Beta","बेटा","Beta, khaana khaa lo.","बेटा, खाना खा लो।","Son, go ahead and eat your food.","Also used as a term of endearment by elders"),
+    W("Daughter","Beti","बेटी","Meri beti bahut hoshiyaar hai.","मेरी बेटी बहुत होशियार है।","My daughter is very smart."),
+    W("Husband","Pati","पति","Mera pati bahut achcha insaan hai.","मेरा पति बहुत अच्छा इंसान है।","My husband is a very good person."),
+    W("Wife","Patni","पत्नी","Uski patni doctor hai.","उसकी पत्नी डॉक्टर है।","His wife is a doctor."),
+    W("Paternal grandfather","Dada ji","दादा जी","Dada ji ki kahaaniyaan bahut achchi hain.","दादा जी की कहानियाँ बहुत अच्छी हैं।","Grandfather's stories are very good."),
+    W("Paternal grandmother","Dadi ji","दादी जी","Dadi ji ne meetha khaana banaya.","दादी जी ने मीठा खाना बनाया।","Grandmother made sweet food."),
+    W("Maternal grandfather","Naana ji","नाना जी","Naana ji gaon mein rehte hain.","नाना जी गाँव में रहते हैं।","Maternal grandfather lives in the village."),
+    W("Maternal grandmother","Naani ji","नानी जी","Naani ji ki yaad aati hai.","नानी जी की याद आती है।","I miss maternal grandmother."),
+    W("Paternal uncle","Chacha ji","चाचा जी","Chacha ji kal aayenge.","चाचा जी कल आएँगे।","Uncle will come tomorrow."),
+    W("Paternal aunt","Chachi ji","चाची जी","Chachi ji ne mithai bheji.","चाची जी ने मिठाई भेजी।","Aunt sent sweets."),
+    W("Friend","Dost","दोस्त","Mera dost bahut wafaadaar hai.","मेरा दोस्त बहुत वफ़ादार है।","My friend is very loyal."),
+    W("Child","Bachcha","बच्चा","Yeh bachcha bahut pyaara hai.","यह बच्चा बहुत प्यारा है।","This child is very cute.")
   ]},
   phrases:{title:"Useful Phrases",icon:"💬",words:[
-    {english:"Where is the bathroom?",transliteration:"Bathroom kahan hai?",devanagari:"बाथरूम कहाँ है?",tip:""},{english:"How much does it cost?",transliteration:"Yeh kitne ka hai?",devanagari:"यह कितने का है?",tip:""},{english:"I don't understand",transliteration:"Mujhe samajh nahi aaya",devanagari:"मुझे समझ नहीं आया",tip:""},{english:"Please speak slowly",transliteration:"Dhire boliye",devanagari:"धीरे बोलिए",tip:""},{english:"I am hungry",transliteration:"Mujhe bhookh lagi hai",devanagari:"मुझे भूख लगी है",tip:""},{english:"I am thirsty",transliteration:"Mujhe pyaas lagi hai",devanagari:"मुझे प्यास लगी है",tip:""},{english:"Good / Okay",transliteration:"Accha",devanagari:"अच्छा",tip:"Very versatile — can mean Oh really?"},{english:"Let's go!",transliteration:"Chalo!",devanagari:"चलो!",tip:""},{english:"Very good!",transliteration:"Bahut accha!",devanagari:"बहुत अच्छा!",tip:""}
+    W("Where is...?","... kahan hai?","... कहाँ है?","Bathroom kahan hai?","बाथरूम कहाँ है?","Where is the bathroom?"),
+    W("How much does it cost?","Yeh kitne ka hai?","यह कितने का है?","Yeh kurta kitne ka hai?","यह कुर्ता कितने का है?","How much is this kurta?"),
+    W("I don't understand","Samajh nahi aaya","समझ नहीं आया","Mujhe samajh nahi aaya, phir boliye.","मुझे समझ नहीं आया, फिर बोलिए।","I didn't understand, please say it again."),
+    W("Please speak slowly","Dhire boliye","धीरे बोलिए","Kripaya dhire boliye, main seekh raha hoon.","कृपया धीरे बोलिए, मैं सीख रहा हूँ।","Please speak slowly, I am learning."),
+    W("I am hungry","Mujhe bhookh lagi hai","मुझे भूख लगी है","Mujhe bahut bhookh lagi hai, khaana kab milega?","मुझे बहुत भूख लगी है, खाना कब मिलेगा?","I am very hungry, when will food come?"),
+    W("I am thirsty","Mujhe pyaas lagi hai","मुझे प्यास लगी है","Mujhe pyaas lagi hai, paani do.","मुझे प्यास लगी है, पानी दो।","I am thirsty, give me water."),
+    W("I don't know","Mujhe nahi pata","मुझे नहीं पता","Mujhe nahi pata woh kahan gaya.","मुझे नहीं पता वह कहाँ गया।","I don't know where he/she went."),
+    W("Good / Okay","Accha","अच्छा","Accha, main samajh gaya.","अच्छा, मैं समझ गया।","Okay, I understood.","Very versatile — can express surprise, agreement, or 'oh really?'"),
+    W("Let's go!","Chalo!","चलो!","Chalo, film dekhne chalte hain!","चलो, फिल्म देखने चलते हैं!","Let's go watch a film!"),
+    W("Very good!","Bahut accha!","बहुत अच्छा!","Bahut accha! Aapne bahut mehnat ki.","बहुत अच्छा! आपने बहुत मेहनत की।","Very good! You worked very hard."),
+    W("What is this?","Yeh kya hai?","यह क्या है?","Yeh kya hai? Mujhe batao please.","यह क्या है? मुझे बताओ प्लीज़।","What is this? Tell me please."),
+    W("Help me","Meri madad karo","मेरी मदद करो","Kripaya meri madad karo, main kho gaya.","कृपया मेरी मदद करो, मैं खो गया।","Please help me, I am lost."),
+    W("I like it","Mujhe pasand hai","मुझे पसंद है","Mujhe yeh gaana bahut pasand hai.","मुझे यह गाना बहुत पसंद है।","I like this song very much."),
+    W("How do I get to...?","... kaise jaayein?","... कैसे जाएँ?","Station kaise jaayein yahan se?","स्टेशन कैसे जाएँ यहाँ से?","How do I get to the station from here?"),
+    W("Can you repeat that?","Phir se boliye","फिर से बोलिए","Phir se boliye, main sunta hoon.","फिर से बोलिए, मैं सुनता हूँ।","Please say it again, I am listening.")
   ]},
   food:{title:"Food & Drink",icon:"🍛",words:[
-    {english:"Water",transliteration:"Paani",devanagari:"पानी",tip:""},{english:"Tea",transliteration:"Chai",devanagari:"चाय",tip:"Indian masala chai is spiced milk tea"},{english:"Rice",transliteration:"Chawal",devanagari:"चावल",tip:""},{english:"Flatbread",transliteration:"Roti",devanagari:"रोटी",tip:"Also called chapati"},{english:"Vegetables / Curry",transliteration:"Sabzi",devanagari:"सब्जी",tip:""},{english:"Milk",transliteration:"Doodh",devanagari:"दूध",tip:""},{english:"Food / Meal",transliteration:"Khaana",devanagari:"खाना",tip:"Also means to eat"},{english:"Delicious",transliteration:"Swaadisht",devanagari:"स्वादिष्ट",tip:""},{english:"Spicy",transliteration:"Teekha",devanagari:"तीखा",tip:""}
+    W("Water","Paani","पानी","Ek glass thanda paani dena.","एक गिलास ठंडा पानी देना।","Give me one glass of cold water."),
+    W("Tea","Chai","चाय","Do chai lao, bahut thak gaye hain.","दो चाय लाओ, बहुत थक गए हैं।","Bring two teas, we are very tired.","Indian masala chai is spiced and sweet"),
+    W("Rice","Chawal","चावल","Dal chawal mera favorite khaana hai.","दाल चावल मेरा फेवरेट खाना है।","Dal rice is my favorite food."),
+    W("Flatbread","Roti","रोटी","Garam roti ke saath sabzi khaao.","गरम रोटी के साथ सब्ज़ी खाओ।","Eat vegetables with hot flatbread.","Also called chapati"),
+    W("Lentil soup","Dal","दाल","Aaj dal bahut swaadisht bani hai.","आज दाल बहुत स्वादिष्ट बनी है।","Today the lentil soup is very delicious."),
+    W("Vegetables / Curry","Sabzi","सब्ज़ी","Aaj kaunsi sabzi bani hai?","आज कौनसी सब्ज़ी बनी है?","What vegetable dish was made today?"),
+    W("Milk","Doodh","दूध","Subah ek glass doodh pena chahiye.","सुबह एक गिलास दूध पीना चाहिए।","One should drink a glass of milk in the morning."),
+    W("Potato","Aloo","आलू","Aloo paratha bahut tasty hota hai.","आलू पराठा बहुत टेस्टी होता है।","Potato flatbread is very tasty."),
+    W("Spices","Masala","मसाला","Indian khaane mein bahut masala hota hai.","भारतीय खाने में बहुत मसाला होता है।","Indian food has a lot of spices."),
+    W("Cottage cheese","Paneer","पनीर","Paneer tikka mujhe bahut pasand hai.","पनीर टिक्का मुझे बहुत पसंद है।","I really like paneer tikka."),
+    W("Sweets / Dessert","Mithai","मिठाई","Eid par mithai zaroor khaate hain.","ईद पर मिठाई ज़रूर खाते हैं।","Sweets are always eaten on Eid."),
+    W("Delicious","Swaadisht","स्वादिष्ट","Yeh khaana bahut swaadisht hai.","यह खाना बहुत स्वादिष्ट है।","This food is very delicious."),
+    W("Spicy / Hot","Teekha","तीखा","Yeh curry bahut teekhi hai.","यह करी बहुत तीखी है।","This curry is very spicy."),
+    W("Sweet","Meetha","मीठा","Mujhe meetha bahut pasand hai.","मुझे मीठा बहुत पसंद है।","I like sweet things very much."),
+    W("Hungry","Bhookha / Bhookhi","भूखा / भूखी","Main bahut bhookha hoon, kuch khilaao.","मैं बहुत भूखा हूँ, कुछ खिलाओ।","I am very hungry, feed me something.","Bhookha = male, Bhookhi = female"),
+    W("I want to eat","Mujhe khaana hai","मुझे खाना है","Mujhe aaj biryani khaani hai.","मुझे आज बिरयानी खानी है।","I want to eat biryani today."),
+    W("Taste","Swaad","स्वाद","Is sabzi ka swaad bahut achcha hai.","इस सब्ज़ी का स्वाद बहुत अच्छा है।","The taste of this dish is very good.")
+  ]},
+  time:{title:"Time & Days",icon:"📅",words:[
+    W("Today","Aaj","आज","Aaj kya din hai?","आज क्या दिन है?","What day is today?"),
+    W("Tomorrow / Yesterday","Kal","कल","Kal main zaroor aaunga.","कल मैं ज़रूर आऊँगा।","I will definitely come tomorrow.","Same word means BOTH tomorrow and yesterday — context tells you which!"),
+    W("Day after tomorrow","Parson","परसों","Parson hum picnic par jaayenge.","परसों हम पिकनिक पर जाएँगे।","We will go on a picnic the day after tomorrow."),
+    W("Now","Abhi","अभी","Abhi aao, jaldi karo!","अभी आओ, जल्दी करो!","Come now, hurry up!"),
+    W("Morning","Subah","सुबह","Subah subah chai peena mujhe pasand hai.","सुबह सुबह चाय पीना मुझे पसंद है।","I like drinking tea early in the morning."),
+    W("Afternoon","Dopahar","दोपहर","Dopahar ko neend aati hai.","दोपहर को नींद आती है।","I feel sleepy in the afternoon."),
+    W("Evening","Shaam","शाम","Shaam ko hum park jaate hain.","शाम को हम पार्क जाते हैं।","We go to the park in the evening."),
+    W("Night","Raat","रात","Raat ko sitare dekhna achha lagta hai.","रात को सितारे देखना अच्छा लगता है।","It feels good to look at stars at night."),
+    W("Monday","Somvaar","सोमवार","Somvaar ko kaam shuru hota hai.","सोमवार को काम शुरू होता है।","Work starts on Monday."),
+    W("Friday","Shukravaar","शुक्रवार","Shukravaar ko sab khush hote hain.","शुक्रवार को सब खुश होते हैं।","Everyone is happy on Friday."),
+    W("Saturday","Shanivaar","शनिवार","Shanivaar ko aaraam karte hain.","शनिवार को आराम करते हैं।","We rest on Saturday."),
+    W("Sunday","Ravivaar","रविवaar","Ravivaar ko ghar pe rehna achha lagta hai.","रविवार को घर पे रहना अच्छा लगता है।","It feels nice to stay home on Sunday."),
+    W("Hour / O'clock","Baje","बजे","Char baje milna pakka hai.","चार बजे मिलना पक्का है।","Meeting at four o'clock is confirmed."),
+    W("Late","Der se","देर से","Main aaj der se kyon aaya?","मैं आज देर से क्यों आया?","Why did I come late today?"),
+    W("Early / Quickly","Jaldi","जल्दी","Jaldi karo, time nahi hai.","जल्दी करो, टाइम नहीं है।","Hurry up, there is no time.")
+  ]},
+  body:{title:"Body & Health",icon:"🧍",words:[
+    W("Head","Sar","सर","Mera sar dard kar raha hai.","मेरा सर दर्द कर रहा है।","My head is aching."),
+    W("Eyes","Aankhein","आँखें","Uski aankhein bahut sundar hain.","उसकी आँखें बहुत सुंदर हैं।","Her/his eyes are very beautiful."),
+    W("Ears","Kaan","कान","Zor se mat bolo, kaan mein dard hai.","ज़ोर से मत बोलो, कान में दर्द है।","Don't speak loudly, my ear hurts."),
+    W("Nose","Naak","नाक","Naak band ho gayi hai sardi se.","नाक बंद हो गई है सर्दी से।","My nose is blocked from a cold."),
+    W("Mouth","Munh","मुँह","Munh dholo pehle, phir khao.","मुँह धोलो पहले, फिर खाओ।","Wash your face first, then eat."),
+    W("Hand","Haath","हाथ","Khaane se pehle haath dhona chahiye.","खाने से पहले हाथ धोना चाहिए।","One should wash hands before eating."),
+    W("Leg / Foot","Paon","पाँव","Mera paon dard kar raha hai.","मेरा पाँव दर्द कर रहा है।","My foot is hurting."),
+    W("Heart","Dil","दिल","Mera dil bahut khush hai aaj.","मेरा दिल बहुत खुश है आज।","My heart is very happy today."),
+    W("Pain / Ache","Dard","दर्द","Bahut dard ho raha hai, doctor bulao.","बहुत दर्द हो रहा है, डॉक्टर बुलाओ।","There is a lot of pain, call a doctor."),
+    W("Sick / Ill","Beemaar","बीमार","Main thoda beemaar hoon, rest karunga.","मैं थोड़ा बीमार हूँ, रेस्ट करूँगा।","I am a little sick, I will rest."),
+    W("Doctor","Doctor","डॉक्टर","Doctor ke paas aaj hi jaana chahiye.","डॉक्टर के पास आज ही जाना चाहिए।","I should go to the doctor today itself."),
+    W("Medicine","Dawaai","दवाई","Yeh dawaai roz khaao, theek ho jaoge.","यह दवाई रोज़ खाओ, ठीक हो जाओगे।","Take this medicine every day, you will get better.")
   ]}
 };
 
@@ -606,7 +725,7 @@ function getAllFilmWords(){
   return Object.values(chapterMeta).filter(c=>c.type==='film').flatMap(c=>c.words.map(w=>({...w,chapterKey:c.key,chapterTitle:c.title})));
 }
 function getAllBeginnerWords(){
-  return Object.entries(beginnerCats).flatMap(([catKey,cat])=>cat.words.map((w,j)=>({...w,chapterKey:'basics_'+catKey,wordIdx:j,catKey})));
+  return Object.entries(beginnerCats).flatMap(([catKey,cat])=>cat.words.map((w,j)=>({...w,transliteration:w.transliteration,english:w.english,devanagari:w.devanagari,chapterKey:'basics_'+catKey,wordIdx:j,catKey})));
 }
 function getAllWords(){return[...getAllBeginnerWords(),...getAllFilmWords()];}
 
@@ -626,8 +745,8 @@ function getTotalLearned(){
 function showView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+  const vEl=document.getElementById('view-'+name);if(vEl)vEl.classList.add('active');
+  const tEl=document.getElementById('tab-'+name);if(tEl)tEl.classList.add('active');
   if(name==='home')renderHome();
   if(name==='chapters')renderChapters();
   if(name==='flashcards')initFlashcards();
@@ -679,9 +798,9 @@ function renderChapters(){
   grid.innerHTML='';
 
   // Chapter 1 - Basics
-  const bc=Object.values(beginnerCats);
-  const bl=bc.reduce((s,cat,i)=>s+cat.words.filter((_,j)=>learned[learnedKey('basics_'+Object.keys(beginnerCats)[i],j)]).length,0);
-  const btotal=bc.reduce((s,cat)=>s+cat.words.length,0);
+  const bc=Object.entries(beginnerCats);
+  const bl=bc.reduce((s,[catKey,cat])=>s+cat.words.filter((_,j)=>learned['basics_'+catKey+':'+j]).length,0);
+  const btotal=bc.reduce((s,[,cat])=>s+cat.words.length,0);
   const bCard=document.createElement('div');
   bCard.className='chapter-card';
   bCard.innerHTML=`<div class="chapter-poster" style="background:linear-gradient(135deg,#1a3a1a,#0d2e3a)">
@@ -735,23 +854,25 @@ function openBasicsChapter(){
   renderBasicsCatWords(Object.keys(beginnerCats)[0]);
 }
 
+function makeWordRow(w, lKey, onMark){
+  const isL=!!learned[lKey];
+  const row=document.createElement('div');
+  row.className='word-row'+(isL?' learned':'');
+  const sentHTML=w.sentence?`<div class="word-sentence"><div class="sent-row"><div><div class="sent-hi">"${w.sentence}"</div><div class="sent-en">${w.sentenceEng}</div></div><button class="sent-speak">🔊</button></div></div>`:'';
+  row.innerHTML=`<div class="word-info"><div style="display:flex;align-items:center;gap:8px"><div class="word-translit">${w.transliteration}</div><button class="speak-btn" title="Hear word">🔊</button></div><div class="word-eng">${w.english}</div>${w.tip?'<div class="word-tip">💡 '+w.tip+'</div>':''}${sentHTML}</div>${isL?'<span class="learned-badge">✓</span>':'<button class="mark-btn">✓ Mark</button>'}`;
+  row.querySelector('.speak-btn').onclick=e=>{e.stopPropagation();speakWord(w.devanagari);};
+  if(w.sentenceDev){const ss=row.querySelector('.sent-speak');if(ss)ss.onclick=e=>{e.stopPropagation();speakWord(w.sentenceDev);};}
+  if(!isL){const mb=row.querySelector('.mark-btn');if(mb)mb.onclick=e=>{e.stopPropagation();learned[lKey]=true;saveState();onMark();showToast('✅ Marked as learned!');};}
+  return row;
+}
+
 function renderBasicsCatWords(catKey){
   activeBasicsCat=catKey;
   const cat=beginnerCats[catKey];
   const list=document.getElementById('lesson-words');
   list.innerHTML='';
   cat.words.forEach((w,j)=>{
-    const k=learnedKey('basics_'+catKey,j);
-    const isL=!!learned[k];
-    const row=document.createElement('div');
-    row.className='word-row'+(isL?' learned':'');
-    row.innerHTML=`<div class="word-info"><div class="word-translit">${w.transliteration}</div><div class="word-eng">${w.english}</div>${w.tip?'<div class="word-tip">💡 '+w.tip+'</div>':''}</div>
-      <button class="speak-btn" title="Hear it">🔊</button>
-      ${isL?'<span class="learned-badge">✓ Learned</span>':'<button class="mark-btn">Mark learned</button>'}`;
-    row.querySelector('.speak-btn').onclick=e=>{e.stopPropagation();speakWord(w.devanagari);};
-    const mb=row.querySelector('.mark-btn');
-    if(mb)mb.onclick=e=>{e.stopPropagation();learned[k]=true;saveState();renderBasicsCatWords(catKey);showToast('✅ Marked as learned!');};
-    list.appendChild(row);
+    list.appendChild(makeWordRow(w,'basics_'+catKey+':'+j,()=>renderBasicsCatWords(catKey)));
   });
 }
 
@@ -777,18 +898,13 @@ function openFilmChapter(key){
 
   const list=document.getElementById('lesson-words');
   list.innerHTML='';
-  ch.words.forEach(w=>{
-    const k='film:'+key+':'+w.transliteration;
-    const isL=!!learned[k];
-    const row=document.createElement('div');
-    row.className='word-row'+(isL?' learned':'');
-    row.innerHTML=`<div class="word-info"><div class="word-translit">${w.transliteration}</div><div class="word-eng">${w.english}</div>${w.tip?'<div class="word-tip">💡 '+w.tip+'</div>':''}</div>
-      <button class="speak-btn">🔊</button>
-      ${isL?'<span class="learned-badge">✓ Learned</span>':'<button class="mark-btn">Mark learned</button>'}`;
-    row.querySelector('.speak-btn').onclick=e=>{e.stopPropagation();speakWord(w.devanagari);};
-    const mb=row.querySelector('.mark-btn');
-    if(mb)mb.onclick=e=>{e.stopPropagation();learned[k]=true;saveState();openFilmChapter(key);showToast('✅ Marked as learned!');};
-    list.appendChild(row);
+  const sections=ch.sections||[{title:'Vocabulary',words:ch.words||[]}];
+  sections.forEach(sec=>{
+    const hd=document.createElement('div');hd.className='sec-heading';hd.textContent=sec.title;list.appendChild(hd);
+    sec.words.forEach(w=>{
+      const lk='film:'+key+':'+w.transliteration;
+      list.appendChild(makeWordRow(w,lk,()=>openFilmChapter(key)));
+    });
   });
 }
 
