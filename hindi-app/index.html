@@ -253,6 +253,29 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 .daily-sub{font-size:.78rem;color:var(--muted);margin-top:4px}
 .daily-record-badge{display:inline-block;background:linear-gradient(135deg,var(--gold),var(--saffron));color:#000;font-size:.65rem;font-weight:900;padding:3px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-top:6px;animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.04)}}
+/* songs tab */
+.song-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .2s}
+.song-card:hover{border-color:rgba(255,20,147,.5);transform:translateY(-2px)}
+.song-poster{height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;position:relative}
+.song-poster-badge{position:absolute;top:8px;left:10px;font-size:.65rem;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:1px;text-transform:uppercase}
+.song-poster-emojis{font-size:1.8rem;margin-bottom:6px}
+.song-poster-title{font-size:.9rem;font-weight:800;color:#fff;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.song-poster-film{font-size:.72rem;color:rgba(255,255,255,.7);margin-top:2px}
+.song-poster-meta{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:4px}
+/* chorus box */
+.chorus-box{background:linear-gradient(135deg,rgba(255,20,147,.1),rgba(75,0,130,.15));border:1px solid rgba(255,20,147,.3);border-radius:var(--r);padding:18px;margin-bottom:18px}
+.chorus-title{font-size:.7rem;color:var(--pink);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;font-weight:700}
+.chorus-line{font-size:1rem;color:var(--gold);font-style:italic;margin-bottom:4px;line-height:1.6}
+.chorus-dev{font-size:.88rem;color:var(--muted);margin-bottom:4px}
+.chorus-eng{font-size:.82rem;color:var(--text)}
+/* singer home card */
+.singer-home-card{background:linear-gradient(135deg,rgba(138,43,226,.15),rgba(75,0,130,.2));border:1px solid rgba(138,43,226,.4);border-radius:var(--r);padding:14px 18px;margin-top:10px;display:flex;align-items:center;gap:14px}
+.singer-home-emoji{font-size:2.2rem;flex-shrink:0}
+.singer-home-info{flex:1}
+.singer-home-label{font-size:.62rem;color:#b39ddb;text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:3px}
+.singer-home-name{font-size:1rem;font-weight:800;color:#e1bee7}
+.singer-home-title{font-size:.72rem;color:#9575cd;text-transform:uppercase;letter-spacing:.8px}
+.singer-home-pts{font-size:.75rem;color:#b39ddb;margin-top:4px}
 </style>
 </head>
 <body>
@@ -266,10 +289,11 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
   </div>
   <nav>
     <button class="nav-btn active" onclick="showView('home')" id="tab-home">🏠 Home</button>
-    <button class="nav-btn" onclick="showView('chapters')" id="tab-chapters">📚 Chapters</button>
+    <button class="nav-btn" onclick="showView('chapters')" id="tab-chapters">🎬 Movies</button>
     <button class="nav-btn" onclick="showView('flashcards')" id="tab-flashcards">🃏 Flashcards</button>
     <button class="nav-btn" onclick="showView('quiz')" id="tab-quiz">✏️ Quiz</button>
     <button class="nav-btn" onclick="showView('journey')" id="tab-journey">🌟 Star Journey</button>
+    <button class="nav-btn" onclick="showView('songs')" id="tab-songs">🎵 Songs</button>
     <button class="nav-btn" onclick="showView('settings')" id="tab-settings">⚙️ Settings</button>
   </nav>
 </header>
@@ -287,6 +311,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
             <div class="daily-card" id="home-daily"></div>
           </div>
         </div>
+        <div class="singer-home-card" id="home-singer-card"></div>
         <div class="poster-tagline">✦ Har Din Seekho · Har Din Baro ✦ Learn Every Day · Grow Every Day ✦</div>
       </div>
     </div>
@@ -411,6 +436,32 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
     <div id="filmfare-cabinet"></div>
     <div class="section-title">🎭 Starlet Ladder</div>
     <div class="starlet-ladder" id="starlet-ladder"></div>
+    <div class="section-title" style="margin-top:28px">🎤 Singer Ladder</div>
+    <div class="starlet-ladder" id="singer-ladder"></div>
+  </div>
+
+  <!-- SONGS -->
+  <div class="view" id="view-songs">
+    <div class="progress-strip">
+      <span class="prog-label">🎵 Singer level</span>
+      <div class="prog-bar"><div class="prog-fill" id="singer-overall-fill" style="width:0%"></div></div>
+      <span class="prog-count" id="singer-overall-label">0 pts</span>
+    </div>
+    <div class="chapters-grid" id="songs-grid"></div>
+  </div>
+
+  <!-- SONG LESSON -->
+  <div class="view" id="view-song-lesson">
+    <div class="lesson-header" id="song-lesson-header">
+      <div class="lesson-header-content">
+        <button class="lesson-back" onclick="showView('songs')">← Back to Songs</button>
+        <div class="lesson-title" id="song-lesson-title"></div>
+        <div class="lesson-meta" id="song-lesson-meta"></div>
+      </div>
+    </div>
+    <div class="dialogue-section" id="song-chorus-section"></div>
+    <div class="section-title">📖 Chorus Vocabulary</div>
+    <div class="word-list" id="song-lesson-words"></div>
   </div>
 
   <!-- SETTINGS -->
@@ -433,7 +484,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
-const APP_VERSION = 'v2.2';
+const APP_VERSION = 'v2.3';
 const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
@@ -1315,6 +1366,7 @@ function showView(name){
   if(name==='journey')renderJourney();
   if(name==='quiz')populateQuizDropdowns();
   if(name==='settings')renderSettings();
+  if(name==='songs')renderSongs();
 }
 
 // ═══════════════════════════════════
@@ -1869,6 +1921,20 @@ function resetEverything(){
   totalPoints=0;learned={};quizHistory=[];filmfareAwards={};dailyData={date:todayStr,pts:0,record:0};
   saveState();renderHome();showToast('Everything reset.');showView('home');
 }
+
+// ═══════════════════════════════════
+// SONGS — stubs (full impl coming)
+// ═══════════════════════════════════
+const singerLevels=[];
+const songMeta={};
+let singerPoints=parseInt(localStorage.getItem('seekho-singer-pts')||'0');
+let sqMode='movie';
+function getSingerLevel(){return 0;}
+function renderSongs(){
+  const grid=document.getElementById('songs-grid');
+  if(grid)grid.innerHTML='<div style="color:var(--muted);padding:24px;text-align:center">Songs loading soon…</div>';
+}
+function openSongChapter(key){}
 </script>
 </body>
 </html>
