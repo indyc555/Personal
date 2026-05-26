@@ -301,10 +301,10 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
   <nav>
     <button class="nav-btn active" onclick="showView('home')" id="tab-home">🏠 Home</button>
     <button class="nav-btn" onclick="showView('chapters')" id="tab-chapters">🎬 Movies</button>
+    <button class="nav-btn" onclick="showView('songs')" id="tab-songs">🎵 Songs</button>
     <button class="nav-btn" onclick="showView('flashcards')" id="tab-flashcards">🃏 Flashcards</button>
     <button class="nav-btn" onclick="showView('quiz')" id="tab-quiz">✏️ Quiz</button>
     <button class="nav-btn" onclick="showView('journey')" id="tab-journey">🌟 Star Journey</button>
-    <button class="nav-btn" onclick="showView('songs')" id="tab-songs">🎵 Songs</button>
     <button class="nav-btn" onclick="showView('settings')" id="tab-settings">⚙️ Settings</button>
   </nav>
 </header>
@@ -536,15 +536,15 @@ const bollywoodQuotes=[
 
 const singerLevels=[
   {name:"Sur Seekhne Wali",title:"Learning the Melody",emoji:"🎵",points:0,color:"#9C27B0",desc:"Every great singer starts with the first note.",quote:"Ek sur se duniya banti hai. (One note makes the world.)"},
-  {name:"Nazia Hassan",title:"Disco Queen",emoji:"🪩",points:350,color:"#E91E63",desc:"Aap Jaisi Koi! Pakistan's pop legend who conquered Bollywood.",quote:"Aap jaisi koi meri zindagi mein aaye! (Someone like you came into my life!)"},
-  {name:"Usha Uthup",title:"Jazz & Folk Queen",emoji:"🎷",points:850,color:"#673AB7",desc:"Her voice broke all rules. Hare Rama Hare Krishna to jazz stages.",quote:"Darling, music is my religion!"},
-  {name:"Kavita Krishnamurthy",title:"Classical Elegance",emoji:"🌸",points:1600,color:"#7B1FA2",desc:"Taal. Devdas. A voice of classical grace.",quote:"Sangeet anubhav hai, sirf awaaz nahi. (Music is feeling, not just voice.)"},
-  {name:"Alka Yagnik",title:"90s Romantic Queen",emoji:"💖",points:2600,color:"#C2185B",desc:"Tujhe Dekha Toh. Dilwale Dulhania. The voice of an era.",quote:"Kuch kuch hota hai, main kya karon? (Something happens, what do I do?)"},
-  {name:"Sunidhi Chauhan",title:"Powerhouse Performer",emoji:"🔥",points:4000,color:"#AD1457",desc:"Dhadkan. Dhoom. Sheila Ki Jawani. Raw, electrifying energy.",quote:"Sheila ki jawani! (Youth of Sheila — her most famous hit)"},
-  {name:"Shreya Ghoshal",title:"Romantic Voice of a Generation",emoji:"🌹",points:6000,color:"#880E4F",desc:"Devdas. Jab We Met. A voice like moonlight on water.",quote:"Yeh ishq haaye... (This love, oh... — from Jab We Met)"},
-  {name:"Neha Kakkar",title:"Modern Pop Sensation",emoji:"⚡",points:8500,color:"#6A1B9A",desc:"Social media queen, heart of the people, millennial anthems.",quote:"O saki saki! (My beloved — her chart-topper)"},
-  {name:"Asha Bhosle",title:"The Eternal Nightingale",emoji:"🌙",points:12000,color:"#4527A0",desc:"Miss World of music. 1950s to now. Over 12,000 songs. Dum Maro Dum.",quote:"Dum maro dum, mit jaaye gham! (Take a puff, let sorrows vanish!)"},
-  {name:"Lata Mangeshkar",title:"Melody Queen of India",emoji:"👑",points:17000,color:"#1A237E",desc:"Bharat Ratna. Voice of the nation. Lag Jaa Gale. Ae Mere Watan Ke Logon.",quote:"Lag jaa gale ke phir yeh haseen raat ho na ho. (Embrace me, for this beautiful night may not come again.)"}
+  {name:"Nazia Hassan",title:"Disco Queen",emoji:"🪩",points:40,color:"#E91E63",desc:"Aap Jaisi Koi! Pakistan's pop legend who conquered Bollywood.",quote:"Aap jaisi koi meri zindagi mein aaye! (Someone like you came into my life!)"},
+  {name:"Usha Uthup",title:"Jazz & Folk Queen",emoji:"🎷",points:100,color:"#673AB7",desc:"Her voice broke all rules. Hare Rama Hare Krishna to jazz stages.",quote:"Darling, music is my religion!"},
+  {name:"Kavita Krishnamurthy",title:"Classical Elegance",emoji:"🌸",points:200,color:"#7B1FA2",desc:"Taal. Devdas. A voice of classical grace.",quote:"Sangeet anubhav hai, sirf awaaz nahi. (Music is feeling, not just voice.)"},
+  {name:"Alka Yagnik",title:"90s Romantic Queen",emoji:"💖",points:350,color:"#C2185B",desc:"Tujhe Dekha Toh. Dilwale Dulhania. The voice of an era.",quote:"Kuch kuch hota hai, main kya karon? (Something happens, what do I do?)"},
+  {name:"Sunidhi Chauhan",title:"Powerhouse Performer",emoji:"🔥",points:550,color:"#AD1457",desc:"Dhadkan. Dhoom. Sheila Ki Jawani. Raw, electrifying energy.",quote:"Sheila ki jawani! (Youth of Sheila — her most famous hit)"},
+  {name:"Shreya Ghoshal",title:"Romantic Voice of a Generation",emoji:"🌹",points:800,color:"#880E4F",desc:"Devdas. Jab We Met. A voice like moonlight on water.",quote:"Yeh ishq haaye... (This love, oh... — from Jab We Met)"},
+  {name:"Neha Kakkar",title:"Modern Pop Sensation",emoji:"⚡",points:1100,color:"#6A1B9A",desc:"Social media queen, heart of the people, millennial anthems.",quote:"O saki saki! (My beloved — her chart-topper)"},
+  {name:"Asha Bhosle",title:"The Eternal Nightingale",emoji:"🌙",points:1500,color:"#4527A0",desc:"Miss World of music. 1950s to now. Over 12,000 songs. Dum Maro Dum.",quote:"Dum maro dum, mit jaaye gham! (Take a puff, let sorrows vanish!)"},
+  {name:"Lata Mangeshkar",title:"Melody Queen of India",emoji:"👑",points:2000,color:"#1A237E",desc:"Bharat Ratna. Voice of the nation. Lag Jaa Gale. Ae Mere Watan Ke Logon.",quote:"Lag jaa gale ke phir yeh haseen raat ho na ho. (Embrace me, for this beautiful night may not come again.)"}
 ];
 
 const songMeta={
@@ -1908,6 +1908,11 @@ function initFlashcards(){
     Object.values(chapterMeta).filter(c=>c.type==='film').forEach(ch=>{
       const o=document.createElement('option');o.value=ch.key;o.textContent=ch.emojis+' '+ch.title+' ('+ch.year+')';sel.appendChild(o);
     });
+    const sg=document.createElement('optgroup');sg.label='🎵 Songs';
+    Object.values(songMeta).forEach(song=>{
+      const o=document.createElement('option');o.value='song:'+song.key;o.textContent=song.emojis+' '+song.title;sg.appendChild(o);
+    });
+    sel.appendChild(sg);
     sel.onchange=loadFC;
   }
   loadFC();
@@ -1917,6 +1922,10 @@ function loadFC(){
   const val=document.getElementById('fc-cat').value;
   if(val==='all')fcCards=getAllWords().map((w,i)=>({...w,fcKey:'all_'+i}));
   else if(val==='basics')fcCards=getAllBeginnerWords();
+  else if(val.startsWith('song:')){
+    const sk=val.slice(5);const song=songMeta[sk];
+    fcCards=song?song.sections.flatMap(s=>s.words).map(w=>({...w,chapterKey:'song:'+sk,fcKey:'song:'+sk+':'+w.transliteration})):[];
+  }
   else fcCards=getChapterAllWords(chapterMeta[val]||{}).map(w=>({...w,chapterKey:val,fcKey:'film:'+val+':'+w.transliteration}));
   fcIdx=0;fcFlipped=false;showFC();
 }
@@ -1948,15 +1957,21 @@ function populateQuizDropdowns(){
     Object.values(chapterMeta).filter(c=>c.type==='film').forEach(ch=>{
       const o=document.createElement('option');o.value=ch.key;o.textContent=ch.emojis+' '+ch.title;sel.appendChild(o);
     });
+    const sg=document.createElement('optgroup');sg.label='🎵 Songs';
+    Object.values(songMeta).forEach(song=>{
+      const o=document.createElement('option');o.value='song:'+song.key;o.textContent=song.emojis+' '+song.title;sg.appendChild(o);
+    });
+    sel.appendChild(sg);
   }
 }
 
-let quizQs=[],qIdx=0,qScore=0,qResults=[],qStreakNow=0,qPtsEarned=0;
+let quizQs=[],qIdx=0,qScore=0,qResults=[],qStreakNow=0,qPtsEarned=0,qIsSong=false;
 let currentQWord=null;
 
 function getQuizPool(cat){
   if(cat==='all')return getAllWords();
   if(cat==='basics')return getAllBeginnerWords();
+  if(cat.startsWith('song:')){const sk=cat.slice(5);const song=songMeta[sk];return song?song.sections.flatMap(s=>s.words).map(w=>({...w,chapterKey:cat})):[];}
   return getChapterAllWords(chapterMeta[cat]||{}).map(w=>({...w,chapterKey:cat}));
 }
 
@@ -1965,6 +1980,7 @@ function startQuiz(){
   const cat=document.getElementById('q-cat').value;
   const type=document.getElementById('q-type').value;
   const count=parseInt(document.getElementById('q-count').value);
+  qIsSong=cat.startsWith('song:');
   let pool=getQuizPool(cat);
   const allForDistractors=getAllWords();
   if(pool.length<4){showToast('Need at least 4 words. Choose a bigger category.');return;}
@@ -1986,7 +2002,7 @@ function renderQ(){
   const q=quizQs[qIdx];
   currentQWord=q.word;
   document.getElementById('q-prog').textContent=(qIdx+1)+' / '+quizQs.length;
-  document.getElementById('q-pts-display').textContent=totalPoints;
+  document.getElementById('q-pts-display').textContent=qIsSong?singerPoints:totalPoints;
   document.getElementById('q-streak-display').textContent=qStreakNow>=2?'🔥 Streak x'+qStreakNow:'';
   document.getElementById('q-feedback').className='q-feedback';
   document.getElementById('q-next').style.display='none';
@@ -2023,19 +2039,20 @@ function selectAnswer(chosen,correct,type){
     else if(btn.textContent===(type==='en-to-hi'?chosen.transliteration:chosen.english)&&!isOk)btn.classList.add('wrong');
   });
   const fb=document.getElementById('q-feedback');
-  const prevLevel=getStarletLevel();
+  const prevLevel=qIsSong?getSingerLevel():getStarletLevel();
   if(isOk){
     qScore++;qStreakNow++;
     let pts=10;if(qStreakNow>=3)pts+=5;
-    totalPoints+=pts;qPtsEarned+=pts;addDailyPoints(pts);
+    if(qIsSong){singerPoints+=pts;}else{totalPoints+=pts;addDailyPoints(pts);}
+    qPtsEarned+=pts;
     const k=chosen.chapterKey?'film:'+chosen.chapterKey+':'+chosen.transliteration:(chosen.fcKey||'?');
     learned[k]=true;saveState();
     fb.className='q-feedback correct';fb.textContent='✅ Correct! +'+pts+' pts! '+correct.transliteration+' = '+correct.english;
     speakWord(correct.devanagari);playCorrect();
-    document.getElementById('q-pts-display').textContent=totalPoints;
+    document.getElementById('q-pts-display').textContent=qIsSong?singerPoints:totalPoints;
     document.getElementById('q-streak-display').textContent=qStreakNow>=2?'🔥 Streak x'+qStreakNow:'';
-    const newLevel=getStarletLevel();
-    if(newLevel>prevLevel)setTimeout(()=>showLevelUpModal(newLevel),800);
+    const newLevel=qIsSong?getSingerLevel():getStarletLevel();
+    if(newLevel>prevLevel){if(qIsSong)setTimeout(()=>showSingerLevelUpModal(newLevel),800);else setTimeout(()=>showLevelUpModal(newLevel),800);}
   }else{
     qStreakNow=0;
     fb.className='q-feedback wrong';fb.textContent='❌ Answer: '+correct.transliteration+' ('+correct.english+')';
@@ -2053,7 +2070,7 @@ function showResult(){
   res.style.display='block';
   const pct=Math.round(qScore/quizQs.length*100);
   const bonusPts=pct===100?25:0;
-  if(bonusPts){totalPoints+=bonusPts;qPtsEarned+=bonusPts;addDailyPoints(bonusPts);saveState();}
+  if(bonusPts){if(qIsSong){singerPoints+=bonusPts;}else{totalPoints+=bonusPts;addDailyPoints(bonusPts);}qPtsEarned+=bonusPts;saveState();}
   if(pct===100){
     const cat=document.getElementById('q-cat').value;
     if(cat&&cat!=='all'){
@@ -2071,8 +2088,13 @@ function showResult(){
   document.getElementById('r-pts-earned').textContent='+'+qPtsEarned+' pts earned!';
   document.getElementById('r-msg').textContent=msg;
   if(pct>=60)playFanfare();
-  const lvl=getStarletLevel();const s=starlets[lvl];
-  document.getElementById('r-starlet').innerHTML=s.emoji+' <strong>'+s.name+'</strong> · '+s.title+'<br><span style="font-size:.78rem;color:var(--muted)">Total: '+totalPoints+' pts</span>';
+  if(qIsSong){
+    const sLvl=getSingerLevel();const ss=singerLevels[sLvl];
+    document.getElementById('r-starlet').innerHTML=ss.emoji+' <strong>'+ss.name+'</strong> · '+ss.title+'<br><span style="font-size:.78rem;color:var(--muted)">Singer pts: '+singerPoints+'</span>';
+  }else{
+    const lvl=getStarletLevel();const s=starlets[lvl];
+    document.getElementById('r-starlet').innerHTML=s.emoji+' <strong>'+s.name+'</strong> · '+s.title+'<br><span style="font-size:.78rem;color:var(--muted)">Total: '+totalPoints+' pts</span>';
+  }
   const wrongs=qResults.filter(r=>!r.correct);
   document.getElementById('r-breakdown').innerHTML='<h4>Review</h4>'+(wrongs.length?wrongs.map(r=>'<div class="bd-item"><span>'+r.word.english+'</span><span class="bd-correct">'+r.word.transliteration+'</span></div>').join(''):'<div style="color:#4CAF50;font-weight:600;padding:6px 0">🎉 Perfect! No mistakes!</div>');
   quizHistory.push({date:new Date().toISOString(),score:qScore,total:quizQs.length,pts:qPtsEarned,chapter:document.getElementById('q-cat').value});
@@ -2166,6 +2188,27 @@ function showLevelUpModal(newLvl){
     <button class="modal-close" onclick="closeModal()">Shadabaad! (Bravo!) 🌟</button>`;
   // confetti
   const colors=['#FFD700','#FF1493','#FF9933','#fff','#FF69B4'];
+  for(let i=0;i<18;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.cssText=`left:${Math.random()*100}%;top:${10+Math.random()*20}%;background:${colors[i%colors.length]};animation-delay:${Math.random()*.5}s;animation-duration:${1+Math.random()}s`;
+    box.appendChild(c);
+  }
+  document.getElementById('modal-overlay').style.display='flex';
+}
+function showSingerLevelUpModal(newLvl){
+  const s=singerLevels[newLvl];
+  playLevelUp();
+  const box=document.getElementById('modal-box');
+  box.innerHTML=`
+    <span class="modal-emoji">${s.emoji}</span>
+    <div class="modal-title">Singer Level Up! 🎤</div>
+    <div class="modal-subtitle" style="color:#b39ddb">You sound like ${s.title}</div>
+    <div style="font-size:1.2rem;font-weight:800;color:#e1bee7;margin-bottom:8px">${s.name}</div>
+    <div class="modal-quote">"${s.quote}"</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:20px">${s.desc}</div>
+    <button class="modal-close" onclick="closeModal()">Wah Wah! 🎵</button>`;
+  const colors=['#9C27B0','#E91E63','#673AB7','#fff','#CE93D8'];
   for(let i=0;i<18;i++){
     const c=document.createElement('div');
     c.className='confetti';
