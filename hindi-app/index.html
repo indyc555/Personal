@@ -285,8 +285,8 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 .user-profile-card:hover,.user-profile-card.active{border-color:var(--gold);background:rgba(255,215,0,.07)}
 .user-profile-card .user-av{font-size:2rem}
 /* youtube */
-.yt-btn{display:inline-flex;align-items:center;gap:8px;background:#c00;color:#fff;border-radius:8px;padding:9px 18px;font-size:.85rem;font-weight:700;text-decoration:none;margin:0 0 14px;transition:opacity .15s;border:none;cursor:pointer}
-.yt-btn:hover{opacity:.85}
+.yt-embed-wrap{position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--r);margin-bottom:16px;background:#000}
+.yt-embed-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:var(--r)}
 </style>
 </head>
 <body>
@@ -486,6 +486,11 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
   <!-- SETTINGS -->
   <div class="view" id="view-settings">
     <div class="section-title">⚙️ Settings</div>
+    <div class="settings-block">
+      <h3>👥 User Profiles</h3>
+      <div id="settings-users"></div>
+      <button class="settings-btn" style="margin-top:10px" onclick="showCreateUserForm()">✨ Add New User</button>
+    </div>
     <div class="settings-block">
       <h3>🔄 Reset Data</h3>
       <button class="settings-btn" onclick="resetScore()">Reset Score to Zero</button>
@@ -2315,6 +2320,23 @@ function submitNewUser(){
 document.getElementById('app-version').textContent = APP_VERSION;
 renderHome();
 function renderSettings(){
+  // User profiles list
+  const usersEl=document.getElementById('settings-users');
+  if(usersEl){
+    usersEl.innerHTML=users.map(u=>{
+      const isCurrent=u.id===currentUserId;
+      const canDelete=!isCurrent&&users.length>1;
+      return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:1.6rem;flex-shrink:0">${u.emoji}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;display:flex;align-items:center;gap:6px">${u.name}${isCurrent?'<span style="font-size:.62rem;background:var(--gold);color:#000;padding:1px 6px;border-radius:8px">ACTIVE</span>':''}</div>
+          <div style="font-size:.73rem;color:var(--muted)">${u.totalPoints||0} movie pts &middot; ${u.singerPoints||0} singer pts</div>
+        </div>
+        ${canDelete?`<button class="settings-btn danger" style="width:auto;padding:5px 12px;margin:0;font-size:.78rem;flex-shrink:0" onclick="deleteUser('${u.id}')">Delete</button>`:''}
+      </div>`;
+    }).join('');
+  }
+  // Quiz history
   const el=document.getElementById('settings-history');
   if(!el)return;
   const hist=quizHistory.slice().reverse();
@@ -2326,6 +2348,18 @@ function renderSettings(){
       <span class="h-score ${r.score===r.total?'perfect':''}">${r.score}/${r.total}</span>
       <span class="h-pts">+${r.pts||0}pts</span>
     </div>`).join('');
+}
+
+function deleteUser(uid){
+  const u=users.find(u=>u.id===uid);
+  if(!u)return;
+  if(uid===currentUserId){showToast('Switch to another user first before deleting this profile.');return;}
+  if(users.length<=1){showToast('Cannot delete the only user profile.');return;}
+  if(!confirm('Delete profile "'+u.name+'"? All their progress will be permanently lost.'))return;
+  users=users.filter(u=>u.id!==uid);
+  localStorage.setItem('seekho-users',JSON.stringify(users));
+  renderSettings();
+  showToast('Profile "'+u.name+'" deleted.');
 }
 function resetScore(){
   if(!confirm('Reset your score to zero? Level and Filmfare awards are kept.'))return;
@@ -2382,7 +2416,8 @@ function openSongChapter(key){
   document.getElementById('song-lesson-meta').innerHTML=`🎤 ${song.singer} &nbsp;·&nbsp; 🎬 ${song.film}`;
   // Chorus
   const chorusEl=document.getElementById('song-chorus-section');
-  chorusEl.innerHTML=(song.ytUrl?`<a href="${song.ytUrl}" target="_blank" rel="noopener" class="yt-btn">▶ Watch on YouTube</a>`:'')
+  const ytId=song.ytUrl?(song.ytUrl.match(/[?&]v=([^&]+)/)||[])[1]||null:null;
+  chorusEl.innerHTML=(ytId?`<div class="yt-embed-wrap"><iframe src="https://www.youtube.com/embed/${ytId}" allowfullscreen loading="lazy" title="${song.title}"></iframe></div>`:'')
     +`<div class="chorus-box">
     <div class="chorus-title">🎵 Chorus — Sing Along!</div>
     ${song.chorus.map(l=>`
