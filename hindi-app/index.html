@@ -214,7 +214,21 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 .sent-en{font-size:.78rem;color:var(--muted)}
 .sent-speak{flex-shrink:0;background:none;border:1px solid var(--saffron);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:.72rem;display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .15s;margin-top:2px}
 .sent-speak:hover{background:var(--saffron)}
-.sec-heading{font-size:.82rem;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:1px;padding:12px 0 6px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.sec-heading{font-size:.82rem;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:1px;padding:12px 0 6px;border-bottom:1px solid var(--border);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-award{font-size:.78rem;background:rgba(255,215,0,.15);border:1px solid var(--gold);border-radius:10px;padding:2px 8px;color:var(--gold);flex-shrink:0}
+.sec-quiz-btn{margin:10px 0 18px;padding:9px 18px;background:linear-gradient(135deg,var(--pink),var(--saffron));border:none;border-radius:8px;color:#fff;font-size:.8rem;font-weight:700;cursor:pointer;transition:opacity .15s;display:block;width:100%}
+.sec-quiz-btn:hover{opacity:.85}
+.sq-prog{font-size:.8rem;color:var(--muted);margin-bottom:8px}
+.sq-question{font-size:1rem;font-weight:700;color:var(--text);margin:10px 0 14px;line-height:1.4;text-align:left}
+.sq-choices{display:grid;gap:8px;margin-bottom:14px}
+.sq-choice{background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;font-size:.88rem;color:var(--text);text-align:left;transition:all .15s;width:100%}
+.sq-choice:hover:not(:disabled){border-color:var(--gold)}
+.sq-choice.correct{border-color:#4CAF50;background:rgba(76,175,80,.2);color:#4CAF50}
+.sq-choice.wrong{border-color:#f44336;background:rgba(244,67,54,.12);color:#f44336}
+.sq-next{margin-top:8px;padding:10px 24px;background:var(--gold);border:none;border-radius:8px;font-weight:700;cursor:pointer;color:#000;font-size:.9rem}
+.filmfare-wrap{background:rgba(255,215,0,.08);border:1px solid var(--gold);border-radius:var(--r);padding:18px;margin-top:14px}
+.filmfare-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:10px}
+.filmfare-card{background:var(--card2);border:1px solid var(--gold);border-radius:10px;padding:12px;text-align:center;font-size:.8rem}
 </style>
 </head>
 <body>
@@ -359,6 +373,8 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
   <div class="view" id="view-journey">
     <div class="section-title">🌟 Your Bollywood Star Journey</div>
     <div class="journey-stats" id="journey-stats"></div>
+    <div class="section-title">🏆 Filmfare Awards Cabinet</div>
+    <div id="filmfare-cabinet"></div>
     <div class="section-title">🎭 Starlet Ladder</div>
     <div class="starlet-ladder" id="starlet-ladder"></div>
   </div>
@@ -370,19 +386,21 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
-const APP_VERSION = 'v1.8';
+const APP_VERSION = 'v1.9';
 const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
 // ═══════════════════════════════════
 const starlets = [
   {name:"Nayi Ladki",title:"New on Set",emoji:"🌸",points:0,color:"#FF69B4",desc:"Every star starts somewhere! The set awaits.",quote:"Sapne dekhna shuru karo. (Start dreaming.)"},
-  {name:"Rekha",title:"Classic Icon",emoji:"💄",points:50,color:"#8B0000",desc:"1970s–80s legend. Umrao Jaan. Grace personified.",quote:"Mohabbat kabhi nahi marti. (Love never dies.)"},
-  {name:"Sridevi",title:"First Female Superstar",emoji:"🌪️",points:150,color:"#4B0082",desc:"The original No. 1. Mr. India. English Vinglish.",quote:"Hawa Hawai! (Gone with the wind!)"},
-  {name:"Madhuri Dixit",title:"Dancing Queen",emoji:"💃",points:300,color:"#FF1493",desc:"Dhak Dhak! Devdas. Hum Aapke Hain Koun.",quote:"Ek do teen, chaar paanch chhe! (One two three, four five six!)"},
-  {name:"Kajol",title:"Queen of Drama",emoji:"❤️",points:500,color:"#DC143C",desc:"DDLJ forever. Kabhi Khushi. Kuch Kuch Hota Hai.",quote:"Tujhe dekha toh yeh jaana sanam. (When I saw you, I understood, beloved.)"},
-  {name:"Deepika Padukone",title:"Modern Bollywood Icon",emoji:"✨",points:750,color:"#DAA520",desc:"Bajirao Mastani. Padmaavat. Piku. Global superstar.",quote:"Deewani Mastani hoon main! (I am a crazy lover!)"},
-  {name:"Aishwarya Rai Bachchan",title:"The Eternal Queen 👑",emoji:"👑",points:1000,color:"#FFD700",desc:"Miss World 1994. Devdas. Jodhaa Akbar. The most beautiful.",quote:"Nimbooda nimbooda nimbooda... (From Hum Dil De Chuke Sanam)"}
+  {name:"Tara Sharma",title:"Rising Starlet",emoji:"⭐",points:40,color:"#FF8C69",desc:"Fun roles, infectious energy. Main Hoon Na. Salaam Namaste.",quote:"Zindagi mein mazaa lo! (Have fun in life!)"},
+  {name:"Rekha",title:"Classic Icon",emoji:"💄",points:120,color:"#8B0000",desc:"1970s–80s legend. Umrao Jaan. Grace personified.",quote:"Mohabbat kabhi nahi marti. (Love never dies.)"},
+  {name:"Sridevi",title:"First Female Superstar",emoji:"🌪️",points:250,color:"#4B0082",desc:"The original No. 1. Mr. India. English Vinglish.",quote:"Hawa Hawai! (Gone with the wind!)"},
+  {name:"Madhuri Dixit",title:"Dancing Queen",emoji:"💃",points:450,color:"#FF1493",desc:"Dhak Dhak! Devdas. Hum Aapke Hain Koun.",quote:"Ek do teen, chaar paanch chhe! (One two three, four five six!)"},
+  {name:"Kajol",title:"Queen of Drama",emoji:"❤️",points:700,color:"#DC143C",desc:"DDLJ forever. Kabhi Khushi. Kuch Kuch Hota Hai.",quote:"Tujhe dekha toh yeh jaana sanam. (When I saw you, I understood, beloved.)"},
+  {name:"Priyanka Chopra",title:"Global Crossover Queen",emoji:"🌍",points:1000,color:"#9B59B6",desc:"Miss World 2000. Quantico. Dil Dhadakne Do. Barfi!",quote:"Desi girl hoon main! (I am a desi girl!)"},
+  {name:"Deepika Padukone",title:"Modern Bollywood Icon",emoji:"✨",points:1400,color:"#DAA520",desc:"Bajirao Mastani. Padmaavat. Piku. Global superstar.",quote:"Deewani Mastani hoon main! (I am a crazy lover!)"},
+  {name:"Aishwarya Rai Bachchan",title:"The Eternal Queen 👑",emoji:"👑",points:2000,color:"#FFD700",desc:"Miss World 1994. Devdas. Jodhaa Akbar. The most beautiful.",quote:"Nimbooda nimbooda nimbooda... (From Hum Dil De Chuke Sanam)"}
 ];
 
 const bollywoodQuotes=[
@@ -403,12 +421,12 @@ const chapterMeta={
   rocky:{key:"rocky",title:"Rocky Aur Rani Ki Prem Kahani",subtitle:"A modern love story",emoji:"🌹",type:"film",gradient:"linear-gradient(135deg,#8B0050,#3d0030)",badge:"Chapter 2",year:"2023",
     director:"Karan Johar",stars:"Ranveer Singh · Alia Bhatt",genre:"Romance / Drama",emojis:"🌹💑🎊",
     dialogue:[
-      {speaker:"Rocky",hindi:"Oye suno! Aap kaun hain?",eng:"Hey listen! Who are you?",dev:"ओये सुनो! आप कौन हैं?"},
-      {speaker:"Rani",hindi:"Main Rani hoon. Journalist. Aur aap?",eng:"I am Rani. A journalist. And you?",dev:"मैं रानी हूँ। जर्नलिस्ट। और आप?"},
-      {speaker:"Rocky",hindi:"Main Rocky hoon. Yaar, aap bahut sundar hain!",eng:"I am Rocky. Friend, you are very beautiful!",dev:"मैं रॉकी हूँ। यार, आप बहुत सुंदर हैं!"},
-      {speaker:"Rani",hindi:"Yeh kya tarika hai baat karne ka?",eng:"What kind of way is this to speak?",dev:"यह क्या तरीका है बात करने का?"},
-      {speaker:"Rocky",hindi:"Sacchi baat bolna galat nahi hai!",eng:"Speaking the truth is not wrong!",dev:"सच्ची बात बोलना गलत नहीं है!"},
-      {speaker:"Rani",hindi:"Aap pagal hain!",eng:"You are crazy!",dev:"आप पागल हैं!"}
+      {speaker:"Rocky",gender:"m",hindi:"Oye suno! Aap kaun hain?",eng:"Hey listen! Who are you?",dev:"ओये सुनो! आप कौन हैं?"},
+      {speaker:"Rani",gender:"f",hindi:"Main Rani hoon. Journalist. Aur aap?",eng:"I am Rani. A journalist. And you?",dev:"मैं रानी हूँ। जर्नलिस्ट। और आप?"},
+      {speaker:"Rocky",gender:"m",hindi:"Main Rocky hoon. Yaar, aap bahut sundar hain!",eng:"I am Rocky. Friend, you are very beautiful!",dev:"मैं रॉकी हूँ। यार, आप बहुत सुंदर हैं!"},
+      {speaker:"Rani",gender:"f",hindi:"Yeh kya tarika hai baat karne ka?",eng:"What kind of way is this to speak?",dev:"यह क्या तरीका है बात करने का?"},
+      {speaker:"Rocky",gender:"m",hindi:"Sacchi baat bolna galat nahi hai!",eng:"Speaking the truth is not wrong!",dev:"सच्ची बात बोलना गलत नहीं है!"},
+      {speaker:"Rani",gender:"f",hindi:"Aap pagal hain!",eng:"You are crazy!",dev:"आप पागल हैं!"}
     ],
     sections:[
       {title:"🎬 From the Scene",words:[
@@ -758,12 +776,14 @@ const beginnerCats={
 let learned=JSON.parse(localStorage.getItem('seekho-learned')||'{}');
 let quizHistory=JSON.parse(localStorage.getItem('seekho-quiz')||'[]');
 let totalPoints=parseInt(localStorage.getItem('seekho-points')||'0');
+let filmfareAwards=JSON.parse(localStorage.getItem('seekho-awards')||'{}');
 let streak=0;
 
 function saveState(){
   localStorage.setItem('seekho-learned',JSON.stringify(learned));
   localStorage.setItem('seekho-quiz',JSON.stringify(quizHistory.slice(-50)));
   localStorage.setItem('seekho-points',totalPoints);
+  localStorage.setItem('seekho-awards',JSON.stringify(filmfareAwards));
 }
 
 function getStarletLevel(){
@@ -776,11 +796,22 @@ function getStarletLevel(){
 // AUDIO
 // ═══════════════════════════════════
 const synth=window.speechSynthesis;
-let voices=[],hindiVoice=null,audioCtx=null;
+let voices=[],hindiVoiceFemale=null,hindiVoiceMale=null,audioCtx=null;
 function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
-function loadVoices(){voices=synth?synth.getVoices():[];hindiVoice=voices.find(v=>v.lang==='hi-IN')||voices.find(v=>v.lang.startsWith('hi'))||null;if(!synth||voices.length===0)document.getElementById('speech-warn').style.display='block';}
+function loadVoices(){
+  voices=synth?synth.getVoices():[];
+  const hi=voices.filter(v=>v.lang==='hi-IN'||v.lang.startsWith('hi'));
+  hindiVoiceFemale=hi.find(v=>/female/i.test(v.name))||hi[0]||null;
+  hindiVoiceMale=hi.find(v=>/male/i.test(v.name)&&!/female/i.test(v.name))||hi.find((v,i)=>i>0)||hindiVoiceFemale;
+  if(!synth||voices.length===0)document.getElementById('speech-warn').style.display='block';
+}
 if(synth){synth.onvoiceschanged=loadVoices;loadVoices();}else{document.getElementById('speech-warn').style.display='block';}
-function speakWord(dev){if(!synth||!dev)return;synth.cancel();const u=new SpeechSynthesisUtterance(dev);u.lang='hi-IN';u.rate=0.82;if(hindiVoice)u.voice=hindiVoice;synth.speak(u);}
+function speakWord(dev,gender){
+  if(!synth||!dev)return;synth.cancel();
+  const u=new SpeechSynthesisUtterance(dev);u.lang='hi-IN';u.rate=0.82;
+  const voice=gender==='m'?(hindiVoiceMale||hindiVoiceFemale):hindiVoiceFemale;
+  if(voice)u.voice=voice;synth.speak(u);
+}
 function playTone(f,s,d,g=0.25,t='triangle'){try{const c=getCtx(),o=c.createOscillator(),gn=c.createGain();o.connect(gn);gn.connect(c.destination);o.type=t;o.frequency.value=f;const ts=c.currentTime+s;gn.gain.setValueAtTime(g,ts);gn.gain.exponentialRampToValueAtTime(0.001,ts+d);o.start(ts);o.stop(ts+d+0.05);}catch(e){}}
 function playCorrect(){playTone(784,0,0.1,0.2);playTone(1047,0.12,0.15,0.2);}
 function playNoise(s,d,g=0.4,fr=180){try{const c=getCtx(),buf=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;const src=c.createBufferSource();src.buffer=buf;const filt=c.createBiquadFilter();filt.type='bandpass';filt.frequency.value=fr;const gn=c.createGain();gn.gain.setValueAtTime(g,c.currentTime+s);gn.gain.exponentialRampToValueAtTime(0.001,c.currentTime+s+d);src.connect(filt);filt.connect(gn);gn.connect(c.destination);src.start(c.currentTime+s);src.stop(c.currentTime+s+d+0.05);}catch(e){}}
@@ -966,7 +997,8 @@ function openFilmChapter(key){
   ch.dialogue.forEach(line=>{
     const d=document.createElement('div');
     d.className='dialogue-line';
-    d.innerHTML=`<button class="dialogue-speak" onclick="speakWord('${line.dev.replace(/'/g,"\\'")}')">🔊</button>
+    const g=line.gender||'f';
+    d.innerHTML=`<button class="dialogue-speak" onclick="speakWord('${line.dev.replace(/'/g,"\\'")}','${g}')">🔊</button>
       <div class="dialogue-speaker">${line.speaker}</div>
       <div class="dialogue-hindi">${line.hindi}</div>
       <div class="dialogue-eng">${line.eng}</div>`;
@@ -976,13 +1008,108 @@ function openFilmChapter(key){
   const list=document.getElementById('lesson-words');
   list.innerHTML='';
   const sections=ch.sections||[{title:'Vocabulary',words:ch.words||[]}];
-  sections.forEach(sec=>{
-    const hd=document.createElement('div');hd.className='sec-heading';hd.textContent=sec.title;list.appendChild(hd);
+  sections.forEach((sec,secIdx)=>{
+    const awardKey=key+'_sec_'+secIdx;
+    const hasAward=!!filmfareAwards[awardKey];
+    const hd=document.createElement('div');
+    hd.className='sec-heading';
+    hd.innerHTML=`<span>${sec.title}</span>${hasAward?'<span class="sec-award">🏆 Filmfare</span>':''}`;
+    list.appendChild(hd);
     sec.words.forEach(w=>{
       const lk='film:'+key+':'+w.transliteration;
       list.appendChild(makeWordRow(w,lk,()=>openFilmChapter(key)));
     });
+    const qBtn=document.createElement('button');
+    qBtn.className='sec-quiz-btn';
+    qBtn.textContent=(hasAward?'🏆 ':'✏️ ')+'Quiz: '+sec.title;
+    qBtn.onclick=()=>openSectionQuiz(sec,key,secIdx,awardKey);
+    list.appendChild(qBtn);
   });
+}
+
+// ═══════════════════════════════════
+// SECTION MINI-QUIZ
+// ═══════════════════════════════════
+let sqWords=[],sqIdx=0,sqScore=0,sqAwardKey='';
+
+function openSectionQuiz(sec,chapterKey,secIdx,awardKey){
+  sqWords=sec.words.slice();
+  // Shuffle and cap at 8 questions (or all if fewer)
+  for(let i=sqWords.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sqWords[i],sqWords[j]]=[sqWords[j],sqWords[i]];}
+  sqWords=sqWords.slice(0,Math.min(8,sqWords.length));
+  sqIdx=0;sqScore=0;sqAwardKey=awardKey;
+  showSQQuestion();
+}
+
+function showSQQuestion(){
+  const box=document.getElementById('modal-box');
+  const overlay=document.getElementById('modal-overlay');
+  if(sqIdx>=sqWords.length){showSQResult();return;}
+  const q=sqWords[sqIdx];
+  // Build 4 choices: the correct English + 3 random wrong ones from all vocab
+  const pool=getAllWords().filter(w=>w.english!==q.english);
+  const wrongs=pool.sort(()=>Math.random()-.5).slice(0,3).map(w=>w.english);
+  const choices=[q.english,...wrongs].sort(()=>Math.random()-.5);
+
+  box.innerHTML=`
+    <div style="text-align:left">
+      <div class="sq-prog">Question ${sqIdx+1} of ${sqWords.length} · Score: ${sqScore}/${sqIdx}</div>
+      <div class="sq-question">What does <strong style="color:var(--gold)">${q.transliteration}</strong> mean?</div>
+      <button style="background:none;border:none;color:var(--saffron);cursor:pointer;font-size:.8rem;margin-bottom:10px" onclick="speakWord('${q.devanagari.replace(/'/g,"\\'")}')">🔊 Hear it</button>
+      <div class="sq-choices">
+        ${choices.map(c=>`<button class="sq-choice" onclick="sqAnswer(this,'${c.replace(/'/g,"\\'")}','${q.english.replace(/'/g,"\\'")}','${q.devanagari.replace(/'/g,"\\'")}')">
+          ${c}
+        </button>`).join('')}
+      </div>
+    </div>`;
+  overlay.style.display='flex';
+}
+
+function sqAnswer(btn,chosen,correct,dev){
+  const box=document.getElementById('modal-box');
+  box.querySelectorAll('.sq-choice').forEach(b=>b.disabled=true);
+  if(chosen===correct){
+    btn.classList.add('correct');sqScore++;
+    playCorrect();
+    setTimeout(()=>{sqIdx++;showSQQuestion();},700);
+  } else {
+    btn.classList.add('wrong');
+    box.querySelectorAll('.sq-choice').forEach(b=>{if(b.textContent.trim()===correct)b.classList.add('correct');});
+    speakWord(dev);
+    const next=document.createElement('button');
+    next.className='sq-next';next.textContent='Next →';
+    next.onclick=()=>{sqIdx++;showSQQuestion();};
+    box.appendChild(next);
+  }
+}
+
+function showSQResult(){
+  const box=document.getElementById('modal-box');
+  const pct=Math.round(sqScore/sqWords.length*100);
+  const perfect=pct===100;
+  const alreadyHad=!!filmfareAwards[sqAwardKey];
+
+  if(perfect&&!alreadyHad){
+    filmfareAwards[sqAwardKey]=true;
+    saveState();
+    playLevelUp();
+  } else if(perfect){
+    playFanfare();
+  } else {
+    playCorrect();
+  }
+
+  box.innerHTML=`
+    <span class="modal-emoji">${perfect?'🏆':'🎬'}</span>
+    <div class="modal-title">${perfect?'Filmfare Award!':'Section Complete'}</div>
+    <div class="modal-subtitle" style="color:var(--pink)">${sqScore} / ${sqWords.length} correct · ${pct}%</div>
+    ${perfect&&!alreadyHad?'<div style="color:var(--gold);margin:10px 0;font-size:.9rem">🏆 You\'ve won the Filmfare Award for this section!</div>':''}
+    ${perfect&&alreadyHad?'<div style="color:var(--muted);margin:10px 0;font-size:.85rem">You already hold this Filmfare!</div>':''}
+    ${!perfect?'<div style="color:var(--muted);margin:10px 0;font-size:.85rem">Score 100% to win the Filmfare Award!</div>':''}
+    <div style="display:flex;gap:10px;margin-top:16px;justify-content:center">
+      <button class="sq-next" onclick="openSectionQuiz({words:sqWords.concat()},null,null,sqAwardKey);sqWords=[...sqWords]">Try Again</button>
+      <button class="modal-close" onclick="closeModal()">Done</button>
+    </div>`;
 }
 
 // ═══════════════════════════════════
@@ -1174,6 +1301,22 @@ function renderJourney(){
     <div class="stat-box"><div class="stat-num">${totalL}</div><div class="stat-label">Words learned</div></div>
     <div class="stat-box"><div class="stat-num">${quizHistory.length}</div><div class="stat-label">Quizzes taken</div></div>
     <div class="stat-box"><div class="stat-num">${quizHistory.length?Math.round(quizHistory.reduce((s,q)=>s+(q.score/q.total*100),0)/quizHistory.length):0}%</div><div class="stat-label">Avg score</div></div>`;
+
+  // Filmfare awards cabinet
+  const cabinet=document.getElementById('filmfare-cabinet');
+  const awardKeys=Object.keys(filmfareAwards);
+  if(!awardKeys.length){
+    cabinet.innerHTML='<div class="filmfare-wrap"><p style="color:var(--muted);font-size:.85rem;text-align:center">Complete a section quiz with 100% to win your first Filmfare! 🏆</p></div>';
+  } else {
+    const grid=awardKeys.map(k=>{
+      const [chKey,,secIdx]=k.split('_sec_');
+      const ch=chapterMeta[chKey];
+      const sec=ch&&(ch.sections||[])[parseInt(secIdx)];
+      return`<div class="filmfare-card"><div style="font-size:1.8rem">🏆</div><div style="color:var(--gold);font-weight:700;margin:4px 0">${sec?sec.title:k}</div><div style="color:var(--muted)">${ch?ch.title:''}</div></div>`;
+    }).join('');
+    cabinet.innerHTML=`<div class="filmfare-wrap"><div style="color:var(--gold);font-size:.85rem;font-weight:700;margin-bottom:2px">🏆 ${awardKeys.length} award${awardKeys.length>1?'s':''} won</div><div class="filmfare-grid">${grid}</div></div>`;
+  }
+
   const ladder=document.getElementById('starlet-ladder');
   ladder.innerHTML='';
   starlets.forEach((s,i)=>{
