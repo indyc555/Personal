@@ -369,7 +369,8 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
-const APP_VERSION = 'v1.5';
+const APP_VERSION = 'v1.6';
+const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
 // ═══════════════════════════════════
@@ -604,7 +605,6 @@ const chapterMeta={
 };
 
 // Beginner chapter data (Chapter 1)
-const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 const beginnerCats={
   greetings:{title:"Greetings & Basics",icon:"🙏",words:[
     W("Hello / Greetings","Namaste","नमस्ते","Main aapko namaste karta hoon.","मैं आपको नमस्ते करता हूँ।","I greet you with namaste.","Press palms together — the classic Indian greeting"),
