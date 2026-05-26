@@ -386,7 +386,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
-const APP_VERSION = 'v1.9';
+const APP_VERSION = 'v2.0';
 const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
@@ -514,23 +514,118 @@ const chapterMeta={
   idiots:{key:"idiots",title:"3 Idiots",subtitle:"Chase dreams, not grades",emoji:"🎓",type:"film",gradient:"linear-gradient(135deg,#0a2a4a,#0d3d2a)",badge:"Chapter 3",year:"2009",
     director:"Rajkumar Hirani",stars:"Aamir Khan · R. Madhavan · Sharman Joshi",genre:"Comedy / Drama",emojis:"🎓📚✏️",
     dialogue:[
-      {speaker:"Rancho",hindi:"Yaar, engineering kyon padh rahe ho?",eng:"Friend, why are you studying engineering?",dev:"यार, इंजीनियरिंग क्यों पढ़ रहे हो?"},
-      {speaker:"Farhan",hindi:"Papa chahte hain. Unki marzi hai.",eng:"Father wants it. It is his wish.",dev:"पापा चाहते हैं। उनकी मर्ज़ी है।"},
-      {speaker:"Rancho",hindi:"Apni marzi se kuch karo! Dil ki suno.",eng:"Do something by your own will! Listen to your heart.",dev:"अपनी मर्ज़ी से कुछ करो! दिल की सुनो।"},
-      {speaker:"Raju",hindi:"Mushkil hai yaar. Ghar ki zaroorat hai.",eng:"It's difficult friend. The family needs it.",dev:"मुश्किल है यार। घर की ज़रूरत है।"},
-      {speaker:"Rancho",hindi:"Daro mat. Aal izz well!",eng:"Don't be afraid. All is well!",dev:"डरो मत। ऑल इज़ वेल!"}
+      {speaker:"Rancho",gender:"m",hindi:"Yaar, engineering kyon padh rahe ho?",eng:"Friend, why are you studying engineering?",dev:"यार, इंजीनियरिंग क्यों पढ़ रहे हो?"},
+      {speaker:"Farhan",gender:"m",hindi:"Papa chahte hain. Unki marzi hai.",eng:"Father wants it. It is his wish.",dev:"पापा चाहते हैं। उनकी मर्ज़ी है।"},
+      {speaker:"Rancho",gender:"m",hindi:"Apni marzi se kuch karo! Dil ki suno.",eng:"Do something by your own will! Listen to your heart.",dev:"अपनी मर्ज़ी से कुछ करो! दिल की सुनो।"},
+      {speaker:"Raju",gender:"m",hindi:"Mushkil hai yaar. Ghar ki zaroorat hai.",eng:"It is difficult friend. The family needs it.",dev:"मुश्किल है यार। घर की ज़रूरत है।"},
+      {speaker:"Rancho",gender:"m",hindi:"Daro mat. Aal izz well!",eng:"Don't be afraid. All is well!",dev:"डरो मत। ऑल इज़ वेल!"}
     ],
-    words:[
-      {english:"Why",transliteration:"Kyon",devanagari:"क्यों",tip:"'Kyon nahi?' = Why not?"},
-      {english:"Studies / Education",transliteration:"Padhai",devanagari:"पढ़ाई",tip:"'Padhai karo!' = Study!"},
-      {english:"Difficult",transliteration:"Mushkil",devanagari:"मुश्किल",tip:"Opposite: Aasaan (easy)"},
-      {english:"Wish / Will",transliteration:"Marzi",devanagari:"मर्ज़ी",tip:"'Apni marzi' = your own choice"},
-      {english:"To want",transliteration:"Chahna",devanagari:"चाहना",tip:"'Main chahta hoon' = I want"},
-      {english:"Heart",transliteration:"Dil",devanagari:"दिल",tip:"One of the most used words in Bollywood!"},
-      {english:"Be afraid (command)",transliteration:"Daro",devanagari:"डरो",tip:"'Daro mat' = Don't be afraid"},
-      {english:"Necessity / Need",transliteration:"Zaroorat",devanagari:"ज़रूरत",tip:"'Zaroorat nahi' = no need"},
-      {english:"Own / Your own",transliteration:"Apna / Apni",devanagari:"अपना / अपनी",tip:"'Apna' (m), 'Apni' (f)"},
-      {english:"Amazing / Incredible",transliteration:"Kamaal",devanagari:"कमाल",tip:"'Kamaal hai!' = That's amazing!"}
+    sections:[
+      {title:"🎬 From the Scene",words:[
+        W("Why","Kyon","क्यों","Tum yahan kyon aaye ho?","तुम यहाँ क्यों आए हो?","Why have you come here?","'Kyon nahi?' = Why not?"),
+        W("Studies / Education","Padhai","पढ़ाई","Padhai bahut zaroori hai.","पढ़ाई बहुत ज़रूरी है।","Studies are very important.","'Padhai karo!' = Study!"),
+        W("Wish / Personal choice","Marzi","मर्ज़ी","Yeh meri apni marzi hai.","यह मेरी अपनी मर्ज़ी है।","This is my own choice.","'Apni marzi' = doing things your own way"),
+        W("Heart","Dil","दिल","Apne dil ki baat suno.","अपने दिल की बात सुनो।","Listen to what your heart says.","One of the most-used words in Bollywood!"),
+        W("Difficult","Mushkil","मुश्किल","Yeh sawaal bahut mushkil hai.","यह सवाल बहुत मुश्किल है।","This question is very difficult.","Opposite: Aasaan = easy"),
+        W("Need / Necessity","Zaroorat","ज़रूरत","Mujhe aapki madad ki zaroorat hai.","मुझे आपकी मदद की ज़रूरत है।","I need your help.","'Zaroorat nahi' = no need"),
+        W("Own / Personal","Apna","अपना","Apna kaam khud karo.","अपना काम खुद करो।","Do your own work yourself.","'Apna' (m), 'Apni' (f)"),
+        W("Amazing / Incredible","Kamaal","कमाल","Tumne kamaal kar diya!","तुमने कमाल कर दिया!","You did something incredible!","'Kamaal hai!' = That is amazing!"),
+        W("Mind / Brain","Dimag","दिमाग़","Dimag ka istemal karo.","दिमाग़ का इस्तेमाल करो।","Use your brain.","'Dimag mat lagao' = don't overthink"),
+        W("All is well","Aal izz well","ऑल इज़ वेल","Daro mat, aal izz well!","डरो मत, ऑल इज़ वेल!","Don't be afraid, all is well!","The iconic 3 Idiots phrase — trick the brain into staying calm"),
+        W("Don't be afraid","Daro mat","डरो मत","Daro mat, sab theek ho jaayega.","डरो मत, सब ठीक हो जाएगा।","Don't be afraid, everything will be fine.","'Daro' = fear (imperative). 'Mat' = don't"),
+        W("Father (informal)","Papa","पापा","Papa chahte hain ki main doctor banoon.","पापा चाहते हैं कि मैं डॉक्टर बनूँ।","Father wants me to become a doctor.","Same warmth as 'Dad' in English"),
+        W("To want","Chahna","चाहना","Main yeh kaam karna chahta hoon.","मैं यह काम करना चाहता हूँ।","I want to do this work.","'Chahta hoon' (m) / 'chahti hoon' (f)"),
+        W("Listen to your heart","Dil ki suno","दिल की सुनो","Dil ki suno, dimag ki nahi.","दिल की सुनो, दिमाग़ की नहीं।","Listen to your heart, not your mind.","The film's central message"),
+        W("Engineering","Injeeineering","इंजीनियरिंग","Woh ek mashoor injeeineering college mein padhta hai.","वह एक मशहूर इंजीनियरिंग कॉलेज में पढ़ता है।","He studies in a famous engineering college.","The most popular course in India in 2009!")
+      ]},
+      {title:"🎓 College & Learning",words:[
+        W("Book","Kitaab","किताब","Yeh kitaab bahut dilchasp hai.","यह किताब बहुत दिलचस्प है।","This book is very interesting."),
+        W("Exam / Test","Pariksha","परीक्षा","Kal meri pariksha hai.","कल मेरी परीक्षा है।","I have an exam tomorrow.","Also called 'exam' in everyday speech"),
+        W("To pass","Pass karna","पास करना","Main zaroor pass karunga.","मैं ज़रूर पास करूँगा।","I will definitely pass."),
+        W("To fail","Fail karna","फेल करना","Fail hone se daro mat.","फेल होने से डरो मत।","Don't be afraid of failing."),
+        W("Marks / Score","Ank","अंक","Mujhe acche ank chahiye.","मुझे अच्छे अंक चाहिए।","I want good marks.","Also said as 'marks' in Hindi colleges"),
+        W("Professor / Teacher","Sir / Adhyapak","सर / अध्यापक","Hamare sir bahut strict hain.","हमारे सर बहुत सख्त हैं।","Our professor is very strict.","Students call all teachers 'Sir' or 'Ma'am'"),
+        W("Student","Chhatra","छात्र","Main ek mehnati chhatra hoon.","मैं एक मेहनती छात्र हूँ।","I am a hardworking student.","Female form: Chhatra (छात्रा)"),
+        W("Knowledge","Gyaan","ज्ञान","Gyaan se bada koi dhan nahi.","ज्ञान से बड़ा कोई धन नहीं।","There is no greater wealth than knowledge.","A deeply respected concept in Indian culture"),
+        W("Degree","Degree","डिग्री","Degree lena bahut zaroori hai.","डिग्री लेना बहुत ज़रूरी है।","Getting a degree is very necessary."),
+        W("Intelligent / Smart","Hoshiyaar","होशियार","Woh bahut hoshiyaar ladka hai.","वह बहुत होशियार लड़का है।","He is a very intelligent boy."),
+        W("Question","Sawaal","सवाल","Yeh bahut achha sawaal hai.","यह बहुत अच्छा सवाल है।","This is a very good question.","'Sawaal karna' = to ask a question"),
+        W("Answer","Jawaab","जवाब","Mujhe is sawaal ka jawaab pata hai.","मुझे इस सवाल का जवाब पता है।","I know the answer to this question."),
+        W("Rule","Niyam","नियम","College ke niyam maanne chahiye.","कॉलेज के नियम मानने चाहिए।","College rules should be followed.","'Niyam todna' = to break a rule"),
+        W("To learn","Seekhna","सीखना","Roz kuch naya seekhna chahiye.","रोज़ कुछ नया सीखना चाहिए।","One should learn something new every day."),
+        W("To understand","Samajhna","समझना","Kya tum samajh gaye?","क्या तुम समझ गए?","Did you understand?","'Samajh gaya' (m) / 'samajh gayi' (f)"),
+        W("Rank","Rank","रैंक","Pehli rank aana mushkil hai.","पहली रैंक आना मुश्किल है।","Getting first rank is difficult."),
+        W("Homework","Ghar ka kaam","घर का काम","Aaj bahut zyaada ghar ka kaam hai.","आज बहुत ज़्यादा घर का काम है।","There is too much homework today."),
+        W("Library","Pustakalaya","पुस्तकालय","Main pustakalaya mein padh raha hoon.","मैं पुस्तकालय में पढ़ रहा हूँ।","I am studying in the library.","Also simply called 'library'"),
+        W("Lecture / Class","Lecture","लेक्चर","Aaj lecture mein jaana zaroori hai.","आज लेक्चर में जाना ज़रूरी है।","It is necessary to attend the lecture today."),
+        W("Competition","Pratiyogita","प्रतियोगिता","Is pratiyogita mein bahut log hain.","इस प्रतियोगिता में बहुत लोग हैं।","There are many people in this competition.")
+      ]},
+      {title:"👫 Friendship & Fun",words:[
+        W("Help","Madad","मदद","Kya aap meri madad kar sakte hain?","क्या आप मेरी मदद कर सकते हैं?","Can you help me?","'Madad karna' = to help"),
+        W("Together","Milkar","मिलकर","Hum milkar yeh kaam karenge.","हम मिलकर यह काम करेंगे।","We will do this work together."),
+        W("Journey","Safar","सफ़र","Zindagi ek lambi safar hai.","ज़िंदगी एक लंबी सफ़र है।","Life is a long journey.","Very poetic — used often in songs"),
+        W("Promise","Vaada","वादा","Vaada karo ki milte rahoge.","वादा करो कि मिलते रहोगे।","Promise that you will keep meeting.","'Vaada nibhana' = to keep a promise"),
+        W("Fun / Mischief","Masti","मस्ती","College mein bahut masti hai.","कॉलेज में बहुत मस्ती है।","There is a lot of fun in college.","'Masti karna' = to have fun/fool around"),
+        W("Let us go","Chalo","चलो","Chalo, late ho raha hai.","चलो, देर हो रही है।","Let us go, it is getting late.","One of the most useful phrases in spoken Hindi"),
+        W("Wait","Ruko","रुको","Ek minute ruko, main aata hoon.","एक मिनट रुको, मैं आता हूँ।","Wait a minute, I am coming.","Polite form: 'Rukiye'"),
+        W("Night","Raat","रात","Raat ko neend nahi aati.","रात को नींद नहीं आती।","Sleep does not come at night."),
+        W("Morning","Subah","सुबह","Subah uthna padta hai.","सुबह उठना पड़ता है।","One has to wake up in the morning.","'Subah subah' = very early morning"),
+        W("Time","Waqt","वक़्त","Waqt bahut kimati hai.","वक़्त बहुत कीमती है।","Time is very precious.","Used interchangeably with 'samay'"),
+        W("Prank / Mischief","Sharaarat","शरारत","Yeh tumhari sharaarat hai!","यह तुम्हारी शरारत है!","This is your prank!","Used fondly for playful mischief"),
+        W("To remember","Yaad karna","याद करना","Tumhe hamesha yaad karunga.","तुम्हें हमेशा याद करूँगा।","I will always remember you."),
+        W("Laughter","Hansi","हँसी","Uski hansi bahut pyaari hai.","उसकी हँसी बहुत प्यारी है।","Their laughter is very lovely."),
+        W("Meeting","Mulaqaat","मुलाक़ात","Is mulaqaat ko kabhi nahi bhulunga.","इस मुलाक़ात को कभी नहीं भूलूँगा।","I will never forget this meeting."),
+        W("Rest / Comfort","Aaram","आराम","Thoda aaram karo.","थोड़ा आराम करो।","Take some rest.","'Aaram se' = take it easy"),
+        W("Celebration","Jawshan","जश्न","Kal hamare jeet ka jawshan hai.","कल हमारी जीत का जश्न है।","Tomorrow is the celebration of our victory."),
+        W("Support","Sahaara","सहारा","Dost ka sahaara hamesha chahiye.","दोस्त का सहारा हमेशा चाहिए।","You always need a friend's support."),
+        W("Life","Zindagi","ज़िंदगी","Zindagi khoobsoorat hai.","ज़िंदगी खूबसूरत है।","Life is beautiful.","One of the most poetic Hindi words"),
+        W("Luck / Fortune","Qismat","क़िस्मत","Qismat ne saath diya.","क़िस्मत ने साथ दिया।","Luck was on my side.","'Achhi qismat' = good luck"),
+        W("Roommate / Companion","Saathi","साथी","Woh mera achha saathi hai.","वह मेरा अच्छा साथी है।","He is a good companion of mine.")
+      ]},
+      {title:"💡 Dreams & Motivation",words:[
+        W("Dream","Sapna","सपना","Mere sapne bahut bade hain.","मेरे सपने बहुत बड़े हैं।","My dreams are very big.","'Sapne dekhna' = to dream"),
+        W("Goal / Target","Lakshya","लक्ष्य","Mere lakshya tak pahunchna hai.","मेरे लक्ष्य तक पहुँचना है।","I have to reach my goal."),
+        W("Success","Safalta","सफलता","Safalta mehnat se milti hai.","सफलता मेहनत से मिलती है।","Success comes from hard work."),
+        W("Hard work","Mehnat","मेहनत","Mehnat ka fal zaroor milta hai.","मेहनत का फल ज़रूर मिलता है।","The fruit of hard work is always received.","'Mehnati' = hardworking"),
+        W("Effort / Attempt","Koshish","कोशिश","Koshish karo, haar mat maano.","कोशिश करो, हार मत मानो।","Try, do not give up.","'Koshish karte rehna' = keep trying"),
+        W("Passion / Obsession","Junoon","जुनून","Uska junoon dekhne wala hai.","उसका जुनून देखने वाला है।","His passion is worth seeing.","Intense dedication — almost a beautiful madness"),
+        W("Future","Bhavishya","भविष्य","Hamara bhavishya ujjwal hai.","हमारा भविष्य उज्ज्वल है।","Our future is bright."),
+        W("Decision","Faisla","फ़ैसला","Yeh faisla tumhara hai.","यह फ़ैसला तुम्हारा है।","This decision is yours.","'Faisla karna' = to make a decision"),
+        W("Talent / Skill","Hunar","हुनर","Usmein bahut hunar hai.","उसमें बहुत हुनर है।","There is a lot of talent in him.","More poetic than the English 'talent'"),
+        W("Opportunity / Chance","Mauka","मौक़ा","Yeh ek achha mauka hai.","यह एक अच्छा मौक़ा है।","This is a good opportunity.","'Mauka milna' = to get a chance"),
+        W("Path / Way forward","Raasta","रास्ता","Apna raasta khud chunna hoga.","अपना रास्ता खुद चुनना होगा।","You will have to choose your own path."),
+        W("Courage","Himmat","हिम्मत","Himmat rakhna, sab theek hoga.","हिम्मत रखना, सब ठीक होगा।","Have courage, everything will be fine.","'Himmat mat haaro' = don't lose courage"),
+        W("Belief / Faith","Yakeen","यक़ीन","Mujhe tumpar poora yakeen hai.","मुझे तुमपर पूरा यक़ीन है।","I have complete faith in you.","Closer to 'faith in someone' than just 'believe'"),
+        W("Challenge","Chunauti","चुनौती","Har chunauti ko swikaaro.","हर चुनौती को स्वीकारो।","Accept every challenge."),
+        W("Destination / Life goal","Manzil","मंज़िल","Meri manzil door nahi hai.","मेरी मंज़िल दूर नहीं है।","My destination is not far.","Very poetic — used in songs and speeches"),
+        W("Defeat","Haar","हार","Haar se seekho, daro mat.","हार से सीखो, डरो मत।","Learn from defeat, do not fear it.","'Haar maanna' = to accept defeat"),
+        W("Victory","Jeet","जीत","Aaj hamaari jeet hui!","आज हमारी जीत हुई!","Today we won!","'Jeeto' = win (imperative)"),
+        W("Change","Badlaav","बदलाव","Badlaav zaroori hai.","बदलाव ज़रूरी है।","Change is necessary."),
+        W("Invention / Discovery","Aavishkaar","आविष्कार","Naye aavishkaar se duniya badlati hai.","नए आविष्कार से दुनिया बदलती है।","The world changes with new inventions.","Rancho loves engineering and invention"),
+        W("Inspire","Prerna dena","प्रेरणा देना","Yeh film mujhe prerna deti hai.","यह फिल्म मुझे प्रेरणा देती है।","This film inspires me.")
+      ]},
+      {title:"🗣️ Everyday Expressions",words:[
+        W("Okay / Fine","Theek hai","ठीक है","Theek hai, main aa jaata hoon.","ठीक है, मैं आ जाता हूँ।","Okay, I will come.","The most versatile phrase in Hindi!"),
+        W("Definitely / Of course","Zaroor","ज़रूर","Main zaroor aaunga.","मैं ज़रूर आऊँगा।","I will definitely come.","Adds certainty and commitment"),
+        W("Maybe / Perhaps","Shayad","शायद","Shayad woh aa jayega.","शायद वह आ जाएगा।","Maybe he will come."),
+        W("Please (formal)","Kripaya","कृपया","Kripaya yahan baithiye.","कृपया यहाँ बैठिए।","Please sit here.","Informal: add 'na' at end, e.g. 'Aao na'"),
+        W("Sometimes","Kabhi kabhi","कभी-कभी","Kabhi kabhi main movie dekhta hoon.","कभी-कभी मैं मूवी देखता हूँ।","Sometimes I watch a movie."),
+        W("Never","Kabhi nahi","कभी नहीं","Main yeh kabhi nahi bhulunga.","मैं यह कभी नहीं भूलूँगा।","I will never forget this."),
+        W("Now","Ab","अब","Ab kya karein?","अब क्या करें?","What should we do now?","'Ab nahi' = not now"),
+        W("Later / Afterward","Baad mein","बाद में","Baad mein milte hain.","बाद में मिलते हैं।","Let us meet later.","'Thodi der baad' = a little later"),
+        W("Before / First","Pehle","पहले","Pehle socho, phir bolo.","पहले सोचो, फिर बोलो।","Think first, then speak.","'Pehle aap' = you first (polite)"),
+        W("Again / Then","Phir","फिर","Phir milenge yaar!","फिर मिलेंगे यार!","We will meet again, friend!","'Phir bhi' = even then / nevertheless"),
+        W("Quickly / Hurry","Jaldi","जल्दी","Jaldi karo, der ho rahi hai.","जल्दी करो, देर हो रही है।","Hurry up, it is getting late.","'Jaldi jaldi' = very quickly"),
+        W("Slowly / Carefully","Dhire","धीरे","Dhire dhire seekh jaoge.","धीरे-धीरे सीख जाओगे।","You will learn little by little.","'Dhire dhire' = gradually"),
+        W("Here","Yahan","यहाँ","Aao, yahan baaitho.","आओ, यहाँ बैठो।","Come, sit here."),
+        W("There","Wahan","वहाँ","Wahan kya hai?","वहाँ क्या है?","What is there?"),
+        W("Every day","Roz","रोज़","Main roz exercise karta hoon.","मैं रोज़ एक्सरसाइज़ करता हूँ।","I exercise every day."),
+        W("A little","Thoda","थोड़ा","Thoda ruko, main aata hoon.","थोड़ा रुको, मैं आता हूँ।","Wait a little, I am coming.","'Thodi der' = a little while"),
+        W("Too much / A lot","Bahut zyaada","बहुत ज़्यादा","Aaj bahut zyaada kaam hai.","आज बहुत ज़्यादा काम है।","There is too much work today.","'Zyaada' alone = more / excess"),
+        W("Enough / Stop","Bas","बस","Bas! Ab aur nahi.","बस! अब और नहीं।","Enough! No more.","Also means 'only' and 'bus' — most versatile Hindi word!"),
+        W("Only / Just","Sirf","सिर्फ़","Sirf ek chance do mujhe.","सिर्फ़ एक चांस दो मुझे।","Give me just one chance."),
+        W("Really / Truly","Sach mein","सच में","Sach mein bahut accha hai yeh.","सच में बहुत अच्छा है यह।","This is really very good.","'Sach mein?' = Really? Is that true?")
+      ]}
     ]
   },
   k3g:{key:"k3g",title:"Kabhi Khushi Kabhie Gham",subtitle:"It's all about loving your parents",emoji:"👨‍👩‍👧",type:"film",gradient:"linear-gradient(135deg,#3d2800,#6b4400)",badge:"Chapter 4",year:"2001",
