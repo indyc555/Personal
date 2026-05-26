@@ -791,8 +791,12 @@ function playLevelUp(){const mel=[392,440,494,523,587,659,698,784,659,784,880,10
 let toastT;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
 
+function getChapterAllWords(c){
+  if(c.sections)return c.sections.flatMap(s=>s.words);
+  return c.words||[];
+}
 function getAllFilmWords(){
-  return Object.values(chapterMeta).filter(c=>c.type==='film').flatMap(c=>c.words.map(w=>({...w,chapterKey:c.key,chapterTitle:c.title})));
+  return Object.values(chapterMeta).filter(c=>c.type==='film').flatMap(c=>getChapterAllWords(c).map(w=>({...w,chapterKey:c.key,chapterTitle:c.title})));
 }
 function getAllBeginnerWords(){
   return Object.entries(beginnerCats).flatMap(([catKey,cat])=>cat.words.map((w,j)=>({...w,transliteration:w.transliteration,english:w.english,devanagari:w.devanagari,chapterKey:'basics_'+catKey,wordIdx:j,catKey})));
@@ -884,7 +888,8 @@ function renderChapters(){
   grid.appendChild(bCard);
 
   Object.values(chapterMeta).filter(c=>c.type==='film').forEach(ch=>{
-    const wLearned=ch.words.filter(w=>learned['film:'+ch.key+':'+w.transliteration]).length;
+    const allW=getChapterAllWords(ch);
+    const wLearned=allW.filter(w=>learned['film:'+ch.key+':'+w.transliteration]).length;
     const card=document.createElement('div');
     card.className='chapter-card';
     card.innerHTML=`<div class="chapter-poster" style="background:${ch.gradient}">
@@ -892,7 +897,7 @@ function renderChapters(){
       <div class="chapter-poster-emojis">${ch.emojis}</div>
       <div class="chapter-poster-title">${ch.title}</div>
       <div class="chapter-poster-year">${ch.year} · ${ch.genre}</div>
-      <div class="chapter-poster-meta">Dir: ${ch.director} · ${wLearned}/${ch.words.length} learned</div>
+      <div class="chapter-poster-meta">Dir: ${ch.director} · ${wLearned}/${allW.length} learned</div>
     </div>`;
     card.onclick=()=>openFilmChapter(ch.key);
     grid.appendChild(card);
