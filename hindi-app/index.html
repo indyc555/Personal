@@ -223,7 +223,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
     <div class="header-logo">🎬</div>
     <div class="header-text">
       <h1>Seekho Hindi ✨ Bollywood Edition</h1>
-      <p>Learn Hindi through iconic Bollywood films</p>
+      <p>Learn Hindi through iconic Bollywood films <span id="app-version" style="opacity:.45;font-size:.75em;margin-left:6px"></span></p>
     </div>
   </div>
   <nav>
@@ -369,6 +369,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
+const APP_VERSION = 'v1.5';
 // ═══════════════════════════════════
 // DATA
 // ═══════════════════════════════════
@@ -1222,6 +1223,7 @@ function closeModal(){document.getElementById('modal-overlay').style.display='no
 // ═══════════════════════════════════
 // INIT
 // ═══════════════════════════════════
+document.getElementById('app-version').textContent = APP_VERSION;
 renderHome();
 </script>
 </body>
