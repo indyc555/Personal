@@ -515,6 +515,183 @@ const bollywoodQuotes=[
   {quote:"Pushpa, I hate tears.",film:"Amar Prem (1972)",meaning:"The classic line of endearment."}
 ];
 
+const singerLevels=[
+  {name:"Sur Seekhne Wali",title:"Learning the Melody",emoji:"🎵",points:0,color:"#9C27B0",desc:"Every great singer starts with the first note.",quote:"Ek sur se duniya banti hai. (One note makes the world.)"},
+  {name:"Nazia Hassan",title:"Disco Queen",emoji:"🪩",points:80,color:"#E91E63",desc:"Aap Jaisi Koi! Pakistan's pop legend who conquered Bollywood.",quote:"Aap jaisi koi meri zindagi mein aaye! (Someone like you came into my life!)"},
+  {name:"Usha Uthup",title:"Jazz & Folk Queen",emoji:"🎷",points:200,color:"#673AB7",desc:"Her voice broke all rules. Hare Rama Hare Krishna to jazz stages.",quote:"Darling, music is my religion!"},
+  {name:"Kavita Krishnamurthy",title:"Classical Elegance",emoji:"🌸",points:380,color:"#7B1FA2",desc:"Taal. Devdas. A voice of classical grace.",quote:"Sangeet anubhav hai, sirf awaaz nahi. (Music is feeling, not just voice.)"},
+  {name:"Alka Yagnik",title:"90s Romantic Queen",emoji:"💖",points:620,color:"#C2185B",desc:"Tujhe Dekha Toh. Dilwale Dulhania. The voice of an era.",quote:"Kuch kuch hota hai, main kya karon? (Something happens, what do I do?)"},
+  {name:"Sunidhi Chauhan",title:"Powerhouse Performer",emoji:"🔥",points:950,color:"#AD1457",desc:"Dhadkan. Dhoom. Sheila Ki Jawani. Raw, electrifying energy.",quote:"Sheila ki jawani! (Youth of Sheila — her most famous hit)"},
+  {name:"Shreya Ghoshal",title:"Romantic Voice of a Generation",emoji:"🌹",points:1400,color:"#880E4F",desc:"Devdas. Jab We Met. A voice like moonlight on water.",quote:"Yeh ishq haaye... (This love, oh... — from Jab We Met)"},
+  {name:"Neha Kakkar",title:"Modern Pop Sensation",emoji:"⚡",points:2000,color:"#6A1B9A",desc:"Social media queen, heart of the people, millennial anthems.",quote:"O saki saki! (My beloved — her chart-topper)"},
+  {name:"Asha Bhosle",title:"The Eternal Nightingale",emoji:"🌙",points:2800,color:"#4527A0",desc:"Miss World of music. 1950s to now. Over 12,000 songs. Dum Maro Dum.",quote:"Dum maro dum, mit jaaye gham! (Take a puff, let sorrows vanish!)"},
+  {name:"Lata Mangeshkar",title:"Melody Queen of India",emoji:"👑",points:4000,color:"#1A237E",desc:"Bharat Ratna. Voice of the nation. Lag Jaa Gale. Ae Mere Watan Ke Logon.",quote:"Lag jaa gale ke phir yeh haseen raat ho na ho. (Embrace me, for this beautiful night may not come again.)"}
+];
+
+const songMeta={
+  kesariya:{key:"kesariya",title:"Kesariya",subtitle:"Love turned saffron",emoji:"🌸",film:"Brahmastra (2022)",singer:"Arijit Singh",badge:"Song 1",gradient:"linear-gradient(135deg,#4a1000,#7a3b00)",emojis:"🌸🔥💛",
+    chorus:[
+      {line:"Kesariya tera ishq hai piya",dev:"केसरिया तेरा इश्क़ है पिया",eng:"Saffron is your love, my beloved"},
+      {line:"Kesariya, Kesariya",dev:"केसरिया, केसरिया",eng:"Saffron, saffron (devotion, devotion)"},
+      {line:"Teri aankhon mein doobi hain",dev:"तेरी आँखों में डूबी हैं",eng:"(I am) immersed in your eyes"}
+    ],
+    sections:[{title:"Chorus Words",emoji:"🌸",words:[
+      W("Saffron / Devotion","Kesariya","केसरिया","Kesariya rang pyaar ka rang hai.","केसरिया रंग प्यार का रंग है।","Saffron is the color of love.","Color of devotion in Indian tradition"),
+      W("Love (deep)","Ishq","इश्क़","Tera ishq mujhe deewaana bana deta hai.","तेरा इश्क़ मुझे दीवाना बना देता है।","Your love drives me crazy.","More intense than 'pyaar', Urdu origin"),
+      W("Beloved (classic)","Piya","पिया","Piya tum aaye toh sapna ban gaya.","पिया तुम आए तो सपना बन गया।","When you came, my beloved, it became a dream.","Used in folk and classical songs"),
+      W("To drown / immerse","Doobna","डूबना","Main teri aankhon mein doob jaata hoon.","मैं तेरी आँखों में डूब जाता हूँ।","I drown in your eyes.","'Doob gaya' = (I) drowned"),
+      W("Eyes","Aankhein","आँखें","Teri aankhein bahut sundar hain.","तेरी आँखें बहुत सुंदर हैं।","Your eyes are very beautiful.","Singular: aankh, plural: aankhein"),
+      W("Soul / Spirit","Rooh","रूह","Teri rooh meri rooh se milti hai.","तेरी रूह मेरी रूह से मिलती है।","Your soul meets my soul.","Urdu/Persian word for soul"),
+      W("To melt / blend","Dhalna","ढलना","Raat dhalne lagi, din chhup gaya.","रात ढलने लगी, दिन छुप गया।","Night began to set, day hid away.","'Dhal jaana' = to fade/melt"),
+      W("Color","Rang","रंग","Tera rang mujhe laga hai.","तेरा रंग मुझे लगा है।","Your color has stained me (I've fallen for you).","'Rang lagaana' = to color/stain"),
+      W("Dream","Khwaab","ख़्वाब","Tera khwaab dekha raat ko.","तेरा ख़्वाब देखा रात को।","I dreamed of you last night.","Urdu/Persian; same as 'sapna'"),
+      W("Crazy in love","Deewaana","दीवाना","Main tere pyaar mein deewaana ho gaya.","मैं तेरे प्यार में दीवाना हो गया।","I went crazy in your love.","'Deewaangi' = madness/obsession"),
+      W("Mind / Heart","Mann","मन","Mera mann teri raah dekh raha hai.","मेरा मन तेरी राह देख रहा है।","My heart is watching for your path.","Inner mind/heart/spirit"),
+      W("Your (informal)","Tera / Teri","तेरा / तेरी","Tera pyaar meri zindagi hai.","तेरा प्यार मेरी ज़िंदगी है।","Your love is my life.","Tera = masc., Teri = fem. object"),
+      W("Flame / Fire","Aag","आग","Pyaar ki aag dil mein jalti hai.","प्यार की आग दिल में जलती है।","The fire of love burns in the heart.","'Aag lagna' = to catch fire"),
+      W("Devotion / Sacrifice","Samarpan","समर्पण","Main tera samarpan hoon.","मैं तेरा समर्पण हूँ।","I am devoted to you.","From Sanskrit; used in devotional songs")
+    ]}]
+  },
+  raataan:{key:"raataan",title:"Raataan Lambiyan",subtitle:"Long long nights of longing",emoji:"🌙",film:"Shershaah (2021)",singer:"Jubin Nautiyal · Asees Kaur",badge:"Song 2",gradient:"linear-gradient(135deg,#001a3a,#00203a)",emojis:"🌙⭐💙",
+    chorus:[
+      {line:"Raataan lambiyan, raataan lambiyan",dev:"रातां लंबियां, रातां लंबियां",eng:"The nights are long, the nights are long"},
+      {line:"Tenu main rab manan mangaaye ni",dev:"तेनू मैं रब मनान मंगाएं नी",eng:"I pray to God to bring you to me"},
+      {line:"Mil de thoda thoda",dev:"मिल दे थोड़ा थोड़ा",eng:"Meet me, just a little"}
+    ],
+    sections:[{title:"Chorus Words",emoji:"🌙",words:[
+      W("Nights (Punjabi)","Raataan","रातां","Raataan lambiyan hoti hain jab woh paas na ho.","रातां लंबियां होती हैं जब वो पास न हो।","The nights are long when she is not near.","Punjabi plural of 'raat' (night)"),
+      W("Long (Punjabi fem.)","Lambiyan","लंबियां","Raataan lambiyan lagna lagti hain.","रातां लंबियां लगने लगती हैं।","The nights start to feel long.","Punjabi fem. plural of 'lamba'"),
+      W("You (Punjabi)","Tenu","तेनू","Tenu dekhan di chaah hai.","तेनू देखन दी चाह है।","I have a desire to see you.","Punjabi equivalent of 'tumhe'"),
+      W("God (Punjabi/Urdu)","Rab","रब","Rab rakha — God keep you.","रब रखा — God keep you.","Rab rakha — God keep you.","Punjabi word for God; very common in songs"),
+      W("To pray / beseech","Mangaana","मंगाना","Main rab se tujhe mangaata hoon.","मैं रब से तुझे माँगता हूँ।","I beg from God for you.","'Mangaaye' = praying for"),
+      W("To meet","Milna","मिलना","Tum se milna bahut achha laga.","तुम से मिलना बहुत अच्छा लगा।","Meeting you felt very good.","'Mil de' = meet (imperative in Punjabi)"),
+      W("A little","Thoda","थोड़ा","Thoda thoda pyaar karo.","थोड़ा थोड़ा प्यार करो।","Love a little, love a little.","'Thodi si' = just a little (fem.)"),
+      W("Memory / Remember","Yaad","याद","Teri yaad mujhe satati hai.","तेरी याद मुझे सताती है।","Your memory torments me.","'Yaad karna' = to remember"),
+      W("Daily / Always (Punjabi)","Nit","नित","Nit tenu yaad karta hoon.","नित तेनू याद करता हूँ।","I remember you every day.","Punjabi word for 'daily/always'"),
+      W("Far","Door","दूर","Tum itni door kyun chali gayi?","तुम इतनी दूर क्यों चली गई?","Why did you go so far away?","Opposite: 'paas' (near)"),
+      W("Near / Close","Paas","पास","Kash tum mere paas hote.","काश तुम मेरे पास होते।","I wish you were near me.","'Mere paas aao' = come close to me"),
+      W("Dream","Sapna","सपना","Har raat tera sapna aata hai.","हर रात तेरा सपना आता है।","Every night your dream comes.","'Sapne mein' = in a dream"),
+      W("Separation","Judaayi","जुदाई","Judaayi ka dard gehra hai.","जुदाई का दर्द गहरा है।","The pain of separation is deep.","Very common in love songs"),
+      W("Waiting / Longing","Intezaar","इंतज़ार","Tera intezaar karta rahunga.","तेरा इंतज़ार करता रहूँगा।","I will keep waiting for you.","'Intezaar khatam hua' = waiting ended")
+    ]}]
+  },
+  aeDil:{key:"aeDil",title:"Ae Dil Hai Mushkil",subtitle:"Oh heart, it is difficult",emoji:"💔",film:"Ae Dil Hai Mushkil (2016)",singer:"Arijit Singh",badge:"Song 3",gradient:"linear-gradient(135deg,#2d0030,#0a001a)",emojis:"💔🌧️🎭",
+    chorus:[
+      {line:"Ae dil hai mushkil, ae dil hai mushkil",dev:"ऐ दिल है मुश्किल, ऐ दिल है मुश्किल",eng:"Oh heart, it is difficult, oh heart it is difficult"},
+      {line:"Ye judaai ka aalam kya bataon",dev:"ये जुदाई का आलम क्या बताऊँ",eng:"How do I describe this state of separation"},
+      {line:"Main tumhe bhool jaaon, ye mushkil hai",dev:"मैं तुम्हें भूल जाऊँ, ये मुश्किल है",eng:"Forgetting you — that is difficult"}
+    ],
+    sections:[{title:"Chorus Words",emoji:"💔",words:[
+      W("Oh / Hey (address)","Ae","ऐ","Ae dil, sun meri baat.","ऐ दिल, सुन मेरी बात।","Oh heart, listen to me.","Vocative particle; also 'Ae mere dil'"),
+      W("Heart","Dil","दिल","Dil ki baat koi nahi samjha.","दिल की बात कोई नहीं समझा।","No one understood the heart's words.","Most used word in Bollywood"),
+      W("Difficult","Mushkil","मुश्किल","Pyaar karna mushkil nahi, nibhana mushkil hai.","प्यार करना मुश्किल नहीं, निभाना मुश्किल है।","Loving is not difficult; keeping it is.","'Mushkilon mein' = in difficulties"),
+      W("Separation","Judaai","जुदाई","Judaai ke baad hi pyaar ki qeemat pata chalti hai.","जुदाई के बाद ही प्यार की क़ीमत पता चलती है।","Only after separation do you know love's value.","'Judaa hona' = to be separated"),
+      W("State / Condition","Aalam","आलम","Is aalam mein kya karun?","इस आलम में क्या करूँ?","In this state, what do I do?","Urdu word; 'aalam' = state/world"),
+      W("To forget","Bhoolna","भूलना","Tumhe bhoolna nahi chahta.","तुम्हें भूलना नहीं चाहता।","I don't want to forget you.","'Bhool gaya' = I forgot"),
+      W("Alone / Lonely","Tanha","तन्हा","Tanha baith ke teri yaad aati hai.","तन्हा बैठ के तेरी याद आती है।","Sitting alone, I remember you.","Urdu/Persian: tanha = alone"),
+      W("Pain / Grief","Dard","दर्द","Dard-e-dil samjhega koi?","दर्द-ए-दिल समझेगा कोई?","Will anyone understand the pain of the heart?","'Dard uthana' = to bear pain"),
+      W("One moment","Ik pal","इक पल","Ik pal bhi chain nahi tere bina.","इक पल भी चैन नहीं तेरे बिना।","Not even a moment's peace without you.","'Ik' = one (Punjabi/Urdu variant)"),
+      W("Life","Zindagi","ज़िंदगी","Ye zindagi tere bina adhoori hai.","ये ज़िंदगी तेरे बिना अधूरी है।","This life is incomplete without you.","Persian origin; universal Bollywood word"),
+      W("Prayer / Blessing","Dua","दुआ","Teri dua hai ki woh laut aaye.","तेरी दुआ है कि वो लौट आए।","My prayer is that she comes back.","'Dua karna' = to pray/bless"),
+      W("Peace / Rest","Chain","चैन","Dil ko chain tab milega.","दिल को चैन तब मिलेगा।","The heart will find peace then.","'Chain se so ja' = sleep peacefully"),
+      W("Without","Bin / Bina","बिन / बिना","Tere bin kuch bhi nahi.","तेरे बिन कुछ भी नहीं।","Without you, nothing exists.","'Tere bina' = without you"),
+      W("To return","Lautna","लौटना","Kya tum laut ke aaoge?","क्या तुम लौट के आओगे?","Will you return?","'Laut aao' = come back (imperative)")
+    ]}]
+  },
+  tumHiHo:{key:"tumHiHo",title:"Tum Hi Ho",subtitle:"You alone are everything",emoji:"❤️‍🔥",film:"Aashiqui 2 (2013)",singer:"Arijit Singh",badge:"Song 4",gradient:"linear-gradient(135deg,#3d0010,#1a0008)",emojis:"❤️‍🔥🌹💫",
+    chorus:[
+      {line:"Tum hi ho, ab tum hi ho",dev:"तुम ही हो, अब तुम ही हो",eng:"You alone are, now you alone are"},
+      {line:"Zindagi ab tum hi ho",dev:"ज़िंदगी अब तुम ही हो",eng:"Life — now you alone are life"},
+      {line:"Chain bhi, mera dard bhi",dev:"चैन भी, मेरा दर्द भी",eng:"My peace also, my pain also — you are both"}
+    ],
+    sections:[{title:"Chorus Words",emoji:"❤️‍🔥",words:[
+      W("You alone are","Tum hi ho","तुम ही हो","Tum hi ho meri saans, meri awaaz.","तुम ही हो मेरी साँस, मेरी आवाज़।","You alone are my breath, my voice.","'Hi' adds emphasis: 'only you'"),
+      W("Now","Ab","अब","Ab koi aur nahi, sirf tum.","अब कोई और नहीं, सिर्फ़ तुम।","Now there is no one else, only you.","Common time word"),
+      W("Life","Zindagi","ज़िंदगी","Meri zindagi tum ho.","मेरी ज़िंदगी तुम हो।","You are my life.","From Persian; very common in songs"),
+      W("Peace / Contentment","Chain","चैन","Teri baahon mein chain milta hai.","तेरी बाहों में चैन मिलता है।","In your arms I find peace.","'Ek chain ka pal' = a moment of peace"),
+      W("Pain","Dard","दर्द","Tum ho toh dard bhi meetha lagta hai.","तुम हो तो दर्द भी मीठा लगता है।","When you are there, even pain feels sweet.","'Dard-e-dil' = heartache"),
+      W("My","Mera / Meri","मेरा / मेरी","Mera dil, meri jaan, meri zindagi.","मेरा दिल, मेरी जान, मेरी ज़िंदगी।","My heart, my life, my everything.","Mera = masc., Meri = fem. noun"),
+      W("Prayer / Wish","Dua","दुआ","Meri dua hai ki hum saath rahein.","मेरी दुआ है कि हम साथ रहें।","My prayer is that we stay together.","'Dua karo' = pray/bless"),
+      W("Loving","Aashiqui","आशिक़ी","Aashiqui woh nahi jo dil tode.","आशिक़ी वो नहीं जो दिल तोड़े।","Love is not what breaks hearts.","Aashiq = lover; Aashiqui = loving"),
+      W("Right here","Yahin","यहीं","Main yahin hoon, kahin nahi jaunga.","मैं यहीं हूँ, कहीं नहीं जाऊँगा।","I am right here, I will not go anywhere.","'Yahan' = here; 'yahin' = right here"),
+      W("Every","Har","हर","Har pal teri yaad aati hai.","हर पल तेरी याद आती है।","Every moment I remember you.","'Har din' = every day; 'har taraf' = everywhere"),
+      W("Happiness","Khushi","खुशी","Teri khushi meri khushi hai.","तेरी खुशी मेरी खुशी है।","Your happiness is my happiness.","'Khush rehna' = stay happy"),
+      W("Companion","Saathi","साथी","Tum mera saathi ho hamesha.","तुम मेरा साथी हो हमेशा।","You are my companion always.","'Saath' = together; 'saathi' = one who is together"),
+      W("Breath","Saans","साँस","Teri yaad meri saans hai.","तेरी याद मेरी साँस है।","Your memory is my breath.","'Saans lena' = to breathe"),
+      W("Without","Bin","बिन","Tere bin jeena nahi.","तेरे बिन जीना नहीं।","There is no living without you.","Short form of 'bina'")
+    ]}]
+  },
+  dilbaro:{key:"dilbaro",title:"Dilbaro",subtitle:"Beloved, heart-stealer",emoji:"🕊️",film:"Raazi (2018)",singer:"Harshdeep Kaur · Vibha Saraf",badge:"Song 5",gradient:"linear-gradient(135deg,#1a2a00,#0a1a10)",emojis:"🕊️🌿💚",
+    chorus:[
+      {line:"Dilbaro, dilbaro, dilbaro",dev:"दिलबरो, दिलबरो, दिलबरो",eng:"Beloved, beloved, beloved (heart-stealer)"},
+      {line:"Yeh jaane jahaan, yeh teri zubaan",dev:"ये जाने जहाँ, ये तेरी ज़ुबाँ",eng:"This sweetheart, this tongue of yours"},
+      {line:"Dil ki nishaan",dev:"दिल की निशान",eng:"Mark of the heart"}
+    ],
+    sections:[{title:"Chorus Words",emoji:"🕊️",words:[
+      W("Beloved / Heart-stealer","Dilbaro","दिलबरो","Dilbaro, tum hi mera sab kuch ho.","दिलबरो, तुम ही मेरा सब कुछ हो।","Beloved, you alone are everything to me.","Urdu/Persian: dil = heart, bar = one who carries"),
+      W("Sweetheart (lit. world)","Jaane jahaan","जाने जहाँ","Jaane jahaan, kahan chali gayi?","जाने जहाँ, कहाँ चली गई?","Sweetheart, where did you go?","Poetic address: 'life of the world'"),
+      W("Voice / Language / Tongue","Zubaan","ज़ुबाँ","Teri zubaan mein jadoo hai.","तेरी ज़ुबाँ में जादू है।","There is magic in your voice.","Also means 'language': Hindi zubaan"),
+      W("Mark / Sign","Nishaan","निशान","Dil pe tera nishaan hai.","दिल पे तेरा निशान है।","Your mark is on my heart.","'Nishaan lagaana' = to mark"),
+      W("Home","Ghar","घर","Ghar waapas aana hota hai.","घर वापस आना होता है।","One has to come back home.","'Ghar jaana' = to go home"),
+      W("Foreign land","Pardes","परदेस","Pardes mein dil lagta nahi.","परदेस में दिल लगता नहीं।","The heart doesn't settle in a foreign land.","Par = other/foreign, des = country"),
+      W("Separated","Judaa","जुदा","Judaa hoke bhi tum mere paas ho.","जुदा होके भी तुम मेरे पास हो।","Even separated, you are near me.","'Judaayi' = the state of separation"),
+      W("Fragrance","Khushboo","खुशबू","Teri khushboo mere ghar mein hai.","तेरी खुशबू मेरे घर में है।","Your fragrance is in my home.","'Khush' = happy + 'boo' = smell"),
+      W("Memories","Yaadein","यादें","Yaadein saath rehti hain.","यादें साथ रहती हैं।","Memories stay with us.","Plural of 'yaad' (memory)"),
+      W("Own / One's own","Apna","अपना","Yeh ghar apna hai.","यह घर अपना है।","This home is our own.","Reflexive possessive: 'my own'"),
+      W("To laugh / smile","Hasna","हँसना","Rona band karo, hasna seekho.","रोना बंद करो, हँसना सीखो।","Stop crying, learn to smile.","'Hans do' = smile/laugh (imperative)"),
+      W("To cry / weep","Rona","रोना","Mat ro, sab theek ho jaega.","मत रो, सब ठीक हो जाएगा।","Don't cry, everything will be fine.","'Rona-dhona' = crying and weeping"),
+      W("Eyes","Aankhein","आँखें","Aankhein bhar aayi uski baat sunkar.","आँखें भर आईं उसकी बात सुनकर।","Eyes welled up hearing her words.","'Aankhein bhar aana' = eyes well up"),
+      W("Daughter","Beti","बेटी","Beti vidaa hoti hai toh ghar soona lagta hai.","बेटी विदा होती है तो घर सूना लगता है।","When a daughter leaves, the home feels empty.","Song is about a daughter leaving home — very emotional")
+    ]}]
+  },
+  aapJaisi:{key:"aapJaisi",title:"Aap Jaisi Koi",subtitle:"Someone like you",emoji:"✨",film:"Qurbani (1980)",singer:"Nazia Hassan",badge:"Song 6",gradient:"linear-gradient(135deg,#2d1a00,#1a0f00)",emojis:"✨🌟💛",
+    chorus:[
+      {line:"Aap jaisi koi meri zindagi mein aaye",dev:"आप जैसी कोई मेरी ज़िंदगी में आए",eng:"Someone like you should come into my life"},
+      {line:"Toh ban jaye, toh ban jaye",dev:"तो बन जाए, तो बन जाए",eng:"Then it would become, then it would become (complete)"},
+      {line:"Aap jaisi koi",dev:"आप जैसी कोई",eng:"Someone just like you"}
+    ],
+    sections:[{title:"Chorus Words",emoji:"✨",words:[
+      W("You (formal)","Aap","आप","Aap kaise hain? Sab theek hai na?","आप कैसे हैं? सब ठीक है ना?","How are you? Is everything okay?","Formal 'you'; shows deep respect"),
+      W("Like / Such as (fem.)","Jaisi","जैसी","Aap jaisi sundar ladki nahi dekhi.","आप जैसी सुंदर लड़की नहीं देखी।","I've never seen a girl as beautiful as you.","'Jaisi' = like (fem.); 'jaisa' = like (masc.)"),
+      W("Someone / Anyone","Koi","कोई","Koi hai jo samjhe mujhe.","कोई है जो समझे मुझे।","Is there someone who understands me.","'Koi nahi' = no one"),
+      W("My / Mine","Meri","मेरी","Meri zindagi, meri khushi.","मेरी ज़िंदगी, मेरी खुशी।","My life, my happiness.","Feminine possessive of 'mera'"),
+      W("Life","Zindagi","ज़िंदगी","Zindagi mein kuch achha hoga zaroor.","ज़िंदगी में कुछ अच्छा होगा ज़रूर।","Something good will definitely happen in life.","Persian; most iconic word in Bollywood"),
+      W("Come (subjunctive)","Aaye","आए","Kash woh aaye mere paas.","काश वो आए मेरे पास।","I wish she would come to me.","Subjunctive form of 'aana' (to come)"),
+      W("Then","Toh","तो","Agar tum aao, toh sab theek hoga.","अगर तुम आओ, तो सब ठीक होगा।","If you come, then everything will be fine.","Conditional connector"),
+      W("Would become","Ban jaye","बन जाए","Sapna haqeeqat ban jaye.","सपना हक़ीक़त बन जाए।","The dream would become reality.","'Ban jaana' = to become"),
+      W("Heart","Dil","दिल","Dil churaya usne pehli nazar mein.","दिल चुराया उसने पहली नज़र में।","She stole my heart at first sight.","Most common Bollywood word"),
+      W("To steal (heart)","Churana","चुराना","Maine tumhara dil chura liya.","मैंने तुम्हारा दिल चुरा लिया।","I stole your heart.","'Dil churana' = to steal the heart"),
+      W("First","Pehla / Pehli","पहला / पहली","Pehli mulaqaat yaadgaar thi.","पहली मुलाक़ात यादगार थी।","The first meeting was memorable.","Pehla = masc., Pehli = fem."),
+      W("Time / Occasion","Baar","बार","Ek baar aur sunao yeh gaana.","एक बार और सुनाओ यह गाना।","Play this song one more time.","'Pehli baar' = first time"),
+      W("Sight / Look","Nazar","नज़र","Pehli nazar mein dil loot gaya.","पहली नज़र में दिल लूट गया।","My heart was stolen at first sight.","'Nazar milana' = to make eye contact"),
+      W("Like this / Such","Aisa","ऐसा","Aisa pyaar phir nahi milega.","ऐसा प्यार फिर नहीं मिलेगा।","Such love will not be found again.","Aisa = masc., Aisi = fem.")
+    ]}]
+  },
+  jhumka:{key:"jhumka",title:"What Jhumka?",subtitle:"The earring that started it all",emoji:"💍",film:"Rocky Aur Rani (2023)",singer:"Arijit Singh · Jonita Gandhi",badge:"Song 7",gradient:"linear-gradient(135deg,#1a0030,#3d0050)",emojis:"💍👑🎊",
+    chorus:[
+      {line:"What jhumka? What jhumka?",dev:"व्हाट झुमका? व्हाट झुमका?",eng:"What earring? What earring?"},
+      {line:"Jhumka gira re, Bareilly ke bazaar mein",dev:"झुमका गिरा रे, बरेली के बाज़ार में",eng:"The earring fell, in the market of Bareilly"},
+      {line:"Nazar ne churaya, dil bhi le gaya",dev:"नज़र ने चुराया, दिल भी ले गया",eng:"The gaze stole it, and took my heart too"}
+    ],
+    sections:[{title:"Chorus Words",emoji:"💍",words:[
+      W("Dangling earring","Jhumka","झुमका","Uska jhumka bahut sundar tha.","उसका झुमका बहुत सुंदर था।","Her earring was very beautiful.","Classic Indian jewelry; also a 1966 hit song"),
+      W("Fell / Dropped","Gira re","गिरा रे","Woh gira re, phir uthaa nahi.","वो गिरा रे, फिर उठा नहीं।","It fell, and was never picked up again.","'Re' is an emphatic particle"),
+      W("Market / Bazaar","Bazaar","बाज़ार","Chandni Chowk ka bazaar mashoor hai.","चाँदनी चौक का बाज़ार मशहूर है।","The bazaar of Chandni Chowk is famous.","From Persian; same word used globally"),
+      W("Where","Kahan","कहाँ","Kahan gaye woh din?","कहाँ गए वो दिन?","Where did those days go?","'Kahan se' = from where; 'kahan tak' = up to where"),
+      W("Went / Gone","Gaya","गया","Woh chala gaya, laut ke nahi aaya.","वो चला गया, लौट के नहीं आया।","He went away and never came back.","Past tense of 'jaana' (to go)"),
+      W("Gaze / Sight","Nazar","नज़र","Teri nazar ne dil chura liya.","तेरी नज़र ने दिल चुरा लिया।","Your gaze stole my heart.","'Nazar lagna' = to be affected by evil eye"),
+      W("Stole / Cast","Churaya","चुराया","Usne mera dil churaya pehli nazar mein.","उसने मेरा दिल चुराया पहली नज़र में।","She stole my heart at first sight.","Past tense of 'churana' (to steal)"),
+      W("Ankle bells","Ghunghroo","घुँघरू","Ghunghroo ki aawaz bahut meethi hai.","घुँघरू की आवाज़ बहुत मीठी है।","The sound of ankle bells is very sweet.","Worn by classical dancers"),
+      W("Noise / Commotion","Shor","शोर","Is bazaar mein kitna shor hai!","इस बाज़ार में कितना शोर है!","How much noise there is in this market!","'Shor machana' = to create a commotion"),
+      W("Created (noise)","Machaya","मचाया","Usne poore sheher mein shor machaya.","उसने पूरे शहर में शोर मचाया।","She created a commotion in the whole city.","Past tense of 'machaana'"),
+      W("Anklet","Payal","पायल","Payal ki chhun chhun sunai di.","पायल की छुन छुन सुनाई दी।","The jingle of anklets was heard.","Worn on ankles; iconic in dance sequences"),
+      W("To jingle","Chhankna","छनकना","Payal chhankti hai jab woh naachti hai.","पायल छनकती है जब वो नाचती है।","The anklet jingles when she dances.","Onomatopoeic word"),
+      W("To search","Dhundna","ढूँढना","Main tumhe dhundta raha saari raat.","मैं तुम्हें ढूँढता रहा सारी रात।","I kept searching for you all night.","'Dhundho' = search! (imperative)"),
+      W("To lift / pick up","Uthana","उठाना","Gire hue ko uthao, chhodna mat.","गिरे हुए को उठाओ, छोड़ना मत।","Pick up what has fallen, don't leave it.","'Uth jao' = get up; 'uthao' = lift/pick up")
+    ]}]
+  }
+};
+
 const chapterMeta={
   basics:{key:"basics",title:"Basics",subtitle:"Beginner vocabulary",emoji:"📖",type:"basics",gradient:"linear-gradient(135deg,#1a3a1a,#0d2e3a)",badge:"Chapter 1",year:""},
   rocky:{key:"rocky",title:"Rocky Aur Rani Ki Prem Kahani",subtitle:"A modern love story",emoji:"🌹",type:"film",gradient:"linear-gradient(135deg,#8B0050,#3d0030)",badge:"Chapter 2",year:"2023",
@@ -1277,6 +1454,8 @@ let dailyData=JSON.parse(localStorage.getItem('seekho-daily')||'{"date":"","pts"
 const todayStr=new Date().toISOString().slice(0,10);
 if(dailyData.date!==todayStr){dailyData={date:todayStr,pts:0,record:dailyData.record};}
 let streak=0;
+let singerPoints=parseInt(localStorage.getItem('seekho-singer-pts')||'0');
+let sqMode='movie'; // 'movie' | 'song' — controls which points pool section quiz uses
 
 function saveState(){
   localStorage.setItem('seekho-learned',JSON.stringify(learned));
@@ -1284,6 +1463,7 @@ function saveState(){
   localStorage.setItem('seekho-points',totalPoints);
   localStorage.setItem('seekho-awards',JSON.stringify(filmfareAwards));
   localStorage.setItem('seekho-daily',JSON.stringify(dailyData));
+  localStorage.setItem('seekho-singer-pts',singerPoints);
 }
 
 function addDailyPoints(n){
@@ -1406,6 +1586,20 @@ function renderHome(){
       <div class="daily-pts-big">${dailyData.pts}</div>
       <div class="daily-sub">Best day: ${dailyData.record} pts</div>
       ${isNewRecord?'<div class="daily-record-badge">🏆 New Record!</div>':''}`;
+  }
+  const singerEl=document.getElementById('home-singer-card');
+  if(singerEl){
+    const sLvl=getSingerLevel();const ss=singerLevels[sLvl];const ssNext=singerLevels[sLvl+1];
+    const sPct=ssNext?Math.round((singerPoints-ss.points)/(ssNext.points-ss.points)*100):100;
+    singerEl.innerHTML=`
+      <span class="singer-home-emoji">${ss.emoji}</span>
+      <div class="singer-home-info">
+        <div class="singer-home-label">🎵 Singer Level</div>
+        <div class="singer-home-name">${ss.name}</div>
+        <div class="singer-home-title">${ss.title}</div>
+        <div class="pts-bar-wrap" style="margin-top:6px"><div class="pts-bar-fill" style="width:${sPct}%;background:linear-gradient(90deg,#9c27b0,#e91e63)"></div></div>
+        <div class="singer-home-pts">${singerPoints} pts${ssNext?' · '+ssNext.points+' pts to become '+ssNext.name:' · MAX LEVEL 🎤'}</div>
+      </div>`;
   }
 }
 
@@ -1549,7 +1743,8 @@ function openFilmChapter(key){
 // ═══════════════════════════════════
 let sqWords=[],sqIdx=0,sqScore=0,sqAwardKey='';
 
-function openSectionQuiz(sec,chapterKey,secIdx,awardKey){
+function openSectionQuiz(sec,chapterKey,secIdx,awardKey,mode){
+  sqMode=mode||'movie';
   sqWords=sec.words.slice();
   // Shuffle and cap at 8 questions (or all if fewer)
   for(let i=sqWords.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sqWords[i],sqWords[j]]=[sqWords[j],sqWords[i]];}
@@ -1606,6 +1801,8 @@ function showSQResult(){
   const perfect=pct===100;
   const alreadyHad=!!filmfareAwards[sqAwardKey];
 
+  const bonusPts=perfect?30:Math.round(sqScore/sqWords.length*15);
+  if(sqMode==='song'){singerPoints+=bonusPts;}else{totalPoints+=bonusPts;addDailyPoints(bonusPts);}
   if(perfect&&sqAwardKey&&!alreadyHad){
     filmfareAwards[sqAwardKey]=true;
     saveState();
@@ -1613,15 +1810,17 @@ function showSQResult(){
     showToast('🏆 Filmfare Award won!');
   } else if(perfect){
     playFanfare();
-    showToast('🌟 Perfect score!');
+    saveState();
+    showToast('🌟 Perfect! +'+bonusPts+' pts');
   } else {
+    saveState();
     playCorrect();
   }
 
   box.innerHTML=`
     <span class="modal-emoji">${perfect?'🏆':'🎬'}</span>
     <div class="modal-title">${perfect?'Filmfare Award!':'Section Complete'}</div>
-    <div class="modal-subtitle" style="color:var(--pink)">${sqScore} / ${sqWords.length} correct · ${pct}%</div>
+    <div class="modal-subtitle" style="color:var(--pink)">${sqScore} / ${sqWords.length} correct · ${pct}% · +${bonusPts} pts</div>
     ${perfect&&!alreadyHad?'<div style="color:var(--gold);margin:10px 0;font-size:.9rem">🏆 You\'ve won the Filmfare Award for this section!</div>':''}
     ${perfect&&alreadyHad?'<div style="color:var(--muted);margin:10px 0;font-size:.85rem">You already hold this Filmfare!</div>':''}
     ${!perfect?'<div style="color:var(--muted);margin:10px 0;font-size:.85rem">Score 100% to win the Filmfare Award!</div>':''}
@@ -1861,6 +2060,27 @@ function renderJourney(){
       ${!unlocked?'<div class="ladder-lock">🔒</div>':'<div style="color:#4CAF50;font-size:1.3rem">✓</div>'}`;
     ladder.appendChild(item);
   });
+  // Singer ladder
+  const singerLadder=document.getElementById('singer-ladder');
+  if(singerLadder){
+    singerLadder.innerHTML='';
+    const sLvl=getSingerLevel();
+    singerLevels.forEach((s,i)=>{
+      const unlocked=singerPoints>=s.points;
+      const current=i===sLvl;
+      const item=document.createElement('div');
+      item.className='ladder-item'+(unlocked?' unlocked':'')+(current?' current':'');
+      item.innerHTML=`<div class="ladder-emoji-big">${s.emoji}</div>
+        <div class="ladder-info">
+          <div class="ladder-name">${s.name}${current?'<span class="current-badge">YOU</span>':''}</div>
+          <div class="ladder-title">${s.title}</div>
+          <div class="ladder-desc">${s.desc}</div>
+          <div class="ladder-pts">${s.points===0?'Starting level':'🎵 '+s.points+' singer pts needed'}</div>
+        </div>
+        ${!unlocked?'<div class="ladder-lock">🔒</div>':''}`;
+      singerLadder.appendChild(item);
+    });
+  }
 }
 
 // ═══════════════════════════════════
@@ -1922,19 +2142,90 @@ function resetEverything(){
   saveState();renderHome();showToast('Everything reset.');showView('home');
 }
 
-// ═══════════════════════════════════
-// SONGS — stubs (full impl coming)
-// ═══════════════════════════════════
-const singerLevels=[];
-const songMeta={};
-let singerPoints=parseInt(localStorage.getItem('seekho-singer-pts')||'0');
-let sqMode='movie';
-function getSingerLevel(){return 0;}
-function renderSongs(){
-  const grid=document.getElementById('songs-grid');
-  if(grid)grid.innerHTML='<div style="color:var(--muted);padding:24px;text-align:center">Songs loading soon…</div>';
+
+function getSingerLevel(){
+  let lvl=0;
+  for(let i=singerLevels.length-1;i>=0;i--){if(singerPoints>=singerLevels[i].points){lvl=i;break;}}
+  return lvl;
 }
-function openSongChapter(key){}
+
+function renderSongs(){
+  const sLvl=getSingerLevel();const ss=singerLevels[sLvl];const ssNext=singerLevels[sLvl+1];
+  const sPct=ssNext?Math.round((singerPoints-ss.points)/(ssNext.points-ss.points)*100):100;
+  const fillEl=document.getElementById('singer-overall-fill');
+  const labelEl=document.getElementById('singer-overall-label');
+  if(fillEl)fillEl.style.width=sPct+'%';
+  if(labelEl)labelEl.textContent=singerPoints+' pts · '+ss.name;
+  const grid=document.getElementById('songs-grid');
+  grid.innerHTML='';
+  Object.values(songMeta).forEach(song=>{
+    const card=document.createElement('div');
+    card.className='chapter-card song-card';
+    card.innerHTML=`<div class="song-poster" style="background:${song.gradient}">
+      <div class="song-poster-badge">${song.badge}</div>
+      <div class="song-poster-emojis">${song.emojis}</div>
+      <div class="song-poster-title">${song.title}</div>
+      <div class="song-poster-film">${song.film}</div>
+      <div class="song-poster-meta">🎤 ${song.singer}</div>
+    </div>`;
+    card.onclick=()=>openSongChapter(song.key);
+    grid.appendChild(card);
+  });
+}
+
+function openSongChapter(key){
+  const song=songMeta[key];
+  if(!song)return;
+  const hdr=document.getElementById('song-lesson-header');
+  if(hdr)hdr.style.background=song.gradient;
+  document.getElementById('song-lesson-title').textContent=song.emoji+' '+song.title;
+  document.getElementById('song-lesson-meta').innerHTML=`🎤 ${song.singer} &nbsp;·&nbsp; 🎬 ${song.film}`;
+  // Chorus
+  const chorusEl=document.getElementById('song-chorus-section');
+  chorusEl.innerHTML=`<div class="chorus-box">
+    <div class="chorus-title">🎵 Chorus — Sing Along!</div>
+    ${song.chorus.map(l=>`
+      <div style="margin-bottom:14px">
+        <div class="chorus-line">${l.line}</div>
+        <div class="chorus-dev">${l.dev}</div>
+        <div class="chorus-eng">${l.eng}</div>
+      </div>`).join('')}
+  </div>`;
+  // Sections and words
+  const wordsEl=document.getElementById('song-lesson-words');
+  wordsEl.innerHTML='';
+  song.sections.forEach((sec,secIdx)=>{
+    const awardKey=key+'_song_'+secIdx;
+    const hasAward=!!filmfareAwards[awardKey];
+    const heading=document.createElement('div');
+    heading.className='sec-heading';
+    heading.innerHTML=`<span>${sec.emoji} ${sec.title}</span>${hasAward?'<span class="sec-award">🏆 Filmfare</span>':''}`;
+    wordsEl.appendChild(heading);
+    sec.words.forEach(w=>{
+      const el=document.createElement('div');
+      el.className='word-card';
+      el.innerHTML=`<div class="word-en">${w.english}</div>
+        <div class="word-hi">${w.transliteration}</div>
+        <div class="word-dev">${w.devanagari}</div>
+        ${w.tip?`<div class="word-tip">💡 ${w.tip}</div>`:''}
+        <button class="speak-btn" onclick="event.stopPropagation();speakWord('${w.devanagari.replace(/'/g,"\\'")}')">🔊</button>`;
+      if(w.sentence){
+        const sentDiv=document.createElement('div');
+        sentDiv.className='word-sentence';
+        sentDiv.innerHTML=`<div class="sent-row"><div><div class="sent-hi">${w.sentence}</div><div class="sent-hi" style="font-size:.78rem;color:var(--muted)">${w.sentenceDev||''}</div><div class="sent-en">${w.sentenceEng||''}</div></div><button class="sent-speak" onclick="event.stopPropagation();speakWord('${(w.sentenceDev||w.sentence).replace(/'/g,"\\'")}')">🔊</button></div>`;
+        el.appendChild(sentDiv);
+      }
+      wordsEl.appendChild(el);
+    });
+    // Section quiz button
+    const qBtn=document.createElement('button');
+    qBtn.className='sec-quiz-btn';
+    qBtn.textContent=hasAward?'🏆 Retry Section Quiz':'🎵 Quiz This Section →';
+    qBtn.onclick=()=>openSectionQuiz(sec,key,secIdx,awardKey,'song');
+    wordsEl.appendChild(qBtn);
+  });
+  showView('song-lesson');
+}
 </script>
 </body>
 </html>
