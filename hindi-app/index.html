@@ -369,7 +369,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
-const APP_VERSION = 'v1.6';
+const APP_VERSION = 'v1.7';
 const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
@@ -1005,7 +1005,7 @@ function loadFC(){
   const val=document.getElementById('fc-cat').value;
   if(val==='all')fcCards=getAllWords().map((w,i)=>({...w,fcKey:'all_'+i}));
   else if(val==='basics')fcCards=getAllBeginnerWords();
-  else fcCards=(chapterMeta[val]?.words||[]).map(w=>({...w,chapterKey:val,fcKey:'film:'+val+':'+w.transliteration}));
+  else fcCards=getChapterAllWords(chapterMeta[val]||{}).map(w=>({...w,chapterKey:val,fcKey:'film:'+val+':'+w.transliteration}));
   fcIdx=0;fcFlipped=false;showFC();
 }
 
@@ -1045,7 +1045,7 @@ let currentQWord=null;
 function getQuizPool(cat){
   if(cat==='all')return getAllWords();
   if(cat==='basics')return getAllBeginnerWords();
-  return(chapterMeta[cat]?.words||[]).map(w=>({...w,chapterKey:cat}));
+  return getChapterAllWords(chapterMeta[cat]||{}).map(w=>({...w,chapterKey:cat}));
 }
 
 function startQuiz(){
