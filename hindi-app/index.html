@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seekho Hindi App 🎬 Bollywood Style</title>
+<title>Seekho Hindi Aap 🎬 Bollywood Style</title>
 <style>
 :root{--gold:#FFD700;--pink:#FF1493;--saffron:#FF9933;--bg:#0f0f1e;--card:rgba(255,255,255,0.07);--card2:rgba(255,255,255,0.12);--text:#f0e6d3;--muted:#a89880;--border:rgba(255,215,0,0.25);--r:14px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -276,6 +276,17 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 .singer-home-name{font-size:1rem;font-weight:800;color:#e1bee7}
 .singer-home-title{font-size:.72rem;color:#9575cd;text-transform:uppercase;letter-spacing:.8px}
 .singer-home-pts{font-size:.75rem;color:#b39ddb;margin-top:4px}
+/* users */
+.user-bar{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--r);padding:10px 16px;margin-bottom:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.user-bar:hover{background:rgba(255,215,0,.08);border-color:rgba(255,215,0,.3)}
+.user-av{font-size:2rem;line-height:1;flex-shrink:0}
+.user-name{font-size:.95rem;font-weight:700;color:var(--text)}
+.user-profile-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.user-profile-card:hover,.user-profile-card.active{border-color:var(--gold);background:rgba(255,215,0,.07)}
+.user-profile-card .user-av{font-size:2rem}
+/* youtube */
+.yt-btn{display:inline-flex;align-items:center;gap:8px;background:#c00;color:#fff;border-radius:8px;padding:9px 18px;font-size:.85rem;font-weight:700;text-decoration:none;margin:0 0 14px;transition:opacity .15s;border:none;cursor:pointer}
+.yt-btn:hover{opacity:.85}
 </style>
 </head>
 <body>
@@ -283,7 +294,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
   <div class="header-inner">
     <div class="header-logo">🎬</div>
     <div class="header-text">
-      <h1>Seekho Hindi App ✨ Bollywood Style</h1>
+      <h1>Seekho Hindi Aap ✨ Bollywood Style</h1>
       <p>Learn Hindi through iconic Bollywood films <span id="app-version" style="opacity:.45;font-size:.75em;margin-left:6px"></span></p>
     </div>
   </div>
@@ -301,8 +312,16 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 <main>
   <!-- HOME -->
   <div class="view active" id="view-home">
+    <div class="user-bar" id="user-bar" onclick="showUsersModal()">
+      <span class="user-av" id="user-bar-av">🌸</span>
+      <div style="flex:1">
+        <div class="user-name" id="user-bar-name">You</div>
+        <div style="font-size:.7rem;color:var(--muted)">Tap to switch or add users</div>
+      </div>
+      <span style="font-size:.85rem;color:var(--muted)" id="user-bar-count">👥 1</span>
+    </div>
     <div class="poster-frame">
-      <div class="poster-top-bar">✦ Seekho Hindi App · Bollywood Style ✦</div>
+      <div class="poster-top-bar">✦ Seekho Hindi Aap · Bollywood Style ✦</div>
       <div class="poster-inner">
         <div class="home-grid">
           <div class="starlet-card" id="home-starlet-card"></div>
@@ -484,22 +503,22 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
-const APP_VERSION = 'v2.3';
+const APP_VERSION = 'v2.4';
 const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
 // ═══════════════════════════════════
 const starlets = [
   {name:"Nayi Ladki",title:"New on Set",emoji:"🌸",points:0,color:"#FF69B4",desc:"Every star starts somewhere! The set awaits.",quote:"Sapne dekhna shuru karo. (Start dreaming.)"},
-  {name:"Tara Sharma",title:"Rising Starlet",emoji:"⭐",points:120,color:"#FF8C69",desc:"Fun roles, infectious energy. Main Hoon Na. Salaam Namaste.",quote:"Zindagi mein mazaa lo! (Have fun in life!)"},
-  {name:"Rekha",title:"Classic Icon",emoji:"💄",points:360,color:"#8B0000",desc:"1970s–80s legend. Umrao Jaan. Grace personified.",quote:"Mohabbat kabhi nahi marti. (Love never dies.)"},
-  {name:"Hema Malini",title:"Dream Girl",emoji:"🌺",points:600,color:"#C0392B",desc:"Bollywood's original Dream Girl. Sholay's Basanti. Seeta Aur Geeta.",quote:"Kitne aadmi the? (How many men were there?)"},
-  {name:"Sridevi",title:"First Female Superstar",emoji:"🌪️",points:750,color:"#4B0082",desc:"The original No. 1. Mr. India. English Vinglish.",quote:"Hawa Hawai! (Gone with the wind!)"},
-  {name:"Madhuri Dixit",title:"Dancing Queen",emoji:"💃",points:1350,color:"#FF1493",desc:"Dhak Dhak! Devdas. Hum Aapke Hain Koun.",quote:"Ek do teen, chaar paanch chhe! (One two three, four five six!)"},
-  {name:"Kajol",title:"Queen of Drama",emoji:"❤️",points:2100,color:"#DC143C",desc:"DDLJ forever. Kabhi Khushi. Kuch Kuch Hota Hai.",quote:"Tujhe dekha toh yeh jaana sanam. (When I saw you, I understood, beloved.)"},
-  {name:"Priyanka Chopra",title:"Global Crossover Queen",emoji:"🌍",points:3000,color:"#9B59B6",desc:"Miss World 2000. Quantico. Dil Dhadakne Do. Barfi!",quote:"Desi girl hoon main! (I am a desi girl!)"},
-  {name:"Deepika Padukone",title:"Modern Bollywood Icon",emoji:"✨",points:4200,color:"#DAA520",desc:"Bajirao Mastani. Padmaavat. Piku. Global superstar.",quote:"Deewani Mastani hoon main! (I am a crazy lover!)"},
-  {name:"Aishwarya Rai Bachchan",title:"The Eternal Queen 👑",emoji:"👑",points:6000,color:"#FFD700",desc:"Miss World 1994. Devdas. Jodhaa Akbar. The most beautiful.",quote:"Nimbooda nimbooda nimbooda... (From Hum Dil De Chuke Sanam)"}
+  {name:"Tara Sharma",title:"Rising Starlet",emoji:"⭐",points:500,color:"#FF8C69",desc:"Fun roles, infectious energy. Main Hoon Na. Salaam Namaste.",quote:"Zindagi mein mazaa lo! (Have fun in life!)"},
+  {name:"Rekha",title:"Classic Icon",emoji:"💄",points:1500,color:"#8B0000",desc:"1970s–80s legend. Umrao Jaan. Grace personified.",quote:"Mohabbat kabhi nahi marti. (Love never dies.)"},
+  {name:"Hema Malini",title:"Dream Girl",emoji:"🌺",points:2500,color:"#C0392B",desc:"Bollywood's original Dream Girl. Sholay's Basanti. Seeta Aur Geeta.",quote:"Kitne aadmi the? (How many men were there?)"},
+  {name:"Sridevi",title:"First Female Superstar",emoji:"🌪️",points:3200,color:"#4B0082",desc:"The original No. 1. Mr. India. English Vinglish.",quote:"Hawa Hawai! (Gone with the wind!)"},
+  {name:"Madhuri Dixit",title:"Dancing Queen",emoji:"💃",points:5800,color:"#FF1493",desc:"Dhak Dhak! Devdas. Hum Aapke Hain Koun.",quote:"Ek do teen, chaar paanch chhe! (One two three, four five six!)"},
+  {name:"Kajol",title:"Queen of Drama",emoji:"❤️",points:9000,color:"#DC143C",desc:"DDLJ forever. Kabhi Khushi. Kuch Kuch Hota Hai.",quote:"Tujhe dekha toh yeh jaana sanam. (When I saw you, I understood, beloved.)"},
+  {name:"Priyanka Chopra",title:"Global Crossover Queen",emoji:"🌍",points:13000,color:"#9B59B6",desc:"Miss World 2000. Quantico. Dil Dhadakne Do. Barfi!",quote:"Desi girl hoon main! (I am a desi girl!)"},
+  {name:"Deepika Padukone",title:"Modern Bollywood Icon",emoji:"✨",points:18000,color:"#DAA520",desc:"Bajirao Mastani. Padmaavat. Piku. Global superstar.",quote:"Deewani Mastani hoon main! (I am a crazy lover!)"},
+  {name:"Aishwarya Rai Bachchan",title:"The Eternal Queen 👑",emoji:"👑",points:26000,color:"#FFD700",desc:"Miss World 1994. Devdas. Jodhaa Akbar. The most beautiful.",quote:"Nimbooda nimbooda nimbooda... (From Hum Dil De Chuke Sanam)"}
 ];
 
 const bollywoodQuotes=[
@@ -517,19 +536,19 @@ const bollywoodQuotes=[
 
 const singerLevels=[
   {name:"Sur Seekhne Wali",title:"Learning the Melody",emoji:"🎵",points:0,color:"#9C27B0",desc:"Every great singer starts with the first note.",quote:"Ek sur se duniya banti hai. (One note makes the world.)"},
-  {name:"Nazia Hassan",title:"Disco Queen",emoji:"🪩",points:80,color:"#E91E63",desc:"Aap Jaisi Koi! Pakistan's pop legend who conquered Bollywood.",quote:"Aap jaisi koi meri zindagi mein aaye! (Someone like you came into my life!)"},
-  {name:"Usha Uthup",title:"Jazz & Folk Queen",emoji:"🎷",points:200,color:"#673AB7",desc:"Her voice broke all rules. Hare Rama Hare Krishna to jazz stages.",quote:"Darling, music is my religion!"},
-  {name:"Kavita Krishnamurthy",title:"Classical Elegance",emoji:"🌸",points:380,color:"#7B1FA2",desc:"Taal. Devdas. A voice of classical grace.",quote:"Sangeet anubhav hai, sirf awaaz nahi. (Music is feeling, not just voice.)"},
-  {name:"Alka Yagnik",title:"90s Romantic Queen",emoji:"💖",points:620,color:"#C2185B",desc:"Tujhe Dekha Toh. Dilwale Dulhania. The voice of an era.",quote:"Kuch kuch hota hai, main kya karon? (Something happens, what do I do?)"},
-  {name:"Sunidhi Chauhan",title:"Powerhouse Performer",emoji:"🔥",points:950,color:"#AD1457",desc:"Dhadkan. Dhoom. Sheila Ki Jawani. Raw, electrifying energy.",quote:"Sheila ki jawani! (Youth of Sheila — her most famous hit)"},
-  {name:"Shreya Ghoshal",title:"Romantic Voice of a Generation",emoji:"🌹",points:1400,color:"#880E4F",desc:"Devdas. Jab We Met. A voice like moonlight on water.",quote:"Yeh ishq haaye... (This love, oh... — from Jab We Met)"},
-  {name:"Neha Kakkar",title:"Modern Pop Sensation",emoji:"⚡",points:2000,color:"#6A1B9A",desc:"Social media queen, heart of the people, millennial anthems.",quote:"O saki saki! (My beloved — her chart-topper)"},
-  {name:"Asha Bhosle",title:"The Eternal Nightingale",emoji:"🌙",points:2800,color:"#4527A0",desc:"Miss World of music. 1950s to now. Over 12,000 songs. Dum Maro Dum.",quote:"Dum maro dum, mit jaaye gham! (Take a puff, let sorrows vanish!)"},
-  {name:"Lata Mangeshkar",title:"Melody Queen of India",emoji:"👑",points:4000,color:"#1A237E",desc:"Bharat Ratna. Voice of the nation. Lag Jaa Gale. Ae Mere Watan Ke Logon.",quote:"Lag jaa gale ke phir yeh haseen raat ho na ho. (Embrace me, for this beautiful night may not come again.)"}
+  {name:"Nazia Hassan",title:"Disco Queen",emoji:"🪩",points:350,color:"#E91E63",desc:"Aap Jaisi Koi! Pakistan's pop legend who conquered Bollywood.",quote:"Aap jaisi koi meri zindagi mein aaye! (Someone like you came into my life!)"},
+  {name:"Usha Uthup",title:"Jazz & Folk Queen",emoji:"🎷",points:850,color:"#673AB7",desc:"Her voice broke all rules. Hare Rama Hare Krishna to jazz stages.",quote:"Darling, music is my religion!"},
+  {name:"Kavita Krishnamurthy",title:"Classical Elegance",emoji:"🌸",points:1600,color:"#7B1FA2",desc:"Taal. Devdas. A voice of classical grace.",quote:"Sangeet anubhav hai, sirf awaaz nahi. (Music is feeling, not just voice.)"},
+  {name:"Alka Yagnik",title:"90s Romantic Queen",emoji:"💖",points:2600,color:"#C2185B",desc:"Tujhe Dekha Toh. Dilwale Dulhania. The voice of an era.",quote:"Kuch kuch hota hai, main kya karon? (Something happens, what do I do?)"},
+  {name:"Sunidhi Chauhan",title:"Powerhouse Performer",emoji:"🔥",points:4000,color:"#AD1457",desc:"Dhadkan. Dhoom. Sheila Ki Jawani. Raw, electrifying energy.",quote:"Sheila ki jawani! (Youth of Sheila — her most famous hit)"},
+  {name:"Shreya Ghoshal",title:"Romantic Voice of a Generation",emoji:"🌹",points:6000,color:"#880E4F",desc:"Devdas. Jab We Met. A voice like moonlight on water.",quote:"Yeh ishq haaye... (This love, oh... — from Jab We Met)"},
+  {name:"Neha Kakkar",title:"Modern Pop Sensation",emoji:"⚡",points:8500,color:"#6A1B9A",desc:"Social media queen, heart of the people, millennial anthems.",quote:"O saki saki! (My beloved — her chart-topper)"},
+  {name:"Asha Bhosle",title:"The Eternal Nightingale",emoji:"🌙",points:12000,color:"#4527A0",desc:"Miss World of music. 1950s to now. Over 12,000 songs. Dum Maro Dum.",quote:"Dum maro dum, mit jaaye gham! (Take a puff, let sorrows vanish!)"},
+  {name:"Lata Mangeshkar",title:"Melody Queen of India",emoji:"👑",points:17000,color:"#1A237E",desc:"Bharat Ratna. Voice of the nation. Lag Jaa Gale. Ae Mere Watan Ke Logon.",quote:"Lag jaa gale ke phir yeh haseen raat ho na ho. (Embrace me, for this beautiful night may not come again.)"}
 ];
 
 const songMeta={
-  kesariya:{key:"kesariya",title:"Kesariya",subtitle:"Love turned saffron",emoji:"🌸",film:"Brahmastra (2022)",singer:"Arijit Singh",badge:"Song 1",gradient:"linear-gradient(135deg,#4a1000,#7a3b00)",emojis:"🌸🔥💛",
+  kesariya:{key:"kesariya",title:"Kesariya",subtitle:"Love turned saffron",emoji:"🌸",film:"Brahmastra (2022)",singer:"Arijit Singh",badge:"Song 1",ytUrl:"https://www.youtube.com/watch?v=BddP6PYo2gs",gradient:"linear-gradient(135deg,#4a1000,#7a3b00)",emojis:"🌸🔥💛",
     chorus:[
       {line:"Kesariya tera ishq hai piya",dev:"केसरिया तेरा इश्क़ है पिया",eng:"Saffron is your love, my beloved"},
       {line:"Kesariya, Kesariya",dev:"केसरिया, केसरिया",eng:"Saffron, saffron (devotion, devotion)"},
@@ -552,7 +571,7 @@ const songMeta={
       W("Devotion / Sacrifice","Samarpan","समर्पण","Main tera samarpan hoon.","मैं तेरा समर्पण हूँ।","I am devoted to you.","From Sanskrit; used in devotional songs")
     ]}]
   },
-  raataan:{key:"raataan",title:"Raataan Lambiyan",subtitle:"Long long nights of longing",emoji:"🌙",film:"Shershaah (2021)",singer:"Jubin Nautiyal · Asees Kaur",badge:"Song 2",gradient:"linear-gradient(135deg,#001a3a,#00203a)",emojis:"🌙⭐💙",
+  raataan:{key:"raataan",title:"Raataan Lambiyan",subtitle:"Long long nights of longing",emoji:"🌙",film:"Shershaah (2021)",singer:"Jubin Nautiyal · Asees Kaur",badge:"Song 2",ytUrl:"https://www.youtube.com/watch?v=gvyUuxdRdR4",gradient:"linear-gradient(135deg,#001a3a,#00203a)",emojis:"🌙⭐💙",
     chorus:[
       {line:"Raataan lambiyan, raataan lambiyan",dev:"रातां लंबियां, रातां लंबियां",eng:"The nights are long, the nights are long"},
       {line:"Tenu main rab manan mangaaye ni",dev:"तेनू मैं रब मनान मंगाएं नी",eng:"I pray to God to bring you to me"},
@@ -575,7 +594,7 @@ const songMeta={
       W("Waiting / Longing","Intezaar","इंतज़ार","Tera intezaar karta rahunga.","तेरा इंतज़ार करता रहूँगा।","I will keep waiting for you.","'Intezaar khatam hua' = waiting ended")
     ]}]
   },
-  aeDil:{key:"aeDil",title:"Ae Dil Hai Mushkil",subtitle:"Oh heart, it is difficult",emoji:"💔",film:"Ae Dil Hai Mushkil (2016)",singer:"Arijit Singh",badge:"Song 3",gradient:"linear-gradient(135deg,#2d0030,#0a001a)",emojis:"💔🌧️🎭",
+  aeDil:{key:"aeDil",title:"Ae Dil Hai Mushkil",subtitle:"Oh heart, it is difficult",emoji:"💔",film:"Ae Dil Hai Mushkil (2016)",singer:"Arijit Singh",badge:"Song 3",ytUrl:"https://www.youtube.com/watch?v=6FURuLYrR_Q",gradient:"linear-gradient(135deg,#2d0030,#0a001a)",emojis:"💔🌧️🎭",
     chorus:[
       {line:"Ae dil hai mushkil, ae dil hai mushkil",dev:"ऐ दिल है मुश्किल, ऐ दिल है मुश्किल",eng:"Oh heart, it is difficult, oh heart it is difficult"},
       {line:"Ye judaai ka aalam kya bataon",dev:"ये जुदाई का आलम क्या बताऊँ",eng:"How do I describe this state of separation"},
@@ -598,7 +617,7 @@ const songMeta={
       W("To return","Lautna","लौटना","Kya tum laut ke aaoge?","क्या तुम लौट के आओगे?","Will you return?","'Laut aao' = come back (imperative)")
     ]}]
   },
-  tumHiHo:{key:"tumHiHo",title:"Tum Hi Ho",subtitle:"You alone are everything",emoji:"❤️‍🔥",film:"Aashiqui 2 (2013)",singer:"Arijit Singh",badge:"Song 4",gradient:"linear-gradient(135deg,#3d0010,#1a0008)",emojis:"❤️‍🔥🌹💫",
+  tumHiHo:{key:"tumHiHo",title:"Tum Hi Ho",subtitle:"You alone are everything",emoji:"❤️‍🔥",film:"Aashiqui 2 (2013)",singer:"Arijit Singh",badge:"Song 4",ytUrl:"https://www.youtube.com/watch?v=81qmmlsIE3k",gradient:"linear-gradient(135deg,#3d0010,#1a0008)",emojis:"❤️‍🔥🌹💫",
     chorus:[
       {line:"Tum hi ho, ab tum hi ho",dev:"तुम ही हो, अब तुम ही हो",eng:"You alone are, now you alone are"},
       {line:"Zindagi ab tum hi ho",dev:"ज़िंदगी अब तुम ही हो",eng:"Life — now you alone are life"},
@@ -621,7 +640,7 @@ const songMeta={
       W("Without","Bin","बिन","Tere bin jeena nahi.","तेरे बिन जीना नहीं।","There is no living without you.","Short form of 'bina'")
     ]}]
   },
-  dilbaro:{key:"dilbaro",title:"Dilbaro",subtitle:"Beloved, heart-stealer",emoji:"🕊️",film:"Raazi (2018)",singer:"Harshdeep Kaur · Vibha Saraf",badge:"Song 5",gradient:"linear-gradient(135deg,#1a2a00,#0a1a10)",emojis:"🕊️🌿💚",
+  dilbaro:{key:"dilbaro",title:"Dilbaro",subtitle:"Beloved, heart-stealer",emoji:"🕊️",film:"Raazi (2018)",singer:"Harshdeep Kaur · Vibha Saraf",badge:"Song 5",ytUrl:"https://www.youtube.com/watch?v=WqUXVw0WlXc",gradient:"linear-gradient(135deg,#1a2a00,#0a1a10)",emojis:"🕊️🌿💚",
     chorus:[
       {line:"Dilbaro, dilbaro, dilbaro",dev:"दिलबरो, दिलबरो, दिलबरो",eng:"Beloved, beloved, beloved (heart-stealer)"},
       {line:"Yeh jaane jahaan, yeh teri zubaan",dev:"ये जाने जहाँ, ये तेरी ज़ुबाँ",eng:"This sweetheart, this tongue of yours"},
@@ -644,7 +663,7 @@ const songMeta={
       W("Daughter","Beti","बेटी","Beti vidaa hoti hai toh ghar soona lagta hai.","बेटी विदा होती है तो घर सूना लगता है।","When a daughter leaves, the home feels empty.","Song is about a daughter leaving home — very emotional")
     ]}]
   },
-  aapJaisi:{key:"aapJaisi",title:"Aap Jaisi Koi",subtitle:"Someone like you",emoji:"✨",film:"Qurbani (1980)",singer:"Nazia Hassan",badge:"Song 6",gradient:"linear-gradient(135deg,#2d1a00,#1a0f00)",emojis:"✨🌟💛",
+  aapJaisi:{key:"aapJaisi",title:"Aap Jaisi Koi",subtitle:"Someone like you",emoji:"✨",film:"Qurbani (1980)",singer:"Nazia Hassan",badge:"Song 6",ytUrl:"https://www.youtube.com/watch?v=kdMJ93l-aIE",gradient:"linear-gradient(135deg,#2d1a00,#1a0f00)",emojis:"✨🌟💛",
     chorus:[
       {line:"Aap jaisi koi meri zindagi mein aaye",dev:"आप जैसी कोई मेरी ज़िंदगी में आए",eng:"Someone like you should come into my life"},
       {line:"Toh ban jaye, toh ban jaye",dev:"तो बन जाए, तो बन जाए",eng:"Then it would become, then it would become (complete)"},
@@ -667,7 +686,7 @@ const songMeta={
       W("Like this / Such","Aisa","ऐसा","Aisa pyaar phir nahi milega.","ऐसा प्यार फिर नहीं मिलेगा।","Such love will not be found again.","Aisa = masc., Aisi = fem.")
     ]}]
   },
-  jhumka:{key:"jhumka",title:"What Jhumka?",subtitle:"The earring that started it all",emoji:"💍",film:"Rocky Aur Rani (2023)",singer:"Arijit Singh · Jonita Gandhi",badge:"Song 7",gradient:"linear-gradient(135deg,#1a0030,#3d0050)",emojis:"💍👑🎊",
+  jhumka:{key:"jhumka",title:"What Jhumka?",subtitle:"The earring that started it all",emoji:"💍",film:"Rocky Aur Rani (2023)",singer:"Arijit Singh · Jonita Gandhi",badge:"Song 7",ytUrl:"https://www.youtube.com/watch?v=87JIOAX3njM",gradient:"linear-gradient(135deg,#1a0030,#3d0050)",emojis:"💍👑🎊",
     chorus:[
       {line:"What jhumka? What jhumka?",dev:"व्हाट झुमका? व्हाट झुमका?",eng:"What earring? What earring?"},
       {line:"Jhumka gira re, Bareilly ke bazaar mein",dev:"झुमका गिरा रे, बरेली के बाज़ार में",eng:"The earring fell, in the market of Bareilly"},
@@ -1444,26 +1463,54 @@ const beginnerCats={
 };
 
 // ═══════════════════════════════════
-// STATE
+// STATE — multi-user
 // ═══════════════════════════════════
-let learned=JSON.parse(localStorage.getItem('seekho-learned')||'{}');
-let quizHistory=JSON.parse(localStorage.getItem('seekho-quiz')||'[]');
-let totalPoints=parseInt(localStorage.getItem('seekho-points')||'0');
-let filmfareAwards=JSON.parse(localStorage.getItem('seekho-awards')||'{}');
-let dailyData=JSON.parse(localStorage.getItem('seekho-daily')||'{"date":"","pts":0,"record":0}');
 const todayStr=new Date().toISOString().slice(0,10);
-if(dailyData.date!==todayStr){dailyData={date:todayStr,pts:0,record:dailyData.record};}
+
+let users=JSON.parse(localStorage.getItem('seekho-users')||'null');
+let currentUserId=localStorage.getItem('seekho-current-uid')||null;
+
+if(!users){
+  users=[{
+    id:'u_default',name:'You',emoji:'🌸',createdAt:new Date().toISOString(),
+    totalPoints:parseInt(localStorage.getItem('seekho-points')||'0'),
+    singerPoints:parseInt(localStorage.getItem('seekho-singer-pts')||'0'),
+    learned:JSON.parse(localStorage.getItem('seekho-learned')||'{}'),
+    quizHistory:JSON.parse(localStorage.getItem('seekho-quiz')||'[]'),
+    filmfareAwards:JSON.parse(localStorage.getItem('seekho-awards')||'{}'),
+    dailyData:JSON.parse(localStorage.getItem('seekho-daily')||'{"date":"","pts":0,"record":0}')
+  }];
+  localStorage.setItem('seekho-users',JSON.stringify(users));
+}
+if(!currentUserId||!users.find(u=>u.id===currentUserId))currentUserId=users[0].id;
+localStorage.setItem('seekho-current-uid',currentUserId);
+
+let learned={},quizHistory=[],totalPoints=0,filmfareAwards={},dailyData={date:'',pts:0,record:0};
+let singerPoints=0;
+let sqMode='movie';
 let streak=0;
-let singerPoints=parseInt(localStorage.getItem('seekho-singer-pts')||'0');
-let sqMode='movie'; // 'movie' | 'song' — controls which points pool section quiz uses
+
+function loadUserState(uid){
+  const u=users.find(u=>u.id===uid);
+  if(!u)return;
+  totalPoints=u.totalPoints||0;
+  singerPoints=u.singerPoints||0;
+  learned=JSON.parse(JSON.stringify(u.learned||{}));
+  quizHistory=(u.quizHistory||[]).slice();
+  filmfareAwards=JSON.parse(JSON.stringify(u.filmfareAwards||{}));
+  dailyData=Object.assign({},u.dailyData||{date:'',pts:0,record:0});
+  if(dailyData.date!==todayStr)dailyData={date:todayStr,pts:0,record:dailyData.record||0};
+}
+loadUserState(currentUserId);
 
 function saveState(){
-  localStorage.setItem('seekho-learned',JSON.stringify(learned));
-  localStorage.setItem('seekho-quiz',JSON.stringify(quizHistory.slice(-50)));
-  localStorage.setItem('seekho-points',totalPoints);
-  localStorage.setItem('seekho-awards',JSON.stringify(filmfareAwards));
-  localStorage.setItem('seekho-daily',JSON.stringify(dailyData));
-  localStorage.setItem('seekho-singer-pts',singerPoints);
+  const u=users.find(u=>u.id===currentUserId);
+  if(!u)return;
+  u.totalPoints=totalPoints;u.singerPoints=singerPoints;
+  u.learned=learned;u.quizHistory=quizHistory.slice(-50);
+  u.filmfareAwards=filmfareAwards;u.dailyData=dailyData;
+  localStorage.setItem('seekho-users',JSON.stringify(users));
+  localStorage.setItem('seekho-current-uid',currentUserId);
 }
 
 function addDailyPoints(n){
@@ -1475,6 +1522,11 @@ function addDailyPoints(n){
 function getStarletLevel(){
   let lvl=0;
   for(let i=starlets.length-1;i>=0;i--){if(totalPoints>=starlets[i].points){lvl=i;break;}}
+  return lvl;
+}
+function getStarletLevelFor(u){
+  let lvl=0;const pts=u.totalPoints||0;
+  for(let i=starlets.length-1;i>=0;i--){if(pts>=starlets[i].points){lvl=i;break;}}
   return lvl;
 }
 
@@ -1495,8 +1547,15 @@ if(synth){synth.onvoiceschanged=loadVoices;loadVoices();}else{document.getElemen
 function speakWord(dev,gender){
   if(!synth||!dev)return;synth.cancel();
   const u=new SpeechSynthesisUtterance(dev);u.lang='hi-IN';u.rate=0.82;
-  const voice=gender==='m'?(hindiVoiceMale||hindiVoiceFemale):hindiVoiceFemale;
-  if(voice)u.voice=voice;synth.speak(u);
+  if(gender==='m'){
+    const mv=hindiVoiceMale||hindiVoiceFemale;
+    if(mv)u.voice=mv;
+    u.pitch=0.72;
+  }else{
+    if(hindiVoiceFemale)u.voice=hindiVoiceFemale;
+    u.pitch=1.1;
+  }
+  synth.speak(u);
 }
 function playTone(f,s,d,g=0.25,t='triangle'){try{const c=getCtx(),o=c.createOscillator(),gn=c.createGain();o.connect(gn);gn.connect(c.destination);o.type=t;o.frequency.value=f;const ts=c.currentTime+s;gn.gain.setValueAtTime(g,ts);gn.gain.exponentialRampToValueAtTime(0.001,ts+d);o.start(ts);o.stop(ts+d+0.05);}catch(e){}}
 function playCorrect(){playTone(784,0,0.1,0.2);playTone(1047,0.12,0.15,0.2);}
@@ -1553,6 +1612,13 @@ function showView(name){
 // HOME
 // ═══════════════════════════════════
 function renderHome(){
+  const cu=users.find(u=>u.id===currentUserId)||users[0]||{emoji:'🌸',name:'You'};
+  const ubAv=document.getElementById('user-bar-av');
+  const ubName=document.getElementById('user-bar-name');
+  const ubCount=document.getElementById('user-bar-count');
+  if(ubAv)ubAv.textContent=cu.emoji;
+  if(ubName)ubName.textContent=cu.name;
+  if(ubCount)ubCount.textContent='👥 '+users.length;
   const lvl=getStarletLevel();
   const s=starlets[lvl];
   const nextS=starlets[lvl+1];
@@ -2111,6 +2177,96 @@ function showLevelUpModal(newLvl){
 function closeModal(){document.getElementById('modal-overlay').style.display='none';}
 
 // ═══════════════════════════════════
+// USERS
+// ═══════════════════════════════════
+let selectedUserEmoji='🌸';
+
+function switchUser(uid){
+  saveState();
+  currentUserId=uid;
+  localStorage.setItem('seekho-current-uid',uid);
+  loadUserState(uid);
+  closeModal();
+  renderHome();
+  const u=users.find(u=>u.id===uid);
+  showToast('👤 Now learning as '+(u?u.name:'User'));
+}
+
+function createUser(name,emoji){
+  const newU={
+    id:'u_'+Date.now(),name:name.trim()||'Learner',emoji:emoji||'🌟',
+    createdAt:new Date().toISOString(),
+    totalPoints:0,singerPoints:0,learned:{},quizHistory:[],filmfareAwards:{},
+    dailyData:{date:todayStr,pts:0,record:0}
+  };
+  users.push(newU);
+  localStorage.setItem('seekho-users',JSON.stringify(users));
+  switchUser(newU.id);
+}
+
+function showUsersModal(){
+  const box=document.getElementById('modal-box');
+  box.innerHTML=`<div style="text-align:left">
+    <div style="font-size:1.1rem;font-weight:800;color:var(--gold);margin-bottom:14px;text-align:center">👥 User Profiles</div>
+    <div>${users.map(u=>{
+      const s=starlets[getStarletLevelFor(u)];
+      const isCurrent=u.id===currentUserId;
+      return`<div class="user-profile-card${isCurrent?' active':''}" onclick="${isCurrent?'':'switchUser(\''+u.id+'\')'}">
+        <span class="user-av">${u.emoji}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;color:var(--text)">${u.name}${isCurrent?'&nbsp;<span style="font-size:.63rem;background:var(--gold);color:#000;padding:1px 6px;border-radius:8px;vertical-align:middle">YOU</span>':''}</div>
+          <div style="font-size:.75rem;color:var(--muted)">${s.emoji} ${s.name} &middot; ${u.totalPoints||0} pts</div>
+        </div>
+        ${isCurrent?'<div style="color:var(--gold)">✓</div>':'<div style="color:var(--muted);font-size:.8rem">Switch</div>'}
+      </div>`;}).join('')}</div>
+    <button onclick="showCreateUserForm()" class="btn btn-gold" style="width:100%;margin-top:12px;padding:11px;font-size:.88rem">✨ Add New User</button>
+    <button onclick="closeModal()" class="btn btn-outline" style="width:100%;margin-top:8px;padding:10px;font-size:.88rem">Close</button>
+  </div>`;
+  document.getElementById('modal-overlay').style.display='flex';
+}
+
+function showCreateUserForm(){
+  const emojis=['🌸','🌟','💫','🎬','🎵','🌺','💃','🎭','🌙','⚡','🦋','🎤'];
+  selectedUserEmoji=emojis[0];
+  const box=document.getElementById('modal-box');
+  box.innerHTML=`<div style="text-align:left">
+    <div style="font-size:1.1rem;font-weight:800;color:var(--gold);margin-bottom:14px;text-align:center">✨ New User Profile</div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Name</label>
+      <input id="new-user-name" type="text" maxlength="20" placeholder="e.g. Priya"
+        style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;background:#1a1a2e;color:var(--text);font-family:inherit;outline:none">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Avatar</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="emoji-picker">
+        ${emojis.map((e,i)=>`<button onclick="selectUserEmoji(this,'${e}')"
+          style="font-size:1.4rem;background:${i===0?'rgba(255,215,0,.2)':'var(--card)'};border:2px solid ${i===0?'var(--gold)':'var(--border)'};border-radius:10px;width:40px;height:40px;cursor:pointer;transition:all .15s">${e}</button>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="submitNewUser()" class="btn btn-gold" style="flex:1;padding:11px">Create →</button>
+      <button onclick="showUsersModal()" class="btn btn-outline" style="padding:11px">Back</button>
+    </div>
+  </div>`;
+  document.getElementById('modal-overlay').style.display='flex';
+  setTimeout(()=>{const inp=document.getElementById('new-user-name');if(inp)inp.focus();},80);
+}
+
+function selectUserEmoji(btn,emoji){
+  document.querySelectorAll('#emoji-picker button').forEach(b=>{b.style.background='var(--card)';b.style.borderColor='var(--border)';});
+  btn.style.background='rgba(255,215,0,.2)';btn.style.borderColor='var(--gold)';
+  selectedUserEmoji=emoji;
+}
+
+function submitNewUser(){
+  const inp=document.getElementById('new-user-name');
+  const name=(inp&&inp.value||'').trim();
+  if(!name){if(inp)inp.focus();return;}
+  createUser(name,selectedUserEmoji);
+  showToast('🎬 Welcome, '+name+'!');
+}
+
+// ═══════════════════════════════════
 // INIT
 // ═══════════════════════════════════
 document.getElementById('app-version').textContent = APP_VERSION;
@@ -2137,9 +2293,10 @@ function resetLearned(){
   learned={};saveState();showToast('Learned words cleared.');
 }
 function resetEverything(){
-  if(!confirm('Reset ALL data — score, learned words, quiz history, and Filmfare awards? This cannot be undone.'))return;
-  totalPoints=0;learned={};quizHistory=[];filmfareAwards={};dailyData={date:todayStr,pts:0,record:0};
-  saveState();renderHome();showToast('Everything reset.');showView('home');
+  const cu=users.find(u=>u.id===currentUserId)||{};
+  if(!confirm('Reset ALL data for '+(cu.name||'this user')+' — score, words, history, and awards? Cannot be undone.'))return;
+  totalPoints=0;learned={};quizHistory=[];filmfareAwards={};dailyData={date:todayStr,pts:0,record:0};singerPoints=0;
+  saveState();renderHome();showToast('Everything reset for '+(cu.name||'this user')+'.');showView('home');
 }
 
 
@@ -2182,7 +2339,8 @@ function openSongChapter(key){
   document.getElementById('song-lesson-meta').innerHTML=`🎤 ${song.singer} &nbsp;·&nbsp; 🎬 ${song.film}`;
   // Chorus
   const chorusEl=document.getElementById('song-chorus-section');
-  chorusEl.innerHTML=`<div class="chorus-box">
+  chorusEl.innerHTML=(song.ytUrl?`<a href="${song.ytUrl}" target="_blank" rel="noopener" class="yt-btn">▶ Watch on YouTube</a>`:'')
+    +`<div class="chorus-box">
     <div class="chorus-title">🎵 Chorus — Sing Along!</div>
     ${song.chorus.map(l=>`
       <div style="margin-bottom:14px">
