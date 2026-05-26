@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seekho Hindi 🎬 Bollywood Edition</title>
+<title>Seekho Hindi App 🎬 Bollywood Style</title>
 <style>
 :root{--gold:#FFD700;--pink:#FF1493;--saffron:#FF9933;--bg:#0f0f1e;--card:rgba(255,255,255,0.07);--card2:rgba(255,255,255,0.12);--text:#f0e6d3;--muted:#a89880;--border:rgba(255,215,0,0.25);--r:14px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -229,6 +229,30 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 .filmfare-wrap{background:rgba(255,215,0,.08);border:1px solid var(--gold);border-radius:var(--r);padding:18px;margin-top:14px}
 .filmfare-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:10px}
 .filmfare-card{background:var(--card2);border:1px solid var(--gold);border-radius:10px;padding:12px;text-align:center;font-size:.8rem}
+/* settings */
+.settings-block{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.settings-block h3{color:var(--gold);font-size:.9rem;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px}
+.settings-btn{width:100%;padding:13px 16px;margin-bottom:9px;background:transparent;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:all .2s}
+.settings-btn:hover{border-color:var(--gold);color:var(--gold)}
+.settings-btn.danger{border-color:rgba(229,62,62,.5);color:#e57373}
+.settings-btn.danger:hover{border-color:#e53e3e;background:rgba(229,62,62,.08)}
+.history-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:.82rem}
+.history-row .h-score{font-weight:700;color:var(--gold)}
+.history-row .h-score.perfect{color:#4CAF50}
+.history-row .h-pts{color:var(--pink);font-weight:600}
+.history-row .h-meta{color:var(--muted)}
+/* film poster home */
+.poster-frame{border:3px solid var(--gold);border-radius:var(--r);overflow:hidden;margin-bottom:20px;background:linear-gradient(160deg,#1a0030,#0a0a1e,#1a0a00);box-shadow:0 0 40px rgba(255,215,0,.18),inset 0 0 80px rgba(0,0,0,.6)}
+.poster-top-bar{background:var(--gold);color:#000;text-align:center;font-size:.6rem;font-weight:900;letter-spacing:4px;padding:5px 0;text-transform:uppercase}
+.poster-inner{padding:16px}
+.poster-tagline{text-align:center;font-size:.65rem;letter-spacing:3px;color:rgba(255,215,0,.6);text-transform:uppercase;padding:8px 0;border-top:1px solid rgba(255,215,0,.2);margin-top:12px}
+/* daily points */
+.daily-card{background:linear-gradient(135deg,rgba(255,20,147,.12),rgba(255,153,51,.08));border:1px solid rgba(255,215,0,.3);border-radius:var(--r);padding:16px;margin-top:12px;text-align:center}
+.daily-label{font-size:.65rem;color:var(--pink);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-weight:700}
+.daily-pts-big{font-size:2.4rem;font-weight:900;color:var(--gold);line-height:1}
+.daily-sub{font-size:.78rem;color:var(--muted);margin-top:4px}
+.daily-record-badge{display:inline-block;background:linear-gradient(135deg,var(--gold),var(--saffron));color:#000;font-size:.65rem;font-weight:900;padding:3px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-top:6px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.04)}}
 </style>
 </head>
 <body>
@@ -236,7 +260,7 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
   <div class="header-inner">
     <div class="header-logo">🎬</div>
     <div class="header-text">
-      <h1>Seekho Hindi ✨ Bollywood Edition</h1>
+      <h1>Seekho Hindi App ✨ Bollywood Style</h1>
       <p>Learn Hindi through iconic Bollywood films <span id="app-version" style="opacity:.45;font-size:.75em;margin-left:6px"></span></p>
     </div>
   </div>
@@ -246,15 +270,25 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
     <button class="nav-btn" onclick="showView('flashcards')" id="tab-flashcards">🃏 Flashcards</button>
     <button class="nav-btn" onclick="showView('quiz')" id="tab-quiz">✏️ Quiz</button>
     <button class="nav-btn" onclick="showView('journey')" id="tab-journey">🌟 Star Journey</button>
+    <button class="nav-btn" onclick="showView('settings')" id="tab-settings">⚙️ Settings</button>
   </nav>
 </header>
 
 <main>
   <!-- HOME -->
   <div class="view active" id="view-home">
-    <div class="home-grid">
-      <div class="starlet-card" id="home-starlet-card"></div>
-      <div class="quote-card" id="home-quote"></div>
+    <div class="poster-frame">
+      <div class="poster-top-bar">✦ Seekho Hindi App · Bollywood Style ✦</div>
+      <div class="poster-inner">
+        <div class="home-grid">
+          <div class="starlet-card" id="home-starlet-card"></div>
+          <div>
+            <div class="quote-card" id="home-quote"></div>
+            <div class="daily-card" id="home-daily"></div>
+          </div>
+        </div>
+        <div class="poster-tagline">✦ Har Din Seekho · Har Din Baro ✦ Learn Every Day · Grow Every Day ✦</div>
+      </div>
     </div>
     <div class="section-title">🎯 Recent Quizzes</div>
     <div class="recent-list" id="home-recent"></div>
@@ -378,6 +412,19 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
     <div class="section-title">🎭 Starlet Ladder</div>
     <div class="starlet-ladder" id="starlet-ladder"></div>
   </div>
+
+  <!-- SETTINGS -->
+  <div class="view" id="view-settings">
+    <div class="section-title">⚙️ Settings</div>
+    <div class="settings-block">
+      <h3>🔄 Reset Data</h3>
+      <button class="settings-btn" onclick="resetScore()">Reset Score to Zero</button>
+      <button class="settings-btn" onclick="resetLearned()">Reset All Learned Words</button>
+      <button class="settings-btn danger" onclick="resetEverything()">⚠️ Reset Everything (Score + Words + History + Awards)</button>
+    </div>
+    <div class="section-title">📋 All Quiz Results</div>
+    <div id="settings-history"></div>
+  </div>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -386,21 +433,22 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </div>
 
 <script>
-const APP_VERSION = 'v2.1';
+const APP_VERSION = 'v2.2';
 const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
 // ═══════════════════════════════════
 const starlets = [
   {name:"Nayi Ladki",title:"New on Set",emoji:"🌸",points:0,color:"#FF69B4",desc:"Every star starts somewhere! The set awaits.",quote:"Sapne dekhna shuru karo. (Start dreaming.)"},
-  {name:"Tara Sharma",title:"Rising Starlet",emoji:"⭐",points:40,color:"#FF8C69",desc:"Fun roles, infectious energy. Main Hoon Na. Salaam Namaste.",quote:"Zindagi mein mazaa lo! (Have fun in life!)"},
-  {name:"Rekha",title:"Classic Icon",emoji:"💄",points:120,color:"#8B0000",desc:"1970s–80s legend. Umrao Jaan. Grace personified.",quote:"Mohabbat kabhi nahi marti. (Love never dies.)"},
-  {name:"Sridevi",title:"First Female Superstar",emoji:"🌪️",points:250,color:"#4B0082",desc:"The original No. 1. Mr. India. English Vinglish.",quote:"Hawa Hawai! (Gone with the wind!)"},
-  {name:"Madhuri Dixit",title:"Dancing Queen",emoji:"💃",points:450,color:"#FF1493",desc:"Dhak Dhak! Devdas. Hum Aapke Hain Koun.",quote:"Ek do teen, chaar paanch chhe! (One two three, four five six!)"},
-  {name:"Kajol",title:"Queen of Drama",emoji:"❤️",points:700,color:"#DC143C",desc:"DDLJ forever. Kabhi Khushi. Kuch Kuch Hota Hai.",quote:"Tujhe dekha toh yeh jaana sanam. (When I saw you, I understood, beloved.)"},
-  {name:"Priyanka Chopra",title:"Global Crossover Queen",emoji:"🌍",points:1000,color:"#9B59B6",desc:"Miss World 2000. Quantico. Dil Dhadakne Do. Barfi!",quote:"Desi girl hoon main! (I am a desi girl!)"},
-  {name:"Deepika Padukone",title:"Modern Bollywood Icon",emoji:"✨",points:1400,color:"#DAA520",desc:"Bajirao Mastani. Padmaavat. Piku. Global superstar.",quote:"Deewani Mastani hoon main! (I am a crazy lover!)"},
-  {name:"Aishwarya Rai Bachchan",title:"The Eternal Queen 👑",emoji:"👑",points:2000,color:"#FFD700",desc:"Miss World 1994. Devdas. Jodhaa Akbar. The most beautiful.",quote:"Nimbooda nimbooda nimbooda... (From Hum Dil De Chuke Sanam)"}
+  {name:"Tara Sharma",title:"Rising Starlet",emoji:"⭐",points:120,color:"#FF8C69",desc:"Fun roles, infectious energy. Main Hoon Na. Salaam Namaste.",quote:"Zindagi mein mazaa lo! (Have fun in life!)"},
+  {name:"Rekha",title:"Classic Icon",emoji:"💄",points:360,color:"#8B0000",desc:"1970s–80s legend. Umrao Jaan. Grace personified.",quote:"Mohabbat kabhi nahi marti. (Love never dies.)"},
+  {name:"Hema Malini",title:"Dream Girl",emoji:"🌺",points:600,color:"#C0392B",desc:"Bollywood's original Dream Girl. Sholay's Basanti. Seeta Aur Geeta.",quote:"Kitne aadmi the? (How many men were there?)"},
+  {name:"Sridevi",title:"First Female Superstar",emoji:"🌪️",points:750,color:"#4B0082",desc:"The original No. 1. Mr. India. English Vinglish.",quote:"Hawa Hawai! (Gone with the wind!)"},
+  {name:"Madhuri Dixit",title:"Dancing Queen",emoji:"💃",points:1350,color:"#FF1493",desc:"Dhak Dhak! Devdas. Hum Aapke Hain Koun.",quote:"Ek do teen, chaar paanch chhe! (One two three, four five six!)"},
+  {name:"Kajol",title:"Queen of Drama",emoji:"❤️",points:2100,color:"#DC143C",desc:"DDLJ forever. Kabhi Khushi. Kuch Kuch Hota Hai.",quote:"Tujhe dekha toh yeh jaana sanam. (When I saw you, I understood, beloved.)"},
+  {name:"Priyanka Chopra",title:"Global Crossover Queen",emoji:"🌍",points:3000,color:"#9B59B6",desc:"Miss World 2000. Quantico. Dil Dhadakne Do. Barfi!",quote:"Desi girl hoon main! (I am a desi girl!)"},
+  {name:"Deepika Padukone",title:"Modern Bollywood Icon",emoji:"✨",points:4200,color:"#DAA520",desc:"Bajirao Mastani. Padmaavat. Piku. Global superstar.",quote:"Deewani Mastani hoon main! (I am a crazy lover!)"},
+  {name:"Aishwarya Rai Bachchan",title:"The Eternal Queen 👑",emoji:"👑",points:6000,color:"#FFD700",desc:"Miss World 1994. Devdas. Jodhaa Akbar. The most beautiful.",quote:"Nimbooda nimbooda nimbooda... (From Hum Dil De Chuke Sanam)"}
 ];
 
 const bollywoodQuotes=[
@@ -1174,6 +1222,9 @@ let learned=JSON.parse(localStorage.getItem('seekho-learned')||'{}');
 let quizHistory=JSON.parse(localStorage.getItem('seekho-quiz')||'[]');
 let totalPoints=parseInt(localStorage.getItem('seekho-points')||'0');
 let filmfareAwards=JSON.parse(localStorage.getItem('seekho-awards')||'{}');
+let dailyData=JSON.parse(localStorage.getItem('seekho-daily')||'{"date":"","pts":0,"record":0}');
+const todayStr=new Date().toISOString().slice(0,10);
+if(dailyData.date!==todayStr){dailyData={date:todayStr,pts:0,record:dailyData.record};}
 let streak=0;
 
 function saveState(){
@@ -1181,6 +1232,13 @@ function saveState(){
   localStorage.setItem('seekho-quiz',JSON.stringify(quizHistory.slice(-50)));
   localStorage.setItem('seekho-points',totalPoints);
   localStorage.setItem('seekho-awards',JSON.stringify(filmfareAwards));
+  localStorage.setItem('seekho-daily',JSON.stringify(dailyData));
+}
+
+function addDailyPoints(n){
+  dailyData.pts+=n;
+  if(dailyData.pts>dailyData.record)dailyData.record=dailyData.pts;
+  saveState();
 }
 
 function getStarletLevel(){
@@ -1256,6 +1314,7 @@ function showView(name){
   if(name==='flashcards')initFlashcards();
   if(name==='journey')renderJourney();
   if(name==='quiz')populateQuizDropdowns();
+  if(name==='settings')renderSettings();
 }
 
 // ═══════════════════════════════════
@@ -1281,12 +1340,21 @@ function renderHome(){
     <div class="quote-eng">${q.meaning}</div>`;
   const recent=quizHistory.slice(-3).reverse();
   const recentEl=document.getElementById('home-recent');
-  if(!recent.length){recentEl.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:14px 0">No quizzes yet — start one!</div>';return;}
-  recentEl.innerHTML=recent.map(r=>`
+  if(!recent.length){recentEl.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:14px 0">No quizzes yet — start one!</div>';}
+  else{recentEl.innerHTML=recent.map(r=>`
     <div class="recent-item">
       <span>${new Date(r.date).toLocaleDateString()} · ${r.chapter||'All chapters'}</span>
       <span class="recent-score">${r.score}/${r.total} · +${r.pts||0}pts</span>
-    </div>`).join('');
+    </div>`).join('');}
+  const dailyEl=document.getElementById('home-daily');
+  if(dailyEl){
+    const isNewRecord=dailyData.pts>0&&dailyData.pts>=dailyData.record;
+    dailyEl.innerHTML=`
+      <div class="daily-label">⭐ Today's Points</div>
+      <div class="daily-pts-big">${dailyData.pts}</div>
+      <div class="daily-sub">Best day: ${dailyData.record} pts</div>
+      ${isNewRecord?'<div class="daily-record-badge">🏆 New Record!</div>':''}`;
+  }
 }
 
 // ═══════════════════════════════════
@@ -1486,12 +1554,14 @@ function showSQResult(){
   const perfect=pct===100;
   const alreadyHad=!!filmfareAwards[sqAwardKey];
 
-  if(perfect&&!alreadyHad){
+  if(perfect&&sqAwardKey&&!alreadyHad){
     filmfareAwards[sqAwardKey]=true;
     saveState();
     playLevelUp();
+    showToast('🏆 Filmfare Award won!');
   } else if(perfect){
     playFanfare();
+    showToast('🌟 Perfect score!');
   } else {
     playCorrect();
   }
@@ -1640,7 +1710,7 @@ function selectAnswer(chosen,correct,type){
   if(isOk){
     qScore++;qStreakNow++;
     let pts=10;if(qStreakNow>=3)pts+=5;
-    totalPoints+=pts;qPtsEarned+=pts;
+    totalPoints+=pts;qPtsEarned+=pts;addDailyPoints(pts);
     const k=chosen.chapterKey?'film:'+chosen.chapterKey+':'+chosen.transliteration:(chosen.fcKey||'?');
     learned[k]=true;saveState();
     fb.className='q-feedback correct';fb.textContent='✅ Correct! +'+pts+' pts! '+correct.transliteration+' = '+correct.english;
@@ -1666,7 +1736,14 @@ function showResult(){
   res.style.display='block';
   const pct=Math.round(qScore/quizQs.length*100);
   const bonusPts=pct===100?25:0;
-  if(bonusPts){totalPoints+=bonusPts;qPtsEarned+=bonusPts;saveState();}
+  if(bonusPts){totalPoints+=bonusPts;qPtsEarned+=bonusPts;addDailyPoints(bonusPts);saveState();}
+  if(pct===100){
+    const cat=document.getElementById('q-cat').value;
+    if(cat&&cat!=='all'){
+      const aKey='quiz_perfect_'+cat;
+      if(!filmfareAwards[aKey]){filmfareAwards[aKey]=true;saveState();showToast('🏆 Filmfare Award for perfect quiz!');}
+    }
+  }
   let emoji,msg;
   if(pct===100){emoji='🏆';msg='Shabash! Perfect score! Bonus +25pts! 🌟';}
   else if(pct>=80){emoji='🌟';msg='Bahut accha! Excellent work!';}
@@ -1766,6 +1843,32 @@ function closeModal(){document.getElementById('modal-overlay').style.display='no
 // ═══════════════════════════════════
 document.getElementById('app-version').textContent = APP_VERSION;
 renderHome();
+function renderSettings(){
+  const el=document.getElementById('settings-history');
+  if(!el)return;
+  const hist=quizHistory.slice().reverse();
+  if(!hist.length){el.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:10px 0">No quizzes yet.</div>';return;}
+  el.innerHTML=hist.map((r,i)=>`
+    <div class="history-row">
+      <span style="color:var(--muted);font-size:.75rem">#${quizHistory.length-i}</span>
+      <span class="h-meta">${new Date(r.date).toLocaleDateString()} · ${r.chapter||'All'}</span>
+      <span class="h-score ${r.score===r.total?'perfect':''}">${r.score}/${r.total}</span>
+      <span class="h-pts">+${r.pts||0}pts</span>
+    </div>`).join('');
+}
+function resetScore(){
+  if(!confirm('Reset your score to zero? Level and Filmfare awards are kept.'))return;
+  totalPoints=0;saveState();renderHome();showToast('Score reset to zero.');showView('home');
+}
+function resetLearned(){
+  if(!confirm('Reset all learned words? Score and quiz history are kept.'))return;
+  learned={};saveState();showToast('Learned words cleared.');
+}
+function resetEverything(){
+  if(!confirm('Reset ALL data — score, learned words, quiz history, and Filmfare awards? This cannot be undone.'))return;
+  totalPoints=0;learned={};quizHistory=[];filmfareAwards={};dailyData={date:todayStr,pts:0,record:0};
+  saveState();renderHome();showToast('Everything reset.');showView('home');
+}
 </script>
 </body>
 </html>
