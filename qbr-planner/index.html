@@ -1393,9 +1393,10 @@ function currentQbr(){
 function renderQbrSelector(){
   const sel = $('#qbr-selector');
   const qbrs = Object.values(state.qbrs).sort((a,b) => (a.startDate||'').localeCompare(b.startDate||''));
-  sel.innerHTML = '<option value="">— All QBRs —</option>' + qbrs.map(q =>
-    `<option value="${q.id}"${state.currentQbrId===q.id?' selected':''}>${escapeHtml(q.name)}</option>`
-  ).join('');
+  sel.innerHTML = '<option value="">— All QBRs —</option>' + qbrs.map(q => {
+    const year = q.startDate ? ` (${q.startDate.slice(0,4)})` : '';
+    return `<option value="${q.id}"${state.currentQbrId===q.id?' selected':''}>${escapeHtml(q.name)}${year}</option>`;
+  }).join('');
 }
 function renderMemberBanner(){
   const b = $('#member-banner-text');
@@ -1948,11 +1949,39 @@ function renderRecs(){
   if(!q){ root.innerHTML = ''; return; }
   const isBend = /bend/i.test(q.location || '');
   if(!isBend){
+    const loc = encodeURIComponent(q.location || '');
+    const locDisplay = escapeHtml(q.location || 'this location');
     root.innerHTML = `
-      <div class="recs-hdr">🗺️ Recommendations</div>
+      <div class="recs-hdr">🗺️ ${locDisplay} — Recommendations</div>
       <div class="recs-section">
-        <p>Recommendations are currently curated for <strong>Bend, Oregon</strong>. Set this QBR's location to Bend, Oregon to see the curated guide — or this section will be ready to expand for other locations soon.</p>
+        <h3>🏔️ Outdoor Activities</h3>
+        <p style="margin-bottom:10px">Find things to do near ${locDisplay}:</p>
+        <ul style="line-height:2">
+          <li><a href="https://www.google.com/maps/search/hiking+near+${loc}" target="_blank" rel="noopener">🥾 Hiking trails near ${locDisplay}</a></li>
+          <li><a href="https://www.google.com/maps/search/pickleball+courts+near+${loc}" target="_blank" rel="noopener">🏓 Pickleball courts near ${locDisplay}</a></li>
+          <li><a href="https://www.google.com/maps/search/golf+course+near+${loc}" target="_blank" rel="noopener">⛳ Golf courses near ${locDisplay}</a></li>
+          <li><a href="https://www.google.com/maps/search/kayaking+near+${loc}" target="_blank" rel="noopener">🚣 Kayaking / water activities near ${locDisplay}</a></li>
+        </ul>
       </div>
+      <div class="recs-section">
+        <h3>🍽️ Dining</h3>
+        <ul style="line-height:2">
+          <li><a href="https://www.yelp.com/search?find_desc=fine+dining&find_loc=${loc}" target="_blank" rel="noopener">🥂 Fine dining in ${locDisplay} (Yelp)</a></li>
+          <li><a href="https://www.yelp.com/search?find_desc=best+restaurants&find_loc=${loc}" target="_blank" rel="noopener">🍴 Top restaurants in ${locDisplay} (Yelp)</a></li>
+          <li><a href="https://www.google.com/maps/search/craft+brewery+near+${loc}" target="_blank" rel="noopener">🍺 Craft breweries near ${locDisplay}</a></li>
+          <li><a href="https://www.google.com/maps/search/winery+near+${loc}" target="_blank" rel="noopener">🍷 Wineries near ${locDisplay}</a></li>
+        </ul>
+      </div>
+      <div class="recs-section">
+        <h3>🎉 Evening &amp; Entertainment</h3>
+        <ul style="line-height:2">
+          <li><a href="https://www.google.com/maps/search/axe+throwing+near+${loc}" target="_blank" rel="noopener">🪓 Axe throwing near ${locDisplay}</a></li>
+          <li><a href="https://www.google.com/maps/search/escape+room+near+${loc}" target="_blank" rel="noopener">🔐 Escape rooms near ${locDisplay}</a></li>
+          <li><a href="https://www.google.com/maps/search/bowling+near+${loc}" target="_blank" rel="noopener">🎳 Bowling near ${locDisplay}</a></li>
+          <li><a href="https://www.google.com/maps/search/live+music+near+${loc}" target="_blank" rel="noopener">🎶 Live music near ${locDisplay}</a></li>
+        </ul>
+      </div>
+      <p style="margin-top:16px;font-size:.82rem;color:#888">Full curated recommendations are available for Bend, Oregon. More cities coming soon!</p>
     `;
     return;
   }
