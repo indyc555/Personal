@@ -2236,6 +2236,31 @@ async function doDeleteActivity(id){
 }
 
 // Activity detail
+function calendarLinks(a, qbrLocation){
+  const d = a.date || '';
+  const s = a.startTime || '12:00';
+  const e = a.endTime || a.startTime || '13:00';
+  // Google Calendar: YYYYMMDDTHHmmSS
+  const gcFmt = (date, time) => date.replace(/-/g,'') + 'T' + time.replace(':','') + '00';
+  const gcStart = gcFmt(d, s);
+  const gcEnd   = gcFmt(d, e);
+  const desc = [a.description, qbrLocation ? 'Location: ' + qbrLocation : ''].filter(Boolean).join('\n');
+  const gcUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=' + encodeURIComponent(a.title)
+    + '&dates=' + gcStart + '/' + gcEnd
+    + '&details=' + encodeURIComponent(desc)
+    + (qbrLocation ? '&location=' + encodeURIComponent(qbrLocation) : '');
+  // Outlook: ISO datetime
+  const olFmt = (date, time) => date + 'T' + time + ':00';
+  const olUrl = 'https://outlook.live.com/calendar/0/action/compose?rru=addevent'
+    + '&startdt=' + encodeURIComponent(olFmt(d, s))
+    + '&enddt='   + encodeURIComponent(olFmt(d, e))
+    + '&subject='  + encodeURIComponent(a.title)
+    + '&body='     + encodeURIComponent(desc)
+    + (qbrLocation ? '&location=' + encodeURIComponent(qbrLocation) : '');
+  return { gcUrl, olUrl };
+}
+
 function openActivityDetail(id){
   const q = currentQbr();
   const a = q.activities[id];
@@ -2270,9 +2295,22 @@ function openActivityDetail(id){
       <div>${formatDateLong(a.date)}<br>${escapeHtml(formatTimeRange(a.startTime, a.endTime))}</div>
     </div>
     ${a.description ? `<div class="act-detail-row"><div class="lbl">Details</div><div>${escapeHtml(a.description)}</div></div>` : ''}
-    <div style="display:flex;gap:6px;margin-top:10px">
+    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
       <button class="btn btn-outline btn-sm" onclick="closeModal('modal-activity-detail');openActivityModal('${id}')">Edit</button>
       <button class="btn btn-danger btn-sm" onclick="closeModal('modal-activity-detail');confirmDeleteActivity('${id}')">Delete</button>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #eee">
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:8px">📅 ADD TO CALENDAR</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="${calendarLinks(a, q.location).gcUrl}" target="_blank" rel="noopener"
+           class="btn btn-sm" style="background:#4285f4;color:#fff;text-decoration:none">
+          <img src="https://www.google.com/favicon.ico" width="14" height="14" style="vertical-align:middle;margin-right:4px">Google Calendar
+        </a>
+        <a href="${calendarLinks(a, q.location).olUrl}" target="_blank" rel="noopener"
+           class="btn btn-sm" style="background:#0078d4;color:#fff;text-decoration:none">
+          <img src="https://outlook.live.com/favicon.ico" width="14" height="14" style="vertical-align:middle;margin-right:4px">Outlook Calendar
+        </a>
+      </div>
     </div>
     <div class="comments-section">
       <h3>💬 Comments ${comments.length ? '('+comments.length+')' : ''}</h3>
