@@ -1405,6 +1405,16 @@ function escapeHtml(s){
   if(s == null) return '';
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+function extractUrl(s){
+  if(!s) return null;
+  const m = s.match(/https?:\/\/[^\s]+/);
+  return m ? m[0] : null;
+}
+function activityTitleHtml(a){
+  const url = extractUrl(a.description);
+  if(url) return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">${escapeHtml(a.title)}</a>`;
+  return escapeHtml(a.title);
+}
 function toast(msg){
   const t = $('#toast');
   t.textContent = msg;
@@ -1553,8 +1563,9 @@ function renderHome(){
   wrap.innerHTML = qbrs.map(q => {
     const status = qbrStatus(q);
     const memberCount = Object.keys(q.members || {}).length;
+    const drOpts = {month:'numeric', day:'numeric', year:'numeric'};
     const dr = q.startDate && q.endDate
-      ? `${formatDate(q.startDate)} – ${formatDate(q.endDate)}`
+      ? `${formatDate(q.startDate, drOpts)} – ${formatDate(q.endDate, drOpts)}`
       : '';
     return `
       <div class="qbr-card" data-qbr-id="${q.id}">
@@ -1833,7 +1844,7 @@ function renderListView(){
               <div class="list-item">
                 <div class="list-item-color ${typeCls}"></div>
                 <div class="list-item-time">${escapeHtml(formatTimeRange(a.startTime, a.endTime))}</div>
-                <div class="list-item-title">${escapeHtml(a.title)}</div>
+                <div class="list-item-title">${activityTitleHtml(a)}</div>
                 <span class="list-item-type">${typeLabel[a.type] || a.type}</span>
                 <div class="list-item-actions">
                   <button class="btn btn-sm btn-outline" onclick="openActivityModal('${a.id}')">Edit</button>
@@ -2377,7 +2388,7 @@ function openActivityDetail(id){
   if(a.isPokerNight) tags.push('Poker Night');
   if(a.isMovieNight) tags.push('Movie Night');
   $('#activity-detail-body').innerHTML = `
-    <h2>${escapeHtml(a.title)}</h2>
+    <h2>${activityTitleHtml(a)}</h2>
     <div class="act-detail-row">
       <div class="lbl">Type</div>
       <div><span class="act-type-pill ${typeCls}">${typeLabel}</span> ${tags.length ? ' · ' + tags.map(t => escapeHtml(t)).join(', ') : ''}</div>
