@@ -311,6 +311,22 @@ main{
 .cal-day-hdr.today .dow{color:var(--dest)}
 .cal-day-hdr.today{background:#fff5e9}
 
+.cal-day-overview{
+  background:#f0f7f0;
+  border-bottom:1px solid var(--border);
+  padding:4px 6px;
+  font-size:.72rem;
+  color:var(--green-hdr);
+  cursor:pointer;
+  min-height:22px;
+  line-height:1.3;
+  white-space:normal;
+  word-break:break-word;
+}
+.cal-day-overview:hover{background:#e4f0e4}
+.cal-day-overview-empty{color:#aaa;font-style:italic;background:#fafafa}
+.cal-day-overview-empty:hover{background:#f0f7f0;color:var(--green-hdr)}
+
 .cal-members-section{
   background:#fff;
   border-bottom:2px solid var(--border);
@@ -396,6 +412,15 @@ main{
   font-weight:700;
   font-size:.95rem;
   display:flex;justify-content:space-between;align-items:center;
+}
+.list-day-overview{
+  background:#f0f7f0;
+  border:1px solid var(--border);
+  border-top:none;
+  padding:7px 14px;
+  font-size:.85rem;
+  color:var(--green-hdr);
+  font-style:italic;
 }
 .list-items{
   background:#fff;border:1px solid var(--border);border-top:none;
@@ -1100,6 +1125,26 @@ footer{
 </div>
 
 <!-- Who Are You picker -->
+<div id="modal-day-overview" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-day-overview')">&times;</button>
+    <h2>Day Overview</h2>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="overview-date">
+    </div>
+    <div class="form-group">
+      <label>Summary</label>
+      <textarea id="overview-summary" rows="3" placeholder="e.g. Travel day — arrive at house, groceries, evening hike"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-green" onclick="saveDayOverview()">Save</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-day-overview')">Cancel</button>
+      <button class="btn btn-danger" id="overview-clear-btn" onclick="clearDayOverview()" style="margin-left:auto">Clear</button>
+    </div>
+  </div>
+</div>
+
 <div id="modal-who" class="modal-overlay">
   <div class="modal modal-lg">
     <button class="modal-close" onclick="closeModal('modal-who')">&times;</button>
@@ -1726,12 +1771,18 @@ function renderCalendar(){
       `;
     }).join('');
 
+    const overview = (q.dayOverviews || {})[dateStr];
+    const overviewHtml = overview
+      ? `<div class="cal-day-overview" onclick="openDayOverviewModal('${dateStr}')" title="Edit overview">${escapeHtml(overview)}</div>`
+      : `<div class="cal-day-overview cal-day-overview-empty" onclick="openDayOverviewModal('${dateStr}')" title="Add day overview">+ overview</div>`;
+
     return `
       <div class="cal-day-col">
         <div class="cal-day-hdr${isToday?' today':''}">
           <span class="dow">${dow}</span>
           <span class="date">${md}</span>
         </div>
+        ${overviewHtml}
         <div class="cal-members-section" style="height:${memberSectionHeight}px">
           ${memRowsHtml}
         </div>
@@ -1835,8 +1886,12 @@ function renderListView(){
       <div class="list-section">
         <div class="list-section-hdr">
           <span>${formatDateLong(d)}</span>
-          <span style="font-weight:400;font-size:.82rem;opacity:.85">${items.length} activit${items.length===1?'y':'ies'}</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-weight:400;font-size:.82rem;opacity:.85">${items.length} activit${items.length===1?'y':'ies'}</span>
+            <button class="btn btn-outline btn-sm" onclick="openDayOverviewModal('${d}')">📋 Overview</button>
+          </div>
         </div>
+        ${(q.dayOverviews||{})[d] ? `<div class="list-day-overview">${escapeHtml((q.dayOverviews||{})[d])}</div>` : ''}
         <div class="list-items">
           ${items.map(a => {
             const typeCls = 'act-' + (a.type === 'destination' ? 'dest' : a.type);
@@ -2228,7 +2283,7 @@ async function saveQbr(){
   }else{
     const id = genId();
     q = {
-      id, members:{}, activities:{}, notes:{}, todos:{}, comments:{},
+      id, members:{}, activities:{}, notes:{}, todos:{}, comments:{}, dayOverviews:{},
       createdAt: Date.now(),
     };
     state.qbrs[id] = q;
@@ -2515,6 +2570,48 @@ async function deleteCurrentMember(){
 }
 
 // Who Are You picker
+// ============== DAY OVERVIEW ==============
+function openDayOverviewModal(dateStr){
+  const q = currentQbr();
+  if(!q){ toast('Select a QBR first'); return; }
+  $('#overview-date').value = dateStr || q.startDate || '';
+  if(q.startDate) $('#overview-date').min = q.startDate;
+  if(q.endDate) $('#overview-date').max = q.endDate;
+  const existing = (q.dayOverviews || {})[dateStr] || '';
+  $('#overview-summary').value = existing;
+  $('#overview-clear-btn').style.display = existing ? 'inline-flex' : 'none';
+  openModal('modal-day-overview');
+}
+async function saveDayOverview(){
+  const q = currentQbr();
+  if(!q) return;
+  const date = $('#overview-date').value;
+  const summary = $('#overview-summary').value.trim();
+  if(!date){ toast('Date required'); return; }
+  if(!q.dayOverviews) q.dayOverviews = {};
+  if(summary){
+    q.dayOverviews[date] = summary;
+  }else{
+    delete q.dayOverviews[date];
+  }
+  await persist();
+  closeModal('modal-day-overview');
+  if(state.currentTab === 'calendar') renderCalendar();
+  if(state.currentTab === 'list') renderListView();
+  toast('Saved');
+}
+async function clearDayOverview(){
+  const q = currentQbr();
+  if(!q) return;
+  const date = $('#overview-date').value;
+  if(q.dayOverviews) delete q.dayOverviews[date];
+  await persist();
+  closeModal('modal-day-overview');
+  if(state.currentTab === 'calendar') renderCalendar();
+  if(state.currentTab === 'list') renderListView();
+  toast('Cleared');
+}
+
 function openWhoModal(){
   const q = currentQbr();
   if(!q){ toast('Select a QBR first'); return; }
