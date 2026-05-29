@@ -1213,7 +1213,7 @@ function lsSave(data){
 let state = {
   qbrs: {},         // id -> qbr object (including members, activities, notes, todos, comments)
   currentQbrId: null,
-  currentUserName: localStorage.getItem('qbr-current-member') || '',
+  currentUserName: '',
   currentTab: 'calendar',
 };
 
@@ -1522,6 +1522,7 @@ function selectQbr(id){
     return;
   }
   state.currentQbrId = id;
+  state.currentUserName = localStorage.getItem('qbr-current-member-' + id) || '';
   renderQbrSelector();
   renderDetailHeader();
   // Render the currently selected tab
@@ -1863,7 +1864,7 @@ function renderMembers(){
   whoWrap.querySelectorAll('.who-btn').forEach(b => {
     b.onclick = () => {
       state.currentUserName = b.dataset.name;
-      localStorage.setItem('qbr-current-member', state.currentUserName);
+      localStorage.setItem('qbr-current-member-' + state.currentQbrId, state.currentUserName);
       renderMemberBanner();
       renderMembers();
     };
@@ -2482,7 +2483,7 @@ async function saveMember(){
   // If creating yourself for the first time, auto-select
   if(!state.currentUserName){
     state.currentUserName = m.name;
-    localStorage.setItem('qbr-current-member', m.name);
+    localStorage.setItem('qbr-current-member-' + state.currentQbrId, m.name);
     renderMemberBanner();
   }
   if(state.currentTab === 'members') renderMembers();
@@ -2522,7 +2523,7 @@ function openWhoModal(){
   grid.querySelectorAll('.member-pick-card').forEach(b => {
     b.onclick = () => {
       state.currentUserName = b.dataset.name;
-      localStorage.setItem('qbr-current-member', state.currentUserName);
+      localStorage.setItem('qbr-current-member-' + state.currentQbrId, state.currentUserName);
       renderMemberBanner();
       if(state.currentTab === 'members') renderMembers();
       closeModal('modal-who');
@@ -2588,6 +2589,9 @@ async function init(){
   if(!state.currentQbrId){
     const qbrs = Object.values(state.qbrs).sort((a,b) => (b.startDate||'').localeCompare(a.startDate||''));
     if(qbrs.length === 1) state.currentQbrId = qbrs[0].id;
+  }
+  if(state.currentQbrId){
+    state.currentUserName = localStorage.getItem('qbr-current-member-' + state.currentQbrId) || '';
   }
 
   // Header
