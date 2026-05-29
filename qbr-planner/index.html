@@ -1553,8 +1553,9 @@ function renderHome(){
   wrap.innerHTML = qbrs.map(q => {
     const status = qbrStatus(q);
     const memberCount = Object.keys(q.members || {}).length;
+    const drOpts = {month:'numeric', day:'numeric', year:'numeric'};
     const dr = q.startDate && q.endDate
-      ? `${formatDate(q.startDate)} – ${formatDate(q.endDate)}`
+      ? `${formatDate(q.startDate, drOpts)} – ${formatDate(q.endDate, drOpts)}`
       : '';
     return `
       <div class="qbr-card" data-qbr-id="${q.id}">
