@@ -135,6 +135,15 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
   border:1.5px solid var(--border);font-size:.85rem;outline:none;background:#fff;
 }
 .search-input:focus{border-color:var(--navy-mid)}
+.filter-select{
+  padding:6px 28px 6px 12px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance:none;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;transition:.15s;
+}
+.filter-select.active{background-color:var(--navy-mid);color:#fff;border-color:var(--navy-mid);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff'/%3E%3C/svg%3E");
+}
+.filter-select:focus{outline:none;border-color:var(--navy-mid)}
 
 /* ============ PASSWORD TABLE ============ */
 .pw-table-wrap{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
@@ -310,9 +319,21 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
         <button class="btn btn-gold" onclick="openPwModal()">+ Add Password</button>
       </div>
       <div class="filter-bar">
-        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-        <button class="filter-btn" onclick="setFilter('personal',this)">Personal</button>
-        <button class="filter-btn" onclick="setFilter('work',this)">Work</button>
+        <button class="filter-btn active" id="filter-all-btn" onclick="setFilter('all',this)">All</button>
+        <select class="filter-select" id="filter-personal-select" onchange="setFilterSelect('personal',this)">
+          <option value="">👤 Personal</option>
+          <option value="Indy">Indy</option>
+          <option value="Ananya">Ananya</option>
+          <option value="Ronin">Ronin</option>
+          <option value="Kai">Kai</option>
+          <option value="Janci">Janci</option>
+          <option value="Simran">Simran</option>
+          <option value="Banani">Banani</option>
+          <option value="Pankaj">Pankaj</option>
+        </select>
+        <select class="filter-select" id="filter-work-select" onchange="setFilterSelect('work',this)">
+          <option value="">💼 Work</option>
+        </select>
         <input class="search-input" type="text" id="search-input" placeholder="Search website, username…" oninput="renderVault()">
       </div>
       <div class="pw-table-wrap" id="vault-wrap">
@@ -801,9 +822,38 @@ function fmtMoneyShort(n){
   return '$' + n;
 }
 
+const SAVINGS_SEED = [
+  {date:'2013-04-06',total:null,liquid:1016000,cash:164000,investments:752000,msi:100000,hdebt:246000,hequity:null,credit:'',college:null,comments:'SMT Millenium rolled into Vanguard in june'},
+  {date:'2014-06-01',total:null,liquid:1081000,cash:215000,investments:766000,msi:100000,hdebt:565600,hequity:null,credit:'',college:null,comments:'Post house buy and Tesla purchase'},
+  {date:'2016-02-22',total:null,liquid:1094500,cash:172500,investments:822000,msi:100000,hdebt:545000,hequity:null,credit:'',college:null,comments:'SP500 flat since last entry.'},
+  {date:'2016-07-18',total:null,liquid:1232000,cash:188000,investments:944000,msi:100000,hdebt:556000,hequity:null,credit:'',college:null,comments:'Refinanced house down to 3.75% from 4.5% at Chase'},
+  {date:'2017-10-18',total:null,liquid:1440000,cash:110000,investments:1230000,msi:100000,hdebt:null,hequity:null,credit:'',college:null,comments:'Bought Braeger $50k'},
+  {date:'2018-05-23',total:null,liquid:2025000,cash:387000,investments:1538000,msi:100000,hdebt:null,hequity:null,credit:'',college:null,comments:'Sold Pdgm ($900k), Bought Lexus RX ($55k)'},
+  {date:'2019-08-01',total:null,liquid:1959000,cash:215000,investments:1644000,msi:100000,hdebt:523000,hequity:null,credit:'',college:null,comments:'Pool ($80k), Big Charity ($45k)'},
+  {date:'2020-07-21',total:null,liquid:2069000,cash:342000,investments:1727000,msi:0,hdebt:512000,hequity:200000,credit:'840/850',college:null,comments:'Covid. MSI+Braeger losses. EMR double pay. Refi 2.5%'},
+  {date:'2020-12-07',total:null,liquid:2649000,cash:570000,investments:2079000,msi:0,hdebt:null,hequity:null,credit:'',college:null,comments:'Stopped 529 12/7. $152k EMR stocks inc;Xtra BoA acnt'},
+  {date:'2021-06-08',total:3174351,liquid:2074351,cash:76351,investments:1998000,msi:0,hdebt:1408000,hequity:1100000,credit:'',college:null,comments:'Sold SYY 1/27: $27k; VTIAX: $58k; VFORX:$150k; Bought Cardwell in Feb; Own 2 homes. VG buy at $200 from $2k on 6-8-21; Sold 6/19 VFORX $50k on Avg Cost Expect net $400k after selling Pecan Trail'},
+  {date:'2022-07-05',total:2939000,liquid:1839000,cash:107000,investments:1732000,msi:0,hdebt:1356000,hequity:1100000,credit:'',college:null,comments:'Pecan Trail rent: $5600/mth, renew at $6k on 1/23 to 4/24'},
+  {date:'2023-01-30',total:3020510,liquid:1920510,cash:72264,investments:1848246,msi:null,hdebt:1361324,hequity:1100000,credit:'',college:null,comments:'Pecan rent at $6k; $1k still at Upstart'},
+  {date:'2023-06-25',total:3200200,liquid:1774200,cash:65557,investments:1708643,msi:null,hdebt:1324000,hequity:1426000,credit:'740',college:null,comments:'3 yr Pecan rent $6k; Avelta $965 not arrived; Sold $30k VG'},
+  {date:'2024-01-04',total:2313000,liquid:null,cash:51000,investments:2262000,msi:null,hdebt:null,hequity:null,credit:'',college:null,comments:'Avetta ~$615k in Merrill ($350 taxes paid), Bought GX'},
+  {date:'2024-03-31',total:4016930,liquid:2536200,cash:125000,investments:2411200,msi:null,hdebt:1299270,hequity:1480730,credit:'',college:600000,comments:'Tesla totaled for $30k, Moved Neens VG IRA Bonds to Stox'},
+  {date:'2024-08-13',total:5317992,liquid:3722310,cash:1033544,investments:2688766,msi:150000,hdebt:1284318,hequity:1595682,credit:'761',college:null,comments:"Avetta $1.2M pretax, Model X, Turk's Lean Carbon"},
+  {date:'2025-06-09',total:5613603,liquid:3988082,cash:151465,investments:3836617,msi:150000,hdebt:1254479,hequity:1625521,credit:'751',college:684000,comments:'IRS still owes $139,594. Lean Carbon refund $41k.'},
+  {date:'2026-06-06',total:6347000,liquid:5125000,cash:198000,investments:4777000,msi:150000,hdebt:778000,hequity:1222000,credit:'',college:832000,comments:'IRS refund in Vanguard Money Mkt on 9/25. House sale profit $657k on 9/25. Moved $300k VG Money Mkt to Stocks'},
+];
+
+function seedSavings(){
+  if(!profiles[currentProfile].savings){
+    profiles[currentProfile].savings = SAVINGS_SEED.map(r=>({...r, id:genId()}));
+    saveProfiles();
+  }
+}
+
 function getSavings(){ return (profiles[currentProfile].savings || []).slice().sort((a,b)=>a.date.localeCompare(b.date)); }
 
 function renderSavings(){
+  seedSavings();
   const rows = getSavings();
   renderSavingsStats(rows);
   renderSavingsChart(rows);
@@ -1367,14 +1417,51 @@ function setFilter(f, el){
   currentFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
+  // Reset dropdowns
+  const ps = document.getElementById('filter-personal-select');
+  const ws = document.getElementById('filter-work-select');
+  if(ps){ ps.value=''; ps.classList.remove('active'); }
+  if(ws){ ws.value=''; ws.classList.remove('active'); }
   renderVault();
 }
+function setFilterSelect(type, select){
+  // Deactivate All button
+  const allBtn = document.getElementById('filter-all-btn');
+  if(allBtn) allBtn.classList.remove('active');
+  // Deactivate the other select
+  const otherId = type==='personal' ? 'filter-work-select' : 'filter-personal-select';
+  const other = document.getElementById(otherId);
+  if(other){ other.value=''; other.classList.remove('active'); }
+  // Set currentFilter
+  if(select.value === ''){
+    currentFilter = type; // 'personal' or 'work' (show all of that type)
+  } else {
+    currentFilter = type + ':' + select.value;
+  }
+  select.classList.toggle('active', true);
+  renderVault();
+}
+function populateWorkDropdown(){
+  const vault = profiles[currentProfile]?.vault || [];
+  const companies = [...new Set(vault.filter(e=>e.type==='work'&&e.company).map(e=>e.company))].sort();
+  const sel = document.getElementById('filter-work-select');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">💼 Work</option>` + companies.map(c=>`<option value="${escH(c)}"${c===cur?'selected':''}>${escH(c)}</option>`).join('');
+}
 function renderVault(){
+  populateWorkDropdown();
   const vault = profiles[currentProfile]?.vault || [];
   const search = document.getElementById('search-input').value.toLowerCase();
   let entries = vault.filter(e => {
-    if(currentFilter === 'personal' && e.type !== 'personal') return false;
-    if(currentFilter === 'work' && e.type !== 'work') return false;
+    const [fType, fVal] = currentFilter.includes(':') ? currentFilter.split(':') : [currentFilter, null];
+    if(fType === 'personal'){
+      if(e.type !== 'personal') return false;
+      if(fVal && e.person !== fVal) return false;
+    } else if(fType === 'work'){
+      if(e.type !== 'work') return false;
+      if(fVal && e.company !== fVal) return false;
+    }
     if(search){
       const hay = (e.website+e.username+e.comments+(e.company||'')+(e.person||'')).toLowerCase();
       if(!hay.includes(search)) return false;
