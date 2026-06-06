@@ -491,6 +491,41 @@ const INDY_SEED = [
   {countryName:'Vietnam',region:'Asia/ANZ',timesVisited:'1',yearFirstVisited:2025},
 ];
 
+// ============ TRAVELER LEVELS ============
+// Level up every 5 countries for first 15, then every 10
+const LEVELS = [
+  { min:  1, label:'Day Tripper',        emoji:'🌱' },
+  { min:  5, label:'Weekend Wanderer',   emoji:'🎒' },
+  { min: 10, label:'Explorer',           emoji:'🗺️' },
+  { min: 15, label:'Globetrotter',       emoji:'✈️' },
+  { min: 25, label:'World Traveler',     emoji:'🌍' },
+  { min: 35, label:'Jet Setter',         emoji:'🛫' },
+  { min: 45, label:'Seasoned Nomad',     emoji:'🧭' },
+  { min: 55, label:'Continental Master', emoji:'🌐' },
+  { min: 65, label:'Globe Conqueror',    emoji:'🏆' },
+  { min: 75, label:'World Scholar',      emoji:'📜' },
+  { min: 85, label:'Passport Elite',     emoji:'👑' },
+  { min: 95, label:'Grand Ambassador',   emoji:'🌟' },
+  { min:105, label:'Universal Traveler', emoji:'🚀' },
+  { min:115, label:'World Legend',       emoji:'⭐' },
+  { min:125, label:'Planet Champion',    emoji:'🎖️' },
+  { min:135, label:'Global Sage',        emoji:'🔮' },
+  { min:145, label:'World Master',       emoji:'💎' },
+  { min:155, label:'Transcontinental',   emoji:'🌌' },
+  { min:165, label:'World Virtuoso',     emoji:'🏅' },
+  { min:175, label:'Planet Sovereign',   emoji:'👸' },
+  { min:185, label:'World Conqueror',    emoji:'🌏' },
+  { min:195, label:'Planet Complete',    emoji:'🌎' },
+];
+function getTravelerLevel(count){
+  let level = LEVELS[0];
+  for(const l of LEVELS){ if(count >= l.min) level = l; else break; }
+  const levelNum = LEVELS.indexOf(level) + 1;
+  const next = LEVELS[levelNum] || null;
+  const toNext = next ? next.min - count : 0;
+  return { ...level, levelNum, next, toNext };
+}
+
 // ============ STATE ============
 let profiles = {};
 let currentProfile = null;
@@ -569,9 +604,14 @@ function renderStatsBar(){
   REGIONS.forEach(r => byRegion[r] = 0);
   countries.forEach(c => { if(byRegion[c.region] !== undefined) byRegion[c.region]++; });
   const pct = Math.round(total / TOTAL_WORLD_COUNTRIES * 100);
+  const lv = total > 0 ? getTravelerLevel(total) : null;
   document.getElementById('stats-bar').innerHTML = `
     <div class="stat-item"><div class="stat-num">${total}</div><div class="stat-label">Countries</div></div>
     <div class="stat-item"><div class="stat-num">${pct}%</div><div class="stat-label">Of World</div></div>
+    ${lv ? `<div class="stat-item" style="border-left:2px solid var(--gold-light)">
+      <div class="stat-num" style="font-size:1rem">${lv.emoji} Lv.${lv.levelNum}</div>
+      <div class="stat-label">${lv.label}${lv.next ? ` · ${lv.toNext} to Lv.${lv.levelNum+1}` : ''}</div>
+    </div>` : ''}
     <div class="stat-item"><div class="stat-num">${byRegion['N America']}</div><div class="stat-label">N America</div></div>
     <div class="stat-item"><div class="stat-num">${byRegion['S America']}</div><div class="stat-label">S America</div></div>
     <div class="stat-item"><div class="stat-num">${byRegion['Europe']}</div><div class="stat-label">Europe</div></div>
@@ -659,36 +699,35 @@ function renderMap(){
     .attr('fill','none').attr('stroke','#fff').attr('stroke-width','.4').attr('d',path);
 
   // Dot markers for small countries/territories too tiny to see at world zoom
+  // [lon, lat, radius_override]
   const SMALL_COUNTRY_COORDS = {
-    136: [  -81.25,  19.32 ], // Cayman Islands
-    796: [  -71.80,  21.80 ], // Turks & Caicos
-    336: [   12.45,  41.90 ], // Vatican City
-    470: [   14.37,  35.93 ], // Malta
-    702: [  103.82,   1.35 ], // Singapore
-    44:  [  -77.40,  25.05 ], // Bahamas
-    388: [  -77.30,  18.10 ], // Jamaica
-    52:  [  -59.55,  13.10 ], // Barbados
-    308: [  -61.68,  12.12 ], // Grenada
+    136: [  -81.25,  19.32 ],       // Cayman Islands
+    796: [  -71.80,  21.80 ],       // Turks & Caicos
+    336: [   12.45,  41.90 ],       // Vatican City
+    470: [   14.37,  35.93 ],       // Malta
+    702: [  103.82,   1.35, 7, true], // Singapore — larger dot + label
+    44:  [  -77.40,  25.05 ],       // Bahamas
+    388: [  -77.30,  18.10 ],       // Jamaica
+    52:  [  -59.55,  13.10 ],       // Barbados
+    308: [  -61.68,  12.12 ],       // Grenada
   };
 
   const dotLayer = g.append('g').attr('class','small-country-dots');
-  Object.entries(SMALL_COUNTRY_COORDS).forEach(([code, [lon, lat]]) => {
+  Object.entries(SMALL_COUNTRY_COORDS).forEach(([code, [lon, lat, rOverride, showLabel]]) => {
     const visited = visitedMap[String(code)];
     const name = CODE_TO_NAME[+code];
     if(!name) return;
     const projected = projection([lon, lat]);
     if(!projected) return;
     const [x, y] = projected;
+    const r = rOverride || 5;
     const fillColor = visited ? (
       visited.timesVisited === '10+' ? '#c9a227' :
       parseInt(visited.timesVisited) >= 5 ? '#1b4332' :
       parseInt(visited.timesVisited) >= 2 ? '#40916c' : '#74c69d'
     ) : '#d0cdc8';
 
-    dotLayer.append('circle')
-      .attr('cx', x).attr('cy', y).attr('r', 5)
-      .attr('fill', fillColor).attr('stroke', '#fff').attr('stroke-width', 1.2)
-      .style('cursor', 'pointer')
+    const handlers = sel => sel
       .on('mousemove', (event) => {
         tooltip.style.display = 'block';
         tooltip.style.left = (event.clientX + 14) + 'px';
@@ -703,6 +742,21 @@ function renderMap(){
         if(visited) openEditModal(visited);
         else openAddModal(name);
       });
+
+    handlers(dotLayer.append('circle')
+      .attr('cx', x).attr('cy', y).attr('r', r)
+      .attr('fill', fillColor).attr('stroke', '#fff').attr('stroke-width', 1.5)
+      .style('cursor', 'pointer'));
+
+    if(showLabel){
+      handlers(dotLayer.append('text')
+        .attr('x', x + r + 3).attr('y', y + 4)
+        .attr('font-size', '8px').attr('font-weight', '700')
+        .attr('fill', visited ? fillColor : '#999')
+        .attr('stroke', '#fff').attr('stroke-width', 2).attr('paint-order', 'stroke')
+        .style('cursor', 'pointer')
+        .text(name));
+    }
   });
 }
 function mapZoom(factor){
@@ -755,7 +809,39 @@ function renderStats(){
   const earliest = withYear[0];
   const latest = withYear[withYear.length-1];
 
-  let html = `
+  const lv = countries.length > 0 ? getTravelerLevel(countries.length) : null;
+  const lvPct = lv && lv.next ? Math.round((countries.length - lv.min) / (lv.next.min - lv.min) * 100) : 100;
+
+  let html = lv ? `
+    <div class="stats-section-title">Traveler Level</div>
+    <div style="background:#fff;border-radius:var(--r);padding:20px 24px;box-shadow:var(--shadow);margin-bottom:20px;border-left:5px solid var(--gold)">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="font-size:3rem;line-height:1">${lv.emoji}</div>
+        <div style="flex:1">
+          <div style="font-size:1.3rem;font-weight:800;color:var(--green-dark)">Level ${lv.levelNum} — ${lv.label}</div>
+          <div style="font-size:.85rem;color:var(--muted);margin-top:2px">${countries.length} countries visited${lv.next ? ` · ${lv.toNext} more to reach Level ${lv.levelNum+1} (${lv.next.emoji} ${lv.next.label})` : ' · Maximum level reached!'}</div>
+          ${lv.next ? `<div style="background:#e8e0d0;border-radius:4px;height:10px;margin-top:8px;overflow:hidden">
+            <div style="width:${lvPct}%;height:100%;background:var(--gold);border-radius:4px;transition:.4s"></div>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="stats-section-title">Level Roadmap</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+      ${LEVELS.map((l,i) => {
+        const reached = countries.length >= l.min;
+        const current = lv.levelNum === i+1;
+        return `<div style="
+          padding:6px 12px;border-radius:20px;font-size:.75rem;font-weight:700;
+          background:${current ? 'var(--gold)' : reached ? 'var(--green-mid)' : '#e8e0d0'};
+          color:${reached || current ? '#fff' : '#999'};
+          border:${current ? '2px solid var(--green-dark)' : '2px solid transparent'};
+        " title="${l.min} countries">${l.emoji} Lv.${i+1} ${l.label} <span style="opacity:.7">(${l.min}+)</span></div>`;
+      }).join('')}
+    </div>
+  ` : '';
+
+  html += `
     <div class="stats-section-title">By Region</div>
     <div class="stats-grid">
   `;
