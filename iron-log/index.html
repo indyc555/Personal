@@ -13,15 +13,10 @@
     <link rel="stylesheet" crossorigin href="https://indyc555.github.io/Claude-Examples/WorkoutLog/assets/index-DhxTLIRj.css">
   </head>
   <style>
-    #aeke-nav {
+    .floating-btn {
       position: fixed;
       top: 12px;
-      right: 16px;
       z-index: 9999;
-      display: flex;
-      gap: 8px;
-    }
-    #aeke-nav a {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -35,15 +30,13 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
       transition: opacity 0.15s;
     }
-    #aeke-nav a:hover { opacity: 0.85; }
-    #aeke-nav .home-btn { background: #2a2a4a; }
-    #aeke-nav .aeke-btn { background: #e94560; }
+    .floating-btn:hover { opacity: 0.85; }
+    #home-btn { left: 16px; background: #2a2a4a; }
+    #aeke-btn { right: 16px; background: #e94560; }
   </style>
   <body>
-    <div id="aeke-nav">
-      <a href="../" class="home-btn">🏠 Home</a>
-      <a href="./aeke-score.html" class="aeke-btn">📊 AEKE Score</a>
-    </div>
+    <a href="../" class="floating-btn" id="home-btn">🏠 Home</a>
+    <a href="./aeke-score.html" class="floating-btn" id="aeke-btn">📊 AEKE Score</a>
     <div id="root"></div>
   </body>
 </html>
