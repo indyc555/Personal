@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Info</title>
+<style>
+:root{
+  --navy:#0d1b2a;
+  --navy-mid:#1b2d45;
+  --navy-light:#243b55;
+  --gold:#c9a227;
+  --gold-light:#f0c040;
+  --green:#2d6a4f;
+  --red:#c0392b;
+  --bg:#f0f2f5;
+  --card:#fff;
+  --border:#dde3ea;
+  --text:#1a1a2e;
+  --muted:#6b7280;
+  --r:10px;
+  --shadow:0 2px 14px rgba(0,0,0,.10);
+  --shadow-lg:0 6px 28px rgba(0,0,0,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ============ BUTTONS ============ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;
+  border:none;cursor:pointer;font-size:.88rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--navy-mid);color:#fff}
+.btn-primary:hover{background:var(--navy)}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:var(--gold-light);color:#1a1a1a}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#1a472a}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-outline{background:transparent;border:1.5px solid var(--navy-mid);color:var(--navy-mid)}
+.btn-outline:hover{background:var(--navy-mid);color:#fff}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--navy-mid);color:var(--navy-mid)}
+.btn-sm{padding:5px 11px;font-size:.78rem}
+
+/* ============ PROFILE SCREEN ============ */
+#screen-profiles{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+  padding:32px 20px;
+}
+#screen-profiles h1{color:#fff;font-size:2rem;font-weight:800;letter-spacing:.5px;margin-bottom:6px}
+#screen-profiles .sub{color:rgba(255,255,255,.6);margin-bottom:32px;font-size:.95rem}
+.profile-grid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:28px}
+.profile-tile{
+  background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);
+  border-radius:var(--r);padding:20px 26px;cursor:pointer;text-align:center;
+  color:#fff;transition:.18s;min-width:120px;
+}
+.profile-tile:hover{background:rgba(255,255,255,.2);border-color:var(--gold);transform:translateY(-2px)}
+.profile-tile .av{font-size:2.2rem;margin-bottom:8px}
+.profile-tile .pname{font-weight:700;font-size:.95rem}
+.new-profile-box{
+  background:rgba(255,255,255,.08);border:2px dashed rgba(255,255,255,.3);
+  border-radius:var(--r);padding:22px;width:100%;max-width:360px;
+}
+.new-profile-box h3{color:#fff;margin-bottom:14px;font-size:.95rem;font-weight:700}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.field input,.field select{
+  width:100%;padding:9px 12px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.12);color:#fff;font-size:.9rem;
+}
+.field input::placeholder{color:rgba(255,255,255,.4)}
+.field select option{color:#000}
+
+/* ============ LOCK SCREEN ============ */
+#screen-lock{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+  padding:32px 20px;
+}
+.lock-box{
+  background:#fff;border-radius:14px;padding:36px 40px;width:100%;max-width:380px;
+  box-shadow:var(--shadow-lg);text-align:center;
+}
+.lock-icon{font-size:3rem;margin-bottom:12px}
+.lock-box h2{font-size:1.4rem;font-weight:800;color:var(--navy);margin-bottom:4px}
+.lock-box .sub{font-size:.85rem;color:var(--muted);margin-bottom:24px}
+.lock-box input{
+  width:100%;padding:11px 14px;border-radius:7px;border:1.5px solid var(--border);
+  font-size:1rem;margin-bottom:14px;outline:none;transition:.15s;
+}
+.lock-box input:focus{border-color:var(--navy-mid)}
+.lock-error{color:var(--red);font-size:.82rem;margin-top:6px;min-height:18px}
+.lock-links{margin-top:16px;font-size:.8rem;color:var(--muted)}
+.lock-links a{color:var(--navy-mid);cursor:pointer;text-decoration:underline}
+
+/* ============ MAIN APP ============ */
+#screen-app{display:none;flex-direction:column;min-height:100vh}
+header{
+  background:linear-gradient(90deg,var(--navy) 0%,var(--navy-light) 100%);
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-wrap:wrap;gap:10px;
+}
+header h1{color:#fff;font-size:1.1rem;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.profile-badge{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  border-radius:20px;padding:5px 14px;font-size:.82rem;color:#fff;
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+}
+.profile-badge:hover{background:rgba(255,255,255,.2)}
+
+/* ============ MAIN CONTENT ============ */
+main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
+
+.section-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;flex-wrap:wrap;gap:10px;
+}
+.section-hdr h2{font-size:1.2rem;font-weight:800;color:var(--navy)}
+
+/* ============ FILTER BAR ============ */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.filter-btn{
+  padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;
+}
+.filter-btn.active{background:var(--navy-mid);color:#fff;border-color:var(--navy-mid)}
+.search-input{
+  flex:1;min-width:180px;padding:7px 12px;border-radius:7px;
+  border:1.5px solid var(--border);font-size:.85rem;outline:none;background:#fff;
+}
+.search-input:focus{border-color:var(--navy-mid)}
+
+/* ============ PASSWORD TABLE ============ */
+.pw-table-wrap{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.pw-table{width:100%;border-collapse:collapse}
+.pw-table th{
+  background:var(--navy);color:#fff;padding:10px 14px;text-align:left;
+  font-size:.75rem;letter-spacing:.5px;font-weight:700;
+}
+.pw-table td{padding:10px 14px;font-size:.84rem;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+.pw-table tr:last-child td{border-bottom:none}
+.pw-table tr:hover td{background:#f7f9fc}
+.pw-val{font-family:monospace;letter-spacing:.5px;font-size:.82rem}
+.pw-mask{letter-spacing:2px;color:var(--muted)}
+.type-pill{
+  display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.type-work{background:#dbeafe;color:#1e40af}
+.type-personal{background:#d1fae5;color:#065f46}
+.sub-label{font-size:.72rem;color:var(--muted);margin-top:2px}
+.pw-actions{display:flex;gap:6px;justify-content:flex-end}
+.empty-state{text-align:center;padding:52px 20px;color:var(--muted)}
+.empty-state .big-icon{font-size:3rem;margin-bottom:10px}
+
+/* ============ MODAL ============ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:500;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:14px;padding:28px 30px;width:100%;max-width:500px;
+  max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);position:relative;
+}
+.modal h2{font-size:1.1rem;font-weight:800;color:var(--navy);margin-bottom:20px}
+.modal-close{
+  position:absolute;top:14px;right:16px;background:none;border:none;
+  font-size:1.3rem;cursor:pointer;color:var(--muted);line-height:1;
+}
+.modal-close:hover{color:var(--navy)}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.form-row input,.form-row select,.form-row textarea{
+  width:100%;padding:9px 12px;border-radius:6px;border:1.5px solid var(--border);
+  font-size:.9rem;outline:none;transition:.15s;background:#fff;
+}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--navy-mid)}
+.form-row textarea{resize:vertical;min-height:70px;font-family:inherit}
+.pw-input-wrap{position:relative}
+.pw-input-wrap input{padding-right:44px}
+.pw-toggle{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;font-size:1rem;color:var(--muted);
+}
+.pw-toggle:hover{color:var(--navy)}
+.type-toggle{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;margin-top:4px}
+.type-toggle input{display:none}
+.type-toggle label{
+  flex:1;text-align:center;padding:8px;cursor:pointer;font-size:.85rem;font-weight:600;
+  color:var(--muted);transition:.15s;
+}
+.type-toggle input:checked + label{background:var(--navy-mid);color:#fff}
+.modal-actions{display:flex;gap:10px;margin-top:20px;align-items:center}
+.modal-actions .spacer{flex:1}
+
+/* ============ SETTINGS SECTION ============ */
+.settings-card{
+  background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:22px 24px;margin-bottom:16px;
+}
+.settings-card h3{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:14px;
+  padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ============ IMPORT ============ */
+.import-box{
+  border:2px dashed var(--border);border-radius:var(--r);padding:24px;text-align:center;
+  color:var(--muted);cursor:pointer;transition:.15s;background:#fafbfc;
+}
+.import-box:hover{border-color:var(--navy-mid);color:var(--navy)}
+.import-box input[type=file]{display:none}
+
+/* ============ NAV TABS ============ */
+.nav-tabs{display:flex;gap:4px;background:rgba(0,0,0,.15);border-radius:6px;padding:3px}
+.nav-tab{
+  padding:5px 14px;border-radius:4px;border:none;background:transparent;
+  color:rgba(255,255,255,.65);font-size:.82rem;font-weight:600;cursor:pointer;transition:.15s;
+}
+.nav-tab.active{background:rgba(255,255,255,.15);color:#fff}
+
+/* ============ TOAST ============ */
+#toast{
+  position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;
+  padding:11px 20px;border-radius:8px;font-size:.85rem;font-weight:600;
+  box-shadow:var(--shadow-lg);z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;
+}
+#toast.show{opacity:1}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:640px){
+  .pw-table th:nth-child(4),.pw-table td:nth-child(4){display:none}
+  .modal{padding:20px 16px}
+  main{padding:16px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- =========== PROFILE SCREEN =========== -->
+<div id="screen-profiles">
+  <h1>🔐 Life Info</h1>
+  <p class="sub">Your secure personal information vault</p>
+  <div class="profile-grid" id="profile-grid"></div>
+  <div class="new-profile-box">
+    <h3>+ Add Profile</h3>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="new-profile-name" placeholder="e.g. Ananya">
+    </div>
+    <div class="field">
+      <label>Emoji</label>
+      <input type="text" id="new-profile-emoji" placeholder="🧑" maxlength="2">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="new-profile-pw" placeholder="Set a password">
+    </div>
+    <button class="btn btn-gold" onclick="createProfile()">Create Profile</button>
+  </div>
+</div>
+
+<!-- =========== LOCK SCREEN =========== -->
+<div id="screen-lock">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <h2 id="lock-name"></h2>
+    <p class="sub">Enter your password to unlock</p>
+    <input type="password" id="lock-pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockProfile()">
+    <button class="btn btn-primary" style="width:100%" onclick="unlockProfile()">Unlock</button>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-links">
+      <a onclick="showProfiles()">← Back</a>
+      &nbsp;·&nbsp;
+      <a onclick="showResetModal()">Forgot password?</a>
+    </div>
+  </div>
+</div>
+
+<!-- =========== MAIN APP =========== -->
+<div id="screen-app">
+  <header>
+    <h1>🔐 Life Info</h1>
+    <div class="hdr-right">
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('passwords')" id="tab-passwords">🔑 Passwords</button>
+        <button class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙️ Settings</button>
+      </div>
+      <div class="profile-badge" onclick="showProfiles()">
+        <span id="hdr-avatar"></span>
+        <span id="hdr-name"></span>
+        <span style="opacity:.6">↩</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- PASSWORDS TAB -->
+    <div id="tab-content-passwords">
+      <div class="section-hdr">
+        <h2>Password Vault</h2>
+        <button class="btn btn-gold" onclick="openPwModal()">+ Add Password</button>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('personal',this)">Personal</button>
+        <button class="filter-btn" onclick="setFilter('work',this)">Work</button>
+        <input class="search-input" type="text" id="search-input" placeholder="Search website, username…" oninput="renderVault()">
+      </div>
+      <div class="pw-table-wrap" id="vault-wrap">
+        <div class="empty-state"><div class="big-icon">🔑</div><p>No passwords yet. Click + Add Password to get started.</p></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="tab-content-settings" style="display:none">
+      <div class="section-hdr"><h2>Settings</h2></div>
+
+      <div class="settings-card">
+        <h3>Change Password</h3>
+        <div class="form-row">
+          <label>Current Password</label>
+          <input type="password" id="chg-current" placeholder="Current password">
+        </div>
+        <div class="form-row">
+          <label>New Password</label>
+          <input type="password" id="chg-new" placeholder="New password">
+        </div>
+        <div class="form-row">
+          <label>Confirm New Password</label>
+          <input type="password" id="chg-confirm" placeholder="Confirm new password">
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>Import from CSV</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.5">
+          Export your Google Sheet as <strong>File → Download → CSV</strong>, then import it here.<br>
+          Expected columns: <code>Website, Username, Password, Comments, Type (Work/Personal), Company, Person</code>
+        </p>
+        <div class="import-box" onclick="document.getElementById('csv-file').click()">
+          <div style="font-size:1.6rem;margin-bottom:6px">📂</div>
+          <div style="font-weight:700;margin-bottom:4px">Click to choose CSV file</div>
+          <div style="font-size:.78rem">or drag and drop</div>
+          <input type="file" id="csv-file" accept=".csv" onchange="importCSV(this)">
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>Export</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px">Download all your passwords as a CSV file.</p>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Download CSV</button>
+      </div>
+
+      <div class="settings-card">
+        <h3 style="color:var(--red)">Danger Zone</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px">Permanently delete this profile and all its data.</p>
+        <button class="btn btn-danger" onclick="deleteProfile()">Delete Profile</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- =========== ADD/EDIT PASSWORD MODAL =========== -->
+<div class="modal-overlay" id="modal-pw">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-pw')">&times;</button>
+    <h2 id="modal-pw-title">Add Password</h2>
+
+    <div class="form-row">
+      <label>Type</label>
+      <div class="type-toggle">
+        <input type="radio" name="pw-type" id="type-personal" value="personal" checked onchange="onTypeChange()">
+        <label for="type-personal">👤 Personal</label>
+        <input type="radio" name="pw-type" id="type-work" value="work" onchange="onTypeChange()">
+        <label for="type-work">💼 Work</label>
+      </div>
+    </div>
+
+    <div class="form-row" id="row-person">
+      <label>Person</label>
+      <select id="pw-person">
+        <option value="Indy">Indy</option>
+        <option value="Ananya">Ananya</option>
+        <option value="Ronin">Ronin</option>
+        <option value="Kai">Kai</option>
+        <option value="Janci">Janci</option>
+        <option value="Simran">Simran</option>
+        <option value="Banani">Banani</option>
+        <option value="Pankaj">Pankaj</option>
+      </select>
+    </div>
+
+    <div class="form-row" id="row-company" style="display:none">
+      <label>Company</label>
+      <input type="text" id="pw-company" placeholder="e.g. Jaggaer">
+    </div>
+
+    <div class="form-row">
+      <label>Website</label>
+      <input type="text" id="pw-website" placeholder="e.g. google.com">
+    </div>
+
+    <div class="form-row">
+      <label>Username / Email</label>
+      <input type="text" id="pw-username" placeholder="e.g. indy@email.com">
+    </div>
+
+    <div class="form-row">
+      <label>Password</label>
+      <div class="pw-input-wrap">
+        <input type="password" id="pw-password" placeholder="Enter password">
+        <button class="pw-toggle" type="button" onclick="togglePwVis('pw-password',this)">👁</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Comments</label>
+      <textarea id="pw-comments" placeholder="Any notes…"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="pw-delete-btn" style="display:none" onclick="deletePwEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-pw')">Cancel</button>
+      <button class="btn btn-gold" onclick="savePwEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== RESET PASSWORD MODAL =========== -->
+<div class="modal-overlay" id="modal-reset">
+  <div class="modal" style="max-width:380px;text-align:center">
+    <button class="modal-close" onclick="closeModal('modal-reset')">&times;</button>
+    <div style="font-size:2rem;margin-bottom:8px">⚠️</div>
+    <h2>Reset Password</h2>
+    <p style="font-size:.85rem;color:var(--muted);margin:10px 0 20px;line-height:1.5">
+      This will delete all your saved passwords along with your profile password.<br>
+      Type <strong>RESET</strong> to confirm.
+    </p>
+    <div class="form-row">
+      <input type="text" id="reset-confirm-input" placeholder='Type RESET'>
+    </div>
+    <div class="form-row">
+      <label>New Password</label>
+      <input type="password" id="reset-new-pw" placeholder="New password">
+    </div>
+    <button class="btn btn-danger" style="width:100%" onclick="doReset()">Reset & Wipe Data</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============ STATE ============
+let profiles = {};
+let currentProfile = null;
+let currentFilter = 'all';
+let editingEntryId = null;
+
+// ============ STORAGE ============
+function saveProfiles(){ localStorage.setItem('lifeinfo_profiles', JSON.stringify(profiles)); }
+function loadProfiles(){
+  try{ profiles = JSON.parse(localStorage.getItem('lifeinfo_profiles') || '{}'); }
+  catch(e){ profiles = {}; }
+}
+
+// ============ HASH ============
+async function hashPw(pw){
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(pw + 'lifeinfo_salt_v1'));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ============ UTILS ============
+function genId(){ return 'e' + Date.now() + Math.random().toString(36).slice(2,7); }
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg, dur=2500){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('show'), dur);
+}
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function $(sel){ return document.querySelector(sel); }
+
+// ============ PROFILE SCREEN ============
+function showProfiles(){
+  currentProfile = null;
+  $('#screen-lock').style.display = 'none';
+  $('#screen-app').style.display = 'none';
+  $('#screen-profiles').style.display = 'flex';
+  renderProfiles();
+}
+function renderProfiles(){
+  const grid = document.getElementById('profile-grid');
+  grid.innerHTML = Object.keys(profiles).map(name => {
+    const p = profiles[name];
+    return `<div class="profile-tile" onclick="selectProfile('${escH(name)}')">
+      <div class="av">${escH(p.emoji||'🧑')}</div>
+      <div class="pname">${escH(name)}</div>
+      <div style="font-size:.72rem;opacity:.6;margin-top:4px">${(p.vault||[]).length} entries</div>
+    </div>`;
+  }).join('');
+}
+async function createProfile(){
+  const name = document.getElementById('new-profile-name').value.trim();
+  const emoji = document.getElementById('new-profile-emoji').value.trim() || '🧑';
+  const pw = document.getElementById('new-profile-pw').value;
+  if(!name){ toast('Enter a name'); return; }
+  if(!pw){ toast('Set a password'); return; }
+  if(profiles[name]){ toast('Profile already exists'); return; }
+  const hash = await hashPw(pw);
+  profiles[name] = { emoji, pwHash: hash, vault: [] };
+  saveProfiles();
+  document.getElementById('new-profile-name').value = '';
+  document.getElementById('new-profile-emoji').value = '';
+  document.getElementById('new-profile-pw').value = '';
+  renderProfiles();
+  toast('Profile created!');
+}
+
+// ============ LOCK SCREEN ============
+function selectProfile(name){
+  currentProfile = name;
+  $('#screen-profiles').style.display = 'none';
+  $('#screen-lock').style.display = 'flex';
+  document.getElementById('lock-name').textContent = (profiles[name].emoji||'🧑') + ' ' + name;
+  document.getElementById('lock-pw-input').value = '';
+  document.getElementById('lock-error').textContent = '';
+  setTimeout(()=>document.getElementById('lock-pw-input').focus(),100);
+}
+async function unlockProfile(){
+  const input = document.getElementById('lock-pw-input').value;
+  const hash = await hashPw(input);
+  if(hash !== profiles[currentProfile].pwHash){
+    document.getElementById('lock-error').textContent = 'Incorrect password.';
+    return;
+  }
+  document.getElementById('lock-error').textContent = '';
+  openApp();
+}
+function openApp(){
+  const p = profiles[currentProfile];
+  $('#screen-lock').style.display = 'none';
+  $('#screen-app').style.display = 'flex';
+  document.getElementById('hdr-avatar').textContent = p.emoji || '🧑';
+  document.getElementById('hdr-name').textContent = currentProfile;
+  switchTab('passwords');
+  renderVault();
+}
+function showResetModal(){
+  document.getElementById('reset-confirm-input').value = '';
+  document.getElementById('reset-new-pw').value = '';
+  openModal('modal-reset');
+}
+async function doReset(){
+  const confirm = document.getElementById('reset-confirm-input').value.trim();
+  const newPw = document.getElementById('reset-new-pw').value;
+  if(confirm !== 'RESET'){ toast('Type RESET to confirm'); return; }
+  if(!newPw){ toast('Enter a new password'); return; }
+  const hash = await hashPw(newPw);
+  profiles[currentProfile].pwHash = hash;
+  profiles[currentProfile].vault = [];
+  saveProfiles();
+  closeModal('modal-reset');
+  toast('Password reset. All data cleared.');
+  openApp();
+}
+
+// ============ TABS ============
+function switchTab(tab){
+  ['passwords','settings'].forEach(t => {
+    document.getElementById('tab-content-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+// ============ VAULT RENDER ============
+function setFilter(f, el){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderVault();
+}
+function renderVault(){
+  const vault = profiles[currentProfile]?.vault || [];
+  const search = document.getElementById('search-input').value.toLowerCase();
+  let entries = vault.filter(e => {
+    if(currentFilter === 'personal' && e.type !== 'personal') return false;
+    if(currentFilter === 'work' && e.type !== 'work') return false;
+    if(search){
+      const hay = (e.website+e.username+e.comments+(e.company||'')+(e.person||'')).toLowerCase();
+      if(!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  const wrap = document.getElementById('vault-wrap');
+  if(entries.length === 0){
+    wrap.innerHTML = `<div class="empty-state"><div class="big-icon">🔑</div>
+      <p>${vault.length === 0 ? 'No passwords yet. Click <strong>+ Add Password</strong> to get started.' : 'No matches found.'}</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<table class="pw-table">
+    <thead><tr>
+      <th>Website</th>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Type / Owner</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${entries.map(e => {
+      const typeLabel = e.type === 'work'
+        ? `<span class="type-pill type-work">Work</span><div class="sub-label">${escH(e.company||'')}</div>`
+        : `<span class="type-pill type-personal">Personal</span><div class="sub-label">${escH(e.person||'')}</div>`;
+      return `<tr>
+        <td><strong>${escH(e.website)}</strong></td>
+        <td>${escH(e.username)}</td>
+        <td>
+          <span class="pw-val pw-mask" id="pval-${e.id}">••••••••</span>
+          <button style="background:none;border:none;cursor:pointer;font-size:.85rem;margin-left:4px"
+            onclick="toggleEntryVis('${e.id}')" title="Show/hide">👁</button>
+        </td>
+        <td>${typeLabel}</td>
+        <td><div class="pw-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openPwModal('${e.id}')">Edit</button>
+        </div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+
+  // Store passwords hidden by default
+  entries.forEach(e => {
+    const el = document.getElementById('pval-'+e.id);
+    if(el) el.dataset.pw = e.password;
+  });
+}
+
+function toggleEntryVis(id){
+  const el = document.getElementById('pval-'+id);
+  if(!el) return;
+  if(el.classList.contains('pw-mask')){
+    el.classList.remove('pw-mask');
+    el.textContent = el.dataset.pw;
+  } else {
+    el.classList.add('pw-mask');
+    el.textContent = '••••••••';
+  }
+}
+
+// ============ ADD / EDIT MODAL ============
+function onTypeChange(){
+  const isWork = document.getElementById('type-work').checked;
+  document.getElementById('row-company').style.display = isWork ? 'block' : 'none';
+  document.getElementById('row-person').style.display = isWork ? 'none' : 'block';
+}
+function openPwModal(id){
+  editingEntryId = id || null;
+  document.getElementById('modal-pw-title').textContent = id ? 'Edit Password' : 'Add Password';
+  document.getElementById('pw-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if(id){
+    const e = (profiles[currentProfile].vault||[]).find(x=>x.id===id);
+    if(!e) return;
+    const isWork = e.type === 'work';
+    document.getElementById(isWork ? 'type-work' : 'type-personal').checked = true;
+    document.getElementById('pw-website').value = e.website||'';
+    document.getElementById('pw-username').value = e.username||'';
+    document.getElementById('pw-password').value = e.password||'';
+    document.getElementById('pw-comments').value = e.comments||'';
+    document.getElementById('pw-company').value = e.company||'';
+    document.getElementById('pw-person').value = e.person||'Indy';
+  } else {
+    document.getElementById('type-personal').checked = true;
+    document.getElementById('pw-website').value = '';
+    document.getElementById('pw-username').value = '';
+    document.getElementById('pw-password').value = '';
+    document.getElementById('pw-comments').value = '';
+    document.getElementById('pw-company').value = '';
+    document.getElementById('pw-person').value = 'Indy';
+  }
+  onTypeChange();
+  openModal('modal-pw');
+}
+function savePwEntry(){
+  const type = document.querySelector('input[name="pw-type"]:checked').value;
+  const website = document.getElementById('pw-website').value.trim();
+  const username = document.getElementById('pw-username').value.trim();
+  const password = document.getElementById('pw-password').value;
+  if(!website){ toast('Website required'); return; }
+  if(!password){ toast('Password required'); return; }
+  const entry = {
+    type,
+    website, username, password,
+    comments: document.getElementById('pw-comments').value.trim(),
+    company: type==='work' ? document.getElementById('pw-company').value.trim() : '',
+    person: type==='personal' ? document.getElementById('pw-person').value : '',
+    updatedAt: Date.now(),
+  };
+  const vault = profiles[currentProfile].vault || [];
+  if(editingEntryId){
+    const idx = vault.findIndex(x=>x.id===editingEntryId);
+    if(idx>=0){ entry.id = editingEntryId; entry.createdAt = vault[idx].createdAt; vault[idx] = entry; }
+  } else {
+    entry.id = genId(); entry.createdAt = Date.now();
+    vault.push(entry);
+  }
+  profiles[currentProfile].vault = vault;
+  saveProfiles();
+  closeModal('modal-pw');
+  renderVault();
+  toast(editingEntryId ? 'Updated!' : 'Password saved!');
+}
+function deletePwEntry(){
+  if(!editingEntryId) return;
+  if(!confirm('Delete this entry?')) return;
+  profiles[currentProfile].vault = (profiles[currentProfile].vault||[]).filter(x=>x.id!==editingEntryId);
+  saveProfiles();
+  closeModal('modal-pw');
+  renderVault();
+  toast('Deleted');
+}
+function togglePwVis(inputId, btn){
+  const inp = document.getElementById(inputId);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
+// ============ SETTINGS ============
+async function changePassword(){
+  const curr = document.getElementById('chg-current').value;
+  const nw = document.getElementById('chg-new').value;
+  const conf = document.getElementById('chg-confirm').value;
+  const currHash = await hashPw(curr);
+  if(currHash !== profiles[currentProfile].pwHash){ toast('Current password is incorrect'); return; }
+  if(!nw){ toast('Enter a new password'); return; }
+  if(nw !== conf){ toast('Passwords do not match'); return; }
+  profiles[currentProfile].pwHash = await hashPw(nw);
+  saveProfiles();
+  document.getElementById('chg-current').value = '';
+  document.getElementById('chg-new').value = '';
+  document.getElementById('chg-confirm').value = '';
+  toast('Password changed!');
+}
+function deleteProfile(){
+  if(!confirm(`Delete the profile "${currentProfile}" and ALL its data? This cannot be undone.`)) return;
+  delete profiles[currentProfile];
+  saveProfiles();
+  showProfiles();
+  toast('Profile deleted');
+}
+
+// ============ CSV IMPORT ============
+function importCSV(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split(/\r?\n/).filter(l=>l.trim());
+    if(lines.length < 2){ toast('CSV appears empty'); return; }
+    const headers = parseCSVLine(lines[0]).map(h=>h.toLowerCase().trim());
+    let imported = 0;
+    for(let i=1;i<lines.length;i++){
+      const cols = parseCSVLine(lines[i]);
+      const row = {};
+      headers.forEach((h,j)=>row[h]=cols[j]||'');
+      const website = row['website']||row['site']||row['url']||'';
+      const username = row['username']||row['user']||row['email']||'';
+      const password = row['password']||row['pw']||row['pass']||'';
+      if(!website && !username && !password) continue;
+      const type = (row['type']||'').toLowerCase().includes('work') ? 'work' : 'personal';
+      const entry = {
+        id: genId(), createdAt: Date.now(), updatedAt: Date.now(),
+        type, website, username, password,
+        comments: row['comments']||row['notes']||row['comment']||'',
+        company: row['company']||'',
+        person: row['person']||'Indy',
+      };
+      profiles[currentProfile].vault.push(entry);
+      imported++;
+    }
+    saveProfiles();
+    renderVault();
+    input.value = '';
+    toast(`Imported ${imported} entries!`);
+  };
+  reader.readAsText(file);
+}
+function parseCSVLine(line){
+  const result=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){ inQ=!inQ; continue; }
+    if(c===','&&!inQ){ result.push(cur); cur=''; continue; }
+    cur+=c;
+  }
+  result.push(cur);
+  return result.map(s=>s.trim());
+}
+
+// ============ CSV EXPORT ============
+function exportCSV(){
+  const vault = profiles[currentProfile]?.vault || [];
+  const rows = [['Website','Username','Password','Comments','Type','Company','Person']];
+  vault.forEach(e=>rows.push([e.website,e.username,e.password,e.comments,e.type,e.company||'',e.person||'']));
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = currentProfile.replace(/\s/g,'_')+'_passwords.csv';
+  a.click();
+}
+
+// ============ INIT ============
+loadProfiles();
+
+// Seed "Indy" profile stub if not present
+if(!profiles['Indy']){
+  profiles['Indy'] = { emoji:'👑', vault:[] };
+  saveProfiles();
+}
+
+// Override createProfile to handle updating an existing stub (no pwHash yet)
+const _origCreate = createProfile;
+async function createProfile(){
+  const name = document.getElementById('new-profile-name').value.trim();
+  const emoji = document.getElementById('new-profile-emoji').value.trim() || '🧑';
+  const pw = document.getElementById('new-profile-pw').value;
+  if(!name){ toast('Enter a name'); return; }
+  if(!pw){ toast('Set a password'); return; }
+  if(profiles[name] && profiles[name].pwHash){ toast('Profile already exists'); return; }
+  const hash = await hashPw(pw);
+  if(profiles[name]){
+    // Update existing stub (e.g. Indy without a password yet)
+    profiles[name].emoji = emoji || profiles[name].emoji;
+    profiles[name].pwHash = hash;
+  } else {
+    profiles[name] = { emoji, pwHash: hash, vault:[] };
+  }
+  saveProfiles();
+  document.getElementById('new-profile-name').value = '';
+  document.getElementById('new-profile-emoji').value = '';
+  document.getElementById('new-profile-pw').value = '';
+  renderProfiles();
+  toast('Profile ready! Click it to log in.');
+}
+
+showProfiles();
+setTimeout(()=>{
+  if(!profiles['Indy'].pwHash)
+    toast('Welcome! Add "Indy" in the form below to set your password.', 4000);
+},400);
+</script>
+</body>
+</html>
