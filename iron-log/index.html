@@ -12,7 +12,32 @@
     <script type="module" crossorigin src="https://indyc555.github.io/Claude-Examples/WorkoutLog/assets/index-207-NCmO.js"></script>
     <link rel="stylesheet" crossorigin href="https://indyc555.github.io/Claude-Examples/WorkoutLog/assets/index-DhxTLIRj.css">
   </head>
+  <style>
+    #aeke-nav {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      z-index: 9999;
+    }
+    #aeke-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e94560;
+      color: #fff;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: opacity 0.15s;
+    }
+    #aeke-nav a:hover { opacity: 0.85; }
+  </style>
   <body>
+    <div id="aeke-nav"><a href="./aeke-score.html">📊 AEKE Score</a></div>
     <div id="root"></div>
   </body>
 </html>
