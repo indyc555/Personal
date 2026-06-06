@@ -290,6 +290,7 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
     <div class="hdr-right">
       <div class="nav-tabs">
         <button class="nav-tab active" onclick="switchTab('passwords')" id="tab-passwords">🔑 Passwords</button>
+        <button class="nav-tab" onclick="switchTab('savings')" id="tab-savings">💰 Savings</button>
         <button class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙️ Settings</button>
       </div>
       <div class="profile-badge" onclick="showProfiles()">
@@ -315,6 +316,28 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       </div>
       <div class="pw-table-wrap" id="vault-wrap">
         <div class="empty-state"><div class="big-icon">🔑</div><p>No passwords yet. Click + Add Password to get started.</p></div>
+      </div>
+    </div>
+
+    <!-- SAVINGS TAB -->
+    <div id="tab-content-savings" style="display:none">
+      <div class="section-hdr">
+        <h2>Savings & Net Worth</h2>
+        <button class="btn btn-gold" onclick="openSavingsModal()">+ Add Snapshot</button>
+      </div>
+
+      <!-- STATS CARDS -->
+      <div id="savings-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:22px"></div>
+
+      <!-- TREND CHART -->
+      <div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px;display:none" id="savings-chart-wrap">
+        <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:12px">Net Worth Trend</div>
+        <canvas id="savings-chart" style="width:100%;height:200px"></canvas>
+      </div>
+
+      <!-- TABLE -->
+      <div class="pw-table-wrap" id="savings-table-wrap">
+        <div class="empty-state"><div class="big-icon">💰</div><p>No snapshots yet. Click <strong>+ Add Snapshot</strong> to get started.</p></div>
       </div>
     </div>
 
@@ -457,6 +480,66 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
   </div>
 </div>
 
+<!-- =========== SAVINGS MODAL =========== -->
+<div class="modal-overlay" id="modal-savings">
+  <div class="modal" style="max-width:620px">
+    <button class="modal-close" onclick="closeModal('modal-savings')">&times;</button>
+    <h2 id="modal-savings-title">Add Snapshot</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+      <div class="form-row">
+        <label>Date</label>
+        <input type="date" id="sv-date">
+      </div>
+      <div class="form-row">
+        <label>Total Assets</label>
+        <input type="text" id="sv-total" placeholder="e.g. 5,317,992">
+      </div>
+      <div class="form-row">
+        <label>Liquid Assets</label>
+        <input type="text" id="sv-liquid" placeholder="e.g. 3,722,310">
+      </div>
+      <div class="form-row">
+        <label>Cash</label>
+        <input type="text" id="sv-cash" placeholder="e.g. 1,033,544">
+      </div>
+      <div class="form-row">
+        <label>Investments</label>
+        <input type="text" id="sv-investments" placeholder="e.g. 2,688,766">
+      </div>
+      <div class="form-row">
+        <label>MSI / Lean</label>
+        <input type="text" id="sv-msi" placeholder="e.g. 150,000">
+      </div>
+      <div class="form-row">
+        <label>House Debt</label>
+        <input type="text" id="sv-hdebt" placeholder="e.g. 1,284,318">
+      </div>
+      <div class="form-row">
+        <label>Home Equity</label>
+        <input type="text" id="sv-hequity" placeholder="e.g. 1,595,682">
+      </div>
+      <div class="form-row">
+        <label>Experian Credit Score</label>
+        <input type="text" id="sv-credit" placeholder="e.g. 761">
+      </div>
+      <div class="form-row">
+        <label>Vanguard College Funds</label>
+        <input type="text" id="sv-college" placeholder="e.g. 684,000">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Comments</label>
+      <textarea id="sv-comments" placeholder="Notes about this snapshot…" style="min-height:60px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="sv-delete-btn" style="display:none" onclick="deleteSavingsEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-savings')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveSavingsEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -580,10 +663,249 @@ async function doReset(){
 
 // ============ TABS ============
 function switchTab(tab){
-  ['passwords','settings'].forEach(t => {
+  ['passwords','savings','settings'].forEach(t => {
     document.getElementById('tab-content-'+t).style.display = t===tab ? 'block' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===tab);
   });
+  if(tab === 'savings') renderSavings();
+}
+
+// ============ SAVINGS ============
+let editingSavingsId = null;
+
+function parseMoney(s){
+  if(!s && s !== 0) return null;
+  const n = parseFloat(String(s).replace(/[$,\s]/g,''));
+  return isNaN(n) ? null : n;
+}
+function fmtMoney(n){
+  if(n === null || n === undefined || n === '') return '—';
+  return '$' + Number(n).toLocaleString();
+}
+function fmtMoneyShort(n){
+  if(n === null || n === undefined || n === '') return '—';
+  if(Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if(Math.abs(n) >= 1e3) return '$' + (n/1e3).toFixed(0) + 'k';
+  return '$' + n;
+}
+
+function getSavings(){ return (profiles[currentProfile].savings || []).slice().sort((a,b)=>a.date.localeCompare(b.date)); }
+
+function renderSavings(){
+  const rows = getSavings();
+  renderSavingsStats(rows);
+  renderSavingsChart(rows);
+
+  const wrap = document.getElementById('savings-table-wrap');
+  if(rows.length === 0){
+    wrap.innerHTML = `<div class="empty-state"><div class="big-icon">💰</div><p>No snapshots yet. Click <strong>+ Add Snapshot</strong> to get started.</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<div style="overflow-x:auto"><table class="pw-table" style="min-width:900px">
+    <thead><tr>
+      <th>Date</th>
+      <th>Total Assets</th>
+      <th>Liquid Assets</th>
+      <th>Cash</th>
+      <th>Investments</th>
+      <th>MSI/Lean</th>
+      <th>House Debt</th>
+      <th>Home Equity</th>
+      <th>Credit</th>
+      <th>College</th>
+      <th style="min-width:180px">Comments</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${[...rows].reverse().map(r => `<tr>
+      <td style="white-space:nowrap;font-weight:700">${r.date}</td>
+      <td style="font-weight:700;color:var(--green)">${fmtMoney(r.total)}</td>
+      <td>${fmtMoney(r.liquid)}</td>
+      <td>${fmtMoney(r.cash)}</td>
+      <td>${fmtMoney(r.investments)}</td>
+      <td>${fmtMoney(r.msi)}</td>
+      <td>${fmtMoney(r.hdebt)}</td>
+      <td>${fmtMoney(r.hequity)}</td>
+      <td>${r.credit||'—'}</td>
+      <td>${fmtMoney(r.college)}</td>
+      <td style="font-size:.78rem;color:var(--muted);max-width:200px">${escH(r.comments||'')}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openSavingsModal('${r.id}')">Edit</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function renderSavingsStats(rows){
+  const wrap = document.getElementById('savings-stats');
+  if(rows.length === 0){ wrap.innerHTML=''; return; }
+  const latest = rows[rows.length-1];
+  const prev = rows.length > 1 ? rows[rows.length-2] : null;
+  const first = rows[0];
+
+  function statCard(label, value, delta, deltaLabel){
+    const sign = delta > 0 ? '+' : '';
+    const col = delta > 0 ? '#16a34a' : delta < 0 ? '#dc2626' : '#6b7280';
+    const deltaHtml = delta !== null ? `<div style="font-size:.72rem;color:${col};margin-top:2px">${sign}${fmtMoneyShort(delta)} ${deltaLabel}</div>` : '';
+    return `<div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;border-left:4px solid var(--gold)">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px">${label}</div>
+      <div style="font-size:1.3rem;font-weight:800;color:var(--navy)">${value}</div>
+      ${deltaHtml}
+    </div>`;
+  }
+
+  const totalDelta = prev && prev.total !== null && latest.total !== null ? latest.total - prev.total : null;
+  const liquidDelta = prev && prev.liquid !== null && latest.liquid !== null ? latest.liquid - prev.liquid : null;
+  const allTimeGain = first.total !== null && latest.total !== null ? latest.total - first.total : null;
+  const yrs = rows.length > 1 ? ((new Date(latest.date) - new Date(first.date)) / (365.25*24*3600*1000)).toFixed(1) : null;
+
+  wrap.innerHTML = [
+    statCard('Total Assets (Latest)', fmtMoney(latest.total), totalDelta, 'since last'),
+    statCard('Liquid Assets', fmtMoney(latest.liquid), liquidDelta, 'since last'),
+    statCard('Investments', fmtMoney(latest.investments), null, ''),
+    statCard('Home Equity', fmtMoney(latest.hequity), null, ''),
+    statCard('Credit Score', latest.credit||'—', null, ''),
+    allTimeGain !== null ? statCard(`All-Time Gain (${yrs} yrs)`, fmtMoneyShort(allTimeGain), null, '') : '',
+  ].join('');
+}
+
+function renderSavingsChart(rows){
+  const wrap = document.getElementById('savings-chart-wrap');
+  const canvas = document.getElementById('savings-chart');
+  if(rows.length < 2){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+
+  const pts = rows.filter(r=>r.total!==null);
+  if(pts.length < 2){ wrap.style.display='none'; return; }
+
+  const W = canvas.offsetWidth || 700;
+  const H = 200;
+  canvas.width = W * (window.devicePixelRatio||1);
+  canvas.height = H * (window.devicePixelRatio||1);
+  canvas.style.width = W+'px';
+  canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+
+  const vals = pts.map(r=>r.total);
+  const minV = Math.min(...vals) * 0.9;
+  const maxV = Math.max(...vals) * 1.05;
+  const pad = {t:10,r:20,b:30,l:60};
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const xPos = (i) => pad.l + (i/(pts.length-1))*cw;
+  const yPos = (v) => pad.t + ch - ((v-minV)/(maxV-minV))*ch;
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0,'rgba(201,162,39,.35)');
+  grad.addColorStop(1,'rgba(201,162,39,.02)');
+  ctx.beginPath();
+  ctx.moveTo(xPos(0),yPos(vals[0]));
+  pts.forEach((_,i)=>{ if(i>0) ctx.lineTo(xPos(i),yPos(vals[i])); });
+  ctx.lineTo(xPos(pts.length-1),H-pad.b);
+  ctx.lineTo(xPos(0),H-pad.b);
+  ctx.closePath();
+  ctx.fillStyle=grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle='#c9a227';
+  ctx.lineWidth=2.5;
+  ctx.lineJoin='round';
+  pts.forEach((p,i)=>{ i===0?ctx.moveTo(xPos(i),yPos(vals[i])):ctx.lineTo(xPos(i),yPos(vals[i])); });
+  ctx.stroke();
+
+  // Dots + labels
+  ctx.fillStyle='#c9a227';
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(xPos(i),yPos(vals[i]),3,0,Math.PI*2); ctx.fill();
+  });
+
+  // X-axis labels (every ~3rd point)
+  ctx.fillStyle='#999';
+  ctx.font='10px sans-serif';
+  ctx.textAlign='center';
+  const step = Math.max(1,Math.floor(pts.length/7));
+  pts.forEach((p,i)=>{
+    if(i%step===0||i===pts.length-1){
+      ctx.fillText(p.date.slice(0,7), xPos(i), H-pad.b+14);
+    }
+  });
+
+  // Y-axis labels
+  ctx.textAlign='right';
+  [minV, (minV+maxV)/2, maxV].forEach(v=>{
+    const y=yPos(v);
+    ctx.fillText(fmtMoneyShort(v), pad.l-6, y+4);
+    ctx.beginPath(); ctx.strokeStyle='#f0f2f5'; ctx.lineWidth=1;
+    ctx.moveTo(pad.l, y); ctx.lineTo(pad.l+cw, y); ctx.stroke();
+  });
+}
+
+function openSavingsModal(id){
+  editingSavingsId = id || null;
+  document.getElementById('modal-savings-title').textContent = id ? 'Edit Snapshot' : 'Add Snapshot';
+  document.getElementById('sv-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if(id){
+    const r = (profiles[currentProfile].savings||[]).find(x=>x.id===id);
+    if(!r) return;
+    document.getElementById('sv-date').value = r.date||'';
+    document.getElementById('sv-total').value = r.total !== null ? r.total : '';
+    document.getElementById('sv-liquid').value = r.liquid !== null ? r.liquid : '';
+    document.getElementById('sv-cash').value = r.cash !== null ? r.cash : '';
+    document.getElementById('sv-investments').value = r.investments !== null ? r.investments : '';
+    document.getElementById('sv-msi').value = r.msi !== null ? r.msi : '';
+    document.getElementById('sv-hdebt').value = r.hdebt !== null ? r.hdebt : '';
+    document.getElementById('sv-hequity').value = r.hequity !== null ? r.hequity : '';
+    document.getElementById('sv-credit').value = r.credit||'';
+    document.getElementById('sv-college').value = r.college !== null ? r.college : '';
+    document.getElementById('sv-comments').value = r.comments||'';
+  } else {
+    ['sv-date','sv-total','sv-liquid','sv-cash','sv-investments','sv-msi','sv-hdebt','sv-hequity','sv-credit','sv-college','sv-comments'].forEach(id=>document.getElementById(id).value='');
+  }
+  openModal('modal-savings');
+}
+
+function saveSavingsEntry(){
+  const date = document.getElementById('sv-date').value;
+  if(!date){ toast('Date required'); return; }
+  const row = {
+    id: editingSavingsId || genId(),
+    date,
+    total:       parseMoney(document.getElementById('sv-total').value),
+    liquid:      parseMoney(document.getElementById('sv-liquid').value),
+    cash:        parseMoney(document.getElementById('sv-cash').value),
+    investments: parseMoney(document.getElementById('sv-investments').value),
+    msi:         parseMoney(document.getElementById('sv-msi').value),
+    hdebt:       parseMoney(document.getElementById('sv-hdebt').value),
+    hequity:     parseMoney(document.getElementById('sv-hequity').value),
+    credit:      document.getElementById('sv-credit').value.trim(),
+    college:     parseMoney(document.getElementById('sv-college').value),
+    comments:    document.getElementById('sv-comments').value.trim(),
+  };
+  if(!profiles[currentProfile].savings) profiles[currentProfile].savings = [];
+  const arr = profiles[currentProfile].savings;
+  if(editingSavingsId){
+    const idx = arr.findIndex(x=>x.id===editingSavingsId);
+    if(idx>=0) arr[idx]=row; else arr.push(row);
+  } else {
+    arr.push(row);
+  }
+  saveProfiles();
+  closeModal('modal-savings');
+  renderSavings();
+  toast(editingSavingsId ? 'Updated!' : 'Snapshot saved!');
+}
+
+function deleteSavingsEntry(){
+  if(!editingSavingsId) return;
+  if(!confirm('Delete this snapshot?')) return;
+  profiles[currentProfile].savings = (profiles[currentProfile].savings||[]).filter(x=>x.id!==editingSavingsId);
+  saveProfiles();
+  closeModal('modal-savings');
+  renderSavings();
+  toast('Deleted');
 }
 
 // ============ VAULT RENDER ============
