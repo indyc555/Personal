@@ -251,6 +251,7 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
 <!-- MAIN APP -->
 <div id="app">
   <header>
+    <a href="../" style="color:rgba(255,255,255,.6);font-size:.78rem;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:4px" title="Back to all apps">← Home</a>
     <h1>🌍 World Travel Tracker</h1>
     <div class="header-right">
       <div class="tab-bar">
@@ -656,6 +657,53 @@ function renderMap(){
   g.append('path')
     .datum(topojson.mesh(worldData, worldData.objects.countries, (a,b) => a !== b))
     .attr('fill','none').attr('stroke','#fff').attr('stroke-width','.4').attr('d',path);
+
+  // Dot markers for small countries/territories too tiny to see at world zoom
+  const SMALL_COUNTRY_COORDS = {
+    136: [  -81.25,  19.32 ], // Cayman Islands
+    796: [  -71.80,  21.80 ], // Turks & Caicos
+    336: [   12.45,  41.90 ], // Vatican City
+    470: [   14.37,  35.93 ], // Malta
+    702: [  103.82,   1.35 ], // Singapore
+    44:  [  -77.40,  25.05 ], // Bahamas
+    388: [  -77.30,  18.10 ], // Jamaica
+    52:  [  -59.55,  13.10 ], // Barbados
+    308: [  -61.68,  12.12 ], // Grenada
+  };
+
+  const dotLayer = g.append('g').attr('class','small-country-dots');
+  Object.entries(SMALL_COUNTRY_COORDS).forEach(([code, [lon, lat]]) => {
+    const visited = visitedMap[String(code)];
+    const name = CODE_TO_NAME[+code];
+    if(!name) return;
+    const projected = projection([lon, lat]);
+    if(!projected) return;
+    const [x, y] = projected;
+    const fillColor = visited ? (
+      visited.timesVisited === '10+' ? '#c9a227' :
+      parseInt(visited.timesVisited) >= 5 ? '#1b4332' :
+      parseInt(visited.timesVisited) >= 2 ? '#40916c' : '#74c69d'
+    ) : '#d0cdc8';
+
+    dotLayer.append('circle')
+      .attr('cx', x).attr('cy', y).attr('r', 5)
+      .attr('fill', fillColor).attr('stroke', '#fff').attr('stroke-width', 1.2)
+      .style('cursor', 'pointer')
+      .on('mousemove', (event) => {
+        tooltip.style.display = 'block';
+        tooltip.style.left = (event.clientX + 14) + 'px';
+        tooltip.style.top = (event.clientY - 10) + 'px';
+        tooltip.innerHTML = visited
+          ? `<strong>${escHtml(visited.countryName)}</strong>${visited.yearFirstVisited ? 'Since '+visited.yearFirstVisited+'<br>':''}Visited: ${escHtml(visited.timesVisited)}x`
+          : `<strong>${escHtml(name)}</strong><br><span style="opacity:.7">Not visited yet</span>`;
+      })
+      .on('mouseleave', () => { tooltip.style.display = 'none'; })
+      .on('click', () => {
+        tooltip.style.display = 'none';
+        if(visited) openEditModal(visited);
+        else openAddModal(name);
+      });
+  });
 }
 function mapZoom(factor){
   svg.transition().duration(300).call(zoom.scaleBy, factor);
