@@ -1186,7 +1186,15 @@ function renderTaxStats(rows){
     card('Average Tax Rate', avgRate!==null?avgRate+'%':'—'),
     latest ? card('Latest AGI', fmtMoney(latest.agi), latest.year) : '',
     maxAgi ? card('Highest Income Year', fmtMoneyShort(maxAgi.agi), maxAgi.year+(maxAgi.capGains?' 🔴':'')) : '',
-    minRate ? card('Lowest Rate Year', minRate.rate+'%', minRate.year) : '',
+    (()=>{
+      const first = withAgi[0], last = withAgi[withAgi.length-1];
+      if(withAgi.length >= 2 && first.agi && last.agi){
+        const yrs = last.year - first.year;
+        const cagr = (Math.pow(last.agi/first.agi, 1/yrs)-1)*100;
+        return card('AGI CAGR', cagr.toFixed(1)+'%', first.year+' → '+last.year);
+      }
+      return '';
+    })(),
   ].join('');
 }
 
