@@ -291,6 +291,7 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       <div class="nav-tabs">
         <button class="nav-tab active" onclick="switchTab('passwords')" id="tab-passwords">🔑 Passwords</button>
         <button class="nav-tab" onclick="switchTab('savings')" id="tab-savings">💰 Savings</button>
+        <button class="nav-tab" onclick="switchTab('taxes')" id="tab-taxes">🧾 Taxes</button>
         <button class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙️ Settings</button>
       </div>
       <div class="profile-badge" onclick="showProfiles()">
@@ -348,6 +349,29 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       <div class="pw-table-wrap" id="assets-table-wrap">
         <div class="empty-state"><div class="big-icon">📋</div><p>No asset explanations yet. Click <strong>+ Add Item</strong> to get started.</p></div>
       </div>
+    </div>
+
+    <!-- TAXES TAB -->
+    <div id="tab-content-taxes" style="display:none">
+      <div class="section-hdr">
+        <h2>Tax History</h2>
+        <button class="btn btn-gold" onclick="openTaxModal()">+ Add Year</button>
+      </div>
+
+      <!-- STATS -->
+      <div id="tax-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:22px"></div>
+
+      <!-- CHART -->
+      <div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px;display:none" id="tax-chart-wrap">
+        <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:12px">AGI by Year <span style="font-size:.72rem;font-weight:400;color:var(--muted)">(🔴 = large capital gains event)</span></div>
+        <canvas id="tax-chart" style="width:100%;height:220px"></canvas>
+      </div>
+
+      <!-- TABLE -->
+      <div class="pw-table-wrap" id="tax-table-wrap">
+        <div class="empty-state"><div class="big-icon">🧾</div><p>No tax records yet.</p></div>
+      </div>
+      <div style="margin-top:10px;font-size:.78rem;color:var(--muted)">🔴 Red row = large capital gains event</div>
     </div>
 
     <!-- SETTINGS TAB -->
@@ -549,6 +573,42 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
   </div>
 </div>
 
+<!-- =========== TAX MODAL =========== -->
+<div class="modal-overlay" id="modal-tax">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('modal-tax')">&times;</button>
+    <h2 id="modal-tax-title">Add Tax Year</h2>
+    <div class="form-row">
+      <label>Tax Year</label>
+      <input type="number" id="tx-year" placeholder="e.g. 2024" min="1990" max="2099">
+    </div>
+    <div class="form-row">
+      <label>AGI (Adjusted Gross Income)</label>
+      <input type="text" id="tx-agi" placeholder="e.g. 1,570,115">
+    </div>
+    <div class="form-row">
+      <label>Effective Tax Rate (%)</label>
+      <input type="text" id="tx-rate" placeholder="e.g. 22.00">
+    </div>
+    <div class="form-row">
+      <label>Comments</label>
+      <textarea id="tx-comments" placeholder="Any notes about this year…" style="min-height:80px"></textarea>
+    </div>
+    <div class="form-row">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">
+        <input type="checkbox" id="tx-capgains" style="width:16px;height:16px;accent-color:var(--red)">
+        <span>🔴 Large capital gains event (highlights row in red)</span>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="tx-delete-btn" style="display:none" onclick="deleteTaxEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-tax')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTaxEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- =========== ASSET EXPLANATION MODAL =========== -->
 <div class="modal-overlay" id="modal-asset">
   <div class="modal" style="max-width:560px">
@@ -714,11 +774,12 @@ async function doReset(){
 
 // ============ TABS ============
 function switchTab(tab){
-  ['passwords','savings','settings'].forEach(t => {
+  ['passwords','savings','taxes','settings'].forEach(t => {
     document.getElementById('tab-content-'+t).style.display = t===tab ? 'block' : 'none';
     document.getElementById('tab-'+t).classList.toggle('active', t===tab);
   });
   if(tab === 'savings') renderSavings();
+  if(tab === 'taxes') renderTaxes();
 }
 
 // ============ SAVINGS ============
@@ -957,6 +1018,207 @@ function deleteSavingsEntry(){
   saveProfiles();
   closeModal('modal-savings');
   renderSavings();
+  toast('Deleted');
+}
+
+// ============ TAXES ============
+let editingTaxId = null;
+
+const TAX_SEED = [
+  {year:2005,agi:173725,rate:19.4,capGains:false,comments:''},
+  {year:2006,agi:215276,rate:20.95,capGains:false,comments:''},
+  {year:2007,agi:268957,rate:20.05,capGains:false,comments:''},
+  {year:2008,agi:248188,rate:20.7,capGains:false,comments:''},
+  {year:2009,agi:244786,rate:18.55,capGains:false,comments:''},
+  {year:2010,agi:313078,rate:22.03,capGains:false,comments:'SMT special mgmt payment included'},
+  {year:2011,agi:840000,rate:null,capGains:true,comments:'SMT sale'},
+  {year:2012,agi:254671,rate:18.71,capGains:false,comments:''},
+  {year:2013,agi:348764,rate:23.3,capGains:false,comments:'$63k of this was stock capital gains'},
+  {year:2014,agi:291000,rate:19.70,capGains:false,comments:''},
+  {year:2015,agi:338291,rate:24.80,capGains:false,comments:''},
+  {year:2016,agi:286538,rate:17.76,capGains:false,comments:''},
+  {year:2017,agi:1159264,rate:35,capGains:true,comments:'Pdgm Sale'},
+  {year:2018,agi:347211,rate:15,capGains:false,comments:''},
+  {year:2019,agi:339000,rate:15.6,capGains:false,comments:''},
+  {year:2020,agi:710000,rate:28,capGains:true,comments:'EMR double pay'},
+  {year:2021,agi:454940,rate:19.1,capGains:false,comments:'Sold stocks for house, Pecan Trail renter'},
+  {year:2022,agi:391000,rate:18.90,capGains:false,comments:''},
+  {year:2023,agi:1275468,rate:35,capGains:true,comments:'Avetta 1st sale. Overpaid tax. waiting for IRS refund of $165k. Will drop rate to 22%'},
+  {year:2024,agi:1570115,rate:22.00,capGains:true,comments:'Avetta 2nd sale. Lean Carbon (Turk company) K1s start.'},
+  {year:2025,agi:null,rate:null,capGains:false,comments:'IRS $145k refund came in Sept.'},
+];
+
+function getTaxes(){ return (profiles[currentProfile].taxes || []).slice().sort((a,b)=>a.year-b.year); }
+
+function seedTaxes(){
+  if(!profiles[currentProfile].taxes){
+    profiles[currentProfile].taxes = TAX_SEED.map(r=>({...r, id:genId()}));
+    saveProfiles();
+  }
+}
+
+function renderTaxes(){
+  seedTaxes();
+  const rows = getTaxes();
+  renderTaxStats(rows);
+  renderTaxChart(rows);
+
+  const wrap = document.getElementById('tax-table-wrap');
+  if(rows.length === 0){ wrap.innerHTML=`<div class="empty-state"><div class="big-icon">🧾</div><p>No tax records yet.</p></div>`; return; }
+
+  wrap.innerHTML = `<table class="pw-table">
+    <thead><tr>
+      <th style="width:80px">Tax Year</th>
+      <th style="width:140px">AGI</th>
+      <th style="width:100px">Eff. Rate</th>
+      <th>Comments</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${rows.map(r => {
+      const rowStyle = r.capGains ? 'background:#fff5f5' : '';
+      const agiStyle = r.capGains ? 'color:#dc2626;font-weight:800' : 'font-weight:700';
+      return `<tr style="${rowStyle}">
+        <td style="font-weight:700">${r.year}${r.capGains ? ' 🔴' : ''}</td>
+        <td style="${agiStyle}">${r.agi !== null ? fmtMoney(r.agi) : '—'}</td>
+        <td>${r.rate !== null ? r.rate+'%' : '—'}</td>
+        <td style="font-size:.82rem">${escH(r.comments||'')}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openTaxModal('${r.id}')">Edit</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div style="padding:12px 16px;background:#f9f9f9;border-top:1px solid #eee;display:flex;gap:24px;font-size:.82rem;flex-wrap:wrap">
+    ${(()=>{
+      const withAgi = rows.filter(r=>r.agi!==null);
+      const total = withAgi.reduce((s,r)=>s+r.agi,0);
+      const withRate = rows.filter(r=>r.rate!==null);
+      const avgRate = withRate.length ? (withRate.reduce((s,r)=>s+r.rate,0)/withRate.length).toFixed(2) : '—';
+      return `<span><strong>Total Income:</strong> ${fmtMoney(total)}</span>
+              <span><strong>Avg Rate:</strong> ${avgRate}%</span>
+              <span><strong>Years Tracked:</strong> ${rows.length}</span>
+              <span style="color:#dc2626"><strong>🔴 Cap Gains Events:</strong> ${rows.filter(r=>r.capGains).length}</span>`;
+    })()}
+  </div>`;
+}
+
+function renderTaxStats(rows){
+  const wrap = document.getElementById('tax-stats');
+  if(rows.length===0){ wrap.innerHTML=''; return; }
+  const withAgi = rows.filter(r=>r.agi!==null);
+  const withRate = rows.filter(r=>r.rate!==null);
+  const total = withAgi.reduce((s,r)=>s+r.agi,0);
+  const avgRate = withRate.length ? (withRate.reduce((s,r)=>s+r.rate,0)/withRate.length).toFixed(2) : null;
+  const maxAgi = withAgi.reduce((m,r)=>r.agi>m.agi?r:m, withAgi[0]);
+  const minRate = withRate.reduce((m,r)=>r.rate<m.rate?r:m, withRate[0]);
+  const latest = [...rows].reverse().find(r=>r.agi!==null);
+  function card(label,val,sub=''){
+    return `<div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;border-left:4px solid var(--navy-mid)">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px">${label}</div>
+      <div style="font-size:1.2rem;font-weight:800;color:var(--navy)">${val}</div>
+      ${sub?`<div style="font-size:.72rem;color:var(--muted);margin-top:2px">${sub}</div>`:''}
+    </div>`;
+  }
+  wrap.innerHTML = [
+    card('Total Income (all years)', fmtMoneyShort(total)),
+    card('Average Tax Rate', avgRate!==null?avgRate+'%':'—'),
+    latest ? card('Latest AGI', fmtMoney(latest.agi), latest.year) : '',
+    maxAgi ? card('Highest Income Year', fmtMoneyShort(maxAgi.agi), maxAgi.year+(maxAgi.capGains?' 🔴':'')) : '',
+    minRate ? card('Lowest Rate Year', minRate.rate+'%', minRate.year) : '',
+  ].join('');
+}
+
+function renderTaxChart(rows){
+  const wrap = document.getElementById('tax-chart-wrap');
+  const canvas = document.getElementById('tax-chart');
+  const pts = rows.filter(r=>r.agi!==null);
+  if(pts.length<2){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+
+  const W = canvas.offsetWidth || 700, H = 220;
+  canvas.width=W*(devicePixelRatio||1); canvas.height=H*(devicePixelRatio||1);
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(devicePixelRatio||1,devicePixelRatio||1);
+
+  const vals=pts.map(r=>r.agi);
+  const minV=0, maxV=Math.max(...vals)*1.1;
+  const pad={t:10,r:20,b:30,l:70};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const xPos=i=>pad.l+(i/(pts.length-1))*cw;
+  const yPos=v=>pad.t+ch-((v-minV)/(maxV-minV))*ch;
+
+  // Y gridlines
+  ctx.strokeStyle='#f0f2f5'; ctx.lineWidth=1;
+  [0,.25,.5,.75,1].forEach(f=>{
+    const v=minV+f*(maxV-minV), y=yPos(v);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle='#999'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(fmtMoneyShort(v),pad.l-6,y+4);
+  });
+
+  // Bars
+  const barW=Math.max(4, Math.floor(cw/pts.length*0.6));
+  pts.forEach((r,i)=>{
+    const x=xPos(i); const y=yPos(r.agi); const bh=H-pad.b-y;
+    ctx.fillStyle=r.capGains?'rgba(220,38,38,.75)':'rgba(29,45,69,.65)';
+    ctx.fillRect(x-barW/2,y,barW,bh);
+  });
+
+  // X labels
+  ctx.fillStyle='#888'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  const step=Math.max(1,Math.floor(pts.length/10));
+  pts.forEach((r,i)=>{ if(i%step===0||i===pts.length-1) ctx.fillText(r.year,xPos(i),H-pad.b+14); });
+}
+
+function openTaxModal(id){
+  editingTaxId = id || null;
+  document.getElementById('modal-tax-title').textContent = id ? 'Edit Tax Year' : 'Add Tax Year';
+  document.getElementById('tx-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if(id){
+    const r = getTaxes().find(x=>x.id===id);
+    if(!r) return;
+    document.getElementById('tx-year').value = r.year||'';
+    document.getElementById('tx-agi').value = r.agi !== null ? r.agi : '';
+    document.getElementById('tx-rate').value = r.rate !== null ? r.rate : '';
+    document.getElementById('tx-comments').value = r.comments||'';
+    document.getElementById('tx-capgains').checked = !!r.capGains;
+  } else {
+    ['tx-year','tx-agi','tx-rate','tx-comments'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('tx-capgains').checked = false;
+  }
+  openModal('modal-tax');
+}
+
+function saveTaxEntry(){
+  const year = parseInt(document.getElementById('tx-year').value);
+  if(!year){ toast('Year required'); return; }
+  const row = {
+    id: editingTaxId || genId(),
+    year,
+    agi: parseMoney(document.getElementById('tx-agi').value),
+    rate: parseFloat(document.getElementById('tx-rate').value) || null,
+    comments: document.getElementById('tx-comments').value.trim(),
+    capGains: document.getElementById('tx-capgains').checked,
+  };
+  if(!profiles[currentProfile].taxes) profiles[currentProfile].taxes = [];
+  const arr = profiles[currentProfile].taxes;
+  if(editingTaxId){
+    const idx=arr.findIndex(x=>x.id===editingTaxId);
+    if(idx>=0) arr[idx]=row; else arr.push(row);
+  } else {
+    arr.push(row);
+  }
+  saveProfiles();
+  closeModal('modal-tax');
+  renderTaxes();
+  toast(editingTaxId?'Updated!':'Tax year saved!');
+}
+
+function deleteTaxEntry(){
+  if(!editingTaxId) return;
+  if(!confirm('Delete this tax year?')) return;
+  profiles[currentProfile].taxes=(profiles[currentProfile].taxes||[]).filter(x=>x.id!==editingTaxId);
+  saveProfiles();
+  closeModal('modal-tax');
+  renderTaxes();
   toast('Deleted');
 }
 
