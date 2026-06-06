@@ -233,6 +233,7 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
 
 /* ============ RESPONSIVE ============ */
 @media(max-width:640px){
+  .pw-table th:nth-child(2),.pw-table td:nth-child(2),
   .pw-table th:nth-child(4),.pw-table td:nth-child(4){display:none}
   .modal{padding:20px 16px}
   main{padding:16px 12px}
@@ -616,6 +617,7 @@ function renderVault(){
       <th>Website</th>
       <th>Username</th>
       <th>Password</th>
+      <th>Notes</th>
       <th>Type / Owner</th>
       <th></th>
     </tr></thead>
@@ -623,26 +625,30 @@ function renderVault(){
       const typeLabel = e.type === 'work'
         ? `<span class="type-pill type-work">Work</span><div class="sub-label">${escH(e.company||'')}</div>`
         : `<span class="type-pill type-personal">Personal</span><div class="sub-label">${escH(e.person||'')}</div>`;
+      const hasPw = !!e.password;
+      const notesShort = e.comments
+        ? `<span title="${escH(e.comments)}" style="font-size:.78rem;color:var(--muted);cursor:help;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">${escH(e.comments.length>60?e.comments.slice(0,60)+'…':e.comments)}</span>`
+        : '';
       return `<tr>
         <td><strong>${escH(e.website)}</strong></td>
-        <td>${escH(e.username)}</td>
+        <td style="font-size:.82rem">${escH(e.username)}</td>
         <td>
-          <span class="pw-val pw-mask" id="pval-${e.id}">••••••••</span>
-          <button style="background:none;border:none;cursor:pointer;font-size:.85rem;margin-left:4px"
-            onclick="toggleEntryVis('${e.id}')" title="Show/hide">👁</button>
+          <span class="pw-val pw-mask" id="pval-${escH(e.id)}">${hasPw ? '••••••••' : '<span style="color:#bbb">—</span>'}</span>
+          ${hasPw ? `<button style="background:none;border:none;cursor:pointer;font-size:.85rem;margin-left:4px" onclick="toggleEntryVis('${escH(e.id)}')" title="Show/hide">👁</button>` : ''}
         </td>
+        <td style="max-width:180px">${notesShort}</td>
         <td>${typeLabel}</td>
         <td><div class="pw-actions">
-          <button class="btn btn-ghost btn-sm" onclick="openPwModal('${e.id}')">Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="openPwModal('${escH(e.id)}')">Edit</button>
         </div></td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
 
-  // Store passwords hidden by default
+  // Set password data on each span via JS (avoids exposing in HTML attribute)
   entries.forEach(e => {
     const el = document.getElementById('pval-'+e.id);
-    if(el) el.dataset.pw = e.password;
+    if(el) el._pw = e.password || '';
   });
 }
 
@@ -651,10 +657,10 @@ function toggleEntryVis(id){
   if(!el) return;
   if(el.classList.contains('pw-mask')){
     el.classList.remove('pw-mask');
-    el.textContent = el.dataset.pw;
+    el.textContent = el._pw || '';
   } else {
     el.classList.add('pw-mask');
-    el.textContent = '••••••••';
+    el.innerHTML = '••••••••';
   }
 }
 
