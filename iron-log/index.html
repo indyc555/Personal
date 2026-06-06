@@ -18,12 +18,13 @@
       top: 12px;
       right: 16px;
       z-index: 9999;
+      display: flex;
+      gap: 8px;
     }
     #aeke-nav a {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #e94560;
       color: #fff;
       text-decoration: none;
       font-family: 'Inter', sans-serif;
@@ -35,9 +36,14 @@
       transition: opacity 0.15s;
     }
     #aeke-nav a:hover { opacity: 0.85; }
+    #aeke-nav .home-btn { background: #2a2a4a; }
+    #aeke-nav .aeke-btn { background: #e94560; }
   </style>
   <body>
-    <div id="aeke-nav"><a href="./aeke-score.html">📊 AEKE Score</a></div>
+    <div id="aeke-nav">
+      <a href="../" class="home-btn">🏠 Home</a>
+      <a href="./aeke-score.html" class="aeke-btn">📊 AEKE Score</a>
+    </div>
     <div id="root"></div>
   </body>
 </html>
