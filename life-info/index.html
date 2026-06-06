@@ -945,8 +945,10 @@ function renderSavingsChart(rows){
     const start = new Date(d.getFullYear(), 0, 0);
     return Math.floor((d - start) / 86400000);
   }
+  // Use total if available, fall back to liquid for older entries
+  function chartVal(r){ return r.total !== null ? r.total : r.liquid; }
   const byYear = {};
-  rows.filter(r=>r.total!==null).forEach(r => {
+  rows.filter(r=>chartVal(r)!==null).forEach(r => {
     const yr = r.date.slice(0,4);
     if(!byYear[yr] || Math.abs(dayOfYear(r.date)-june15DayOfYear) < Math.abs(dayOfYear(byYear[yr].date)-june15DayOfYear)){
       byYear[yr] = r;
@@ -969,7 +971,7 @@ function renderSavingsChart(rows){
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  const vals = pts.map(r=>r.total);
+  const vals = pts.map(r=>chartVal(r));
   const minV = Math.min(...vals) * 0.9;
   const maxV = Math.max(...vals) * 1.05;
   const pad = {t:10,r:30,b:30,l:60};
