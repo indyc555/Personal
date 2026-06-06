@@ -1475,6 +1475,14 @@ function extractUrl(s){
   const m = s.match(/https?:\/\/[^\s]+/);
   return m ? m[0] : null;
 }
+function linkify(s){
+  if(!s) return '';
+  return s.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
+    i % 2 === 1
+      ? `<a href="${escapeHtml(part)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;word-break:break-all">${escapeHtml(part)}</a>`
+      : escapeHtml(part)
+  ).join('');
+}
 function activityTitleHtml(a){
   const url = extractUrl(a.description);
   if(url) return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">${escapeHtml(a.title)}</a>`;
@@ -1793,9 +1801,8 @@ function renderCalendar(){
 
     const overview = (q.dayOverviews || {})[dateStr];
     const overviewHtml = overview
-      ? `<div class="cal-day-overview" onclick="openDayOverviewModal('${dateStr}')" title="Edit overview">${escapeHtml(overview)}</div>`
+      ? `<div class="cal-day-overview" onclick="openDayOverviewModal('${dateStr}')" title="Edit overview">${linkify(overview)}</div>`
       : `<div class="cal-day-overview cal-day-overview-empty" onclick="openDayOverviewModal('${dateStr}')" title="Add day overview">+ overview</div>`;
-
     return `
       <div class="cal-day-col">
         <div class="cal-day-hdr${isToday?' today':''}">
@@ -1835,6 +1842,11 @@ function renderCalendar(){
   // Wire up event clicks
   root.querySelectorAll('.cal-event').forEach(el => {
     el.onclick = () => openActivityDetail(el.dataset.actId);
+  });
+
+  // Prevent overview link clicks from opening the edit modal
+  root.querySelectorAll('.cal-day-overview a').forEach(a => {
+    a.onclick = e => e.stopPropagation();
   });
 }
 
@@ -1911,7 +1923,7 @@ function renderListView(){
             <button class="btn btn-outline btn-sm" onclick="openDayOverviewModal('${d}')">📋 Overview</button>
           </div>
         </div>
-        ${(q.dayOverviews||{})[d] ? `<div class="list-day-overview">${escapeHtml((q.dayOverviews||{})[d])}</div>` : ''}
+        ${(q.dayOverviews||{})[d] ? `<div class="list-day-overview">${linkify((q.dayOverviews||{})[d])}</div>` : ''}
         <div class="list-items">
           ${items.map(a => {
             const typeCls = 'act-' + (a.type === 'destination' ? 'dest' : a.type);
