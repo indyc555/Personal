@@ -936,7 +936,21 @@ function renderSavingsChart(rows){
   if(rows.length < 2){ wrap.style.display='none'; return; }
   wrap.style.display='block';
 
-  const pts = rows.filter(r=>r.total!==null);
+  // One point per year: pick entry closest to June 15
+  const june15DayOfYear = 166; // ~June 15
+  function dayOfYear(dateStr){
+    const d = new Date(dateStr);
+    const start = new Date(d.getFullYear(), 0, 0);
+    return Math.floor((d - start) / 86400000);
+  }
+  const byYear = {};
+  rows.filter(r=>r.total!==null).forEach(r => {
+    const yr = r.date.slice(0,4);
+    if(!byYear[yr] || Math.abs(dayOfYear(r.date)-june15DayOfYear) < Math.abs(dayOfYear(byYear[yr].date)-june15DayOfYear)){
+      byYear[yr] = r;
+    }
+  });
+  const pts = Object.keys(byYear).sort().map(yr=>byYear[yr]);
   if(pts.length < 2){ wrap.style.display='none'; return; }
 
   const W = canvas.offsetWidth || 700;
@@ -985,14 +999,14 @@ function renderSavingsChart(rows){
     ctx.beginPath(); ctx.arc(xPos(i),yPos(vals[i]),3,0,Math.PI*2); ctx.fill();
   });
 
-  // X-axis labels (every ~3rd point)
+  // X-axis labels (year only, every ~3rd point)
   ctx.fillStyle='#999';
   ctx.font='10px sans-serif';
   ctx.textAlign='center';
   const step = Math.max(1,Math.floor(pts.length/7));
   pts.forEach((p,i)=>{
     if(i%step===0||i===pts.length-1){
-      ctx.fillText(p.date.slice(0,7), xPos(i), H-pad.b+14);
+      ctx.fillText(p.date.slice(0,4), xPos(i), H-pad.b+14);
     }
   });
 
@@ -1274,11 +1288,35 @@ function deleteTaxEntry(){
 
 // ============ ASSET EXPLANATIONS ============
 let editingAssetId = null;
+
+const ASSETS_SEED = [
+  {category:'Vanguard', asOfDate:'2026-06', description:'Indy account contains Mutual Funds, Kids college 529, VG 401k, Rollovers from NetIQ, BV\\Symantec, SMT, Microseismic, Pdgm\\Emerson, Avetta, HighRadius. Ananya contains IRA and Rollover from Sysco, EDS.', notes:'', imageData:null},
+  {category:'Fidelity NetBenefits', asOfDate:'2026-06', description:'Contains Indy IHS & Jaggaer 401k. IHS now owned by S&P Global so only that subaccount has the 401k money.', notes:'', imageData:null},
+  {category:'BoA\\Merrill', asOfDate:'2026-06', description:'Savings in BoA. CDs moved out of Merrill Edge to Robinhood on 8/7/25.', notes:'', imageData:null},
+  {category:'Schwab', asOfDate:'2026-06', description:'$100k gold iShares on 10/21/24. $100k bitcoin ETF (IBIT) on 10/29/24. $50k IBIT on 11/25/25. $51k IBIT on 6/9/25.', notes:'', imageData:null},
+  {category:'Robinhood', asOfDate:'2026-06', description:'$320k moved in 8/7/25 week from Merrill. Bought $100k IBIT on 8/13. $100k FETH on 8/18 and $100k on 8/24.', notes:'', imageData:null},
+  {category:'Lean Carbon', asOfDate:'2026-06', description:'$100k +$50k in Timurs venture capital fund called Lean Carbon around 9/24. Returned $41k to me 6/25 but my equity remained same and no tax implication.', notes:'', imageData:null},
+  {category:'Fidelity Life Ins', asOfDate:'2026-06', description:'20 year term life for $250k - will expire age 55? Also have insurance from work.', notes:'', imageData:null},
+  {category:'Last Will', asOfDate:'2026-06', description:'On Legalzoom.com and printed out in Plastic Box in closet. Updated 3/2/25.', notes:'', imageData:null},
+  {category:'Mortgages', asOfDate:'2026-06', description:'Pecan Trail is Chase ($3500/mth at 2.5% interest) - SOLD 2025. Cardwell is Shellpoint ($6600/mth at 2.25% interest).', notes:'', imageData:null},
+  {category:'Files', asOfDate:'2026-06', description:'Dropbox has 95% of critical records. Google Drive for indy555 has a bit. HighRadius GDrive also items after 2024. Under folder called Personal (not Personnel). Taxdome tax software has records with Tolga our accountant. Tolga is Timur\'s older brother.', notes:'', imageData:null},
+  {category:'Other', asOfDate:'2026-06', description:'Tolga Kuru is our Tax guy (Pactax). Taxdome software has our records on taxes with him. FYI, Ananya SYS stock sold to buy Pecan Trail.', notes:'', imageData:null},
+  {category:'HighRadius Stock', asOfDate:'2026-06', description:'Got $130,000 Restricted Stock Units (RSU) + 500 options. After quitting, left with 89,389 RSU + 500 Options. Maybe $1.8 value at $20/share. Not reflected in Savings above. Stored on Carta.com account.', notes:'Image of Carta pasted to right', imageData:null},
+  {category:'Jaggaer Stocks', asOfDate:'2026-06', description:'I have 4M Mgmt Incentive Units worth $10/Unit ($4M total). 50% time vest over 4 yrs. 50% based on Jaggaer performance at sale. In truth, expect to get $1-$1.5M when we sell. Not reflected in savings above.', notes:'Details in Dropbox under Home/Jaggaer', imageData:null},
+];
+
+function seedAssets(){
+  if(!profiles[currentProfile].assets){
+    profiles[currentProfile].assets = ASSETS_SEED.map(r=>({...r, id:genId()}));
+    saveProfiles();
+  }
+}
 let pendingAssetImageData = null; // base64 string or null
 
 function getAssets(){ return (profiles[currentProfile].assets || []); }
 
 function renderAssets(){
+  seedAssets();
   const items = getAssets();
   const wrap = document.getElementById('assets-table-wrap');
   if(!wrap) return;
