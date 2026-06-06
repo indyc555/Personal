@@ -186,6 +186,13 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
 .progress-bar{height:8px;background:#e8e0d0;border-radius:4px;margin-top:8px;overflow:hidden}
 .progress-fill{height:100%;background:var(--green-mid);border-radius:4px;transition:.4s}
 .stats-section-title{font-size:1rem;font-weight:700;color:var(--green-dark);margin:20px 0 10px;border-bottom:2px solid var(--border);padding-bottom:6px}
+.hotel-card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:16px 20px;display:flex;align-items:flex-start;gap:14px;border-left:4px solid var(--gold)}
+.hotel-card-info{flex:1;min-width:0}
+.hotel-card-country{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.hotel-card-name{font-weight:700;font-size:.95rem;color:var(--green-dark)}
+.hotel-award-pill{display:inline-block;background:var(--gold);color:#fff;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:10px;margin-top:5px;letter-spacing:.3px}
+.hotel-award-select{font-size:.78rem;border:1px solid var(--border);border-radius:6px;padding:3px 6px;color:var(--green-dark);background:#faf8f2;cursor:pointer}
+.hotel-awards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
 
 /* MODAL */
 .modal-overlay{
@@ -904,7 +911,44 @@ function renderStats(){
       `).join('')||'<span style="color:var(--muted);font-size:.85rem">None yet</span>'}
     </div>
   `;
+  // Best Hotels section
+  const hotelsWithUrl = countries.filter(c => c.hotelUrl);
+  const awards = (profiles[currentProfile].hotelAwards || {});
+  const AWARD_OPTIONS = ['','Most Romantic','Best View','Best Value','Most Luxurious','Best Service','Best Location','Hidden Gem','Best Pool','Best Food','Most Unique'];
+
+  if(hotelsWithUrl.length > 0){
+    html += `<div class="stats-section-title">🏨 Best Hotels</div>
+    <div class="hotel-awards-grid">`;
+    hotelsWithUrl.forEach(c => {
+      const award = awards[c.id] || '';
+      html += `
+      <div class="hotel-card">
+        <div style="font-size:2rem;line-height:1">🏨</div>
+        <div class="hotel-card-info">
+          <div class="hotel-card-country">${escHtml(c.countryName)}</div>
+          <div class="hotel-card-name"><a href="${escHtml(c.hotelUrl)}" target="_blank" rel="noopener" class="tbl-link">${escHtml(c.hotelUrl.replace(/^https?:\/\//,'').split('/')[0])}</a></div>
+          ${award ? `<div class="hotel-award-pill">🏆 ${escHtml(award)}</div>` : ''}
+          <div style="margin-top:8px">
+            <select class="hotel-award-select" onchange="setHotelAward('${escHtml(c.id)}', this.value)">
+              ${AWARD_OPTIONS.map(o => `<option value="${escHtml(o)}"${o===award?' selected':''}>${o || '— Set Award —'}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
   document.getElementById('stats-content').innerHTML = html;
+}
+
+function setHotelAward(countryId, award){
+  const prof = profiles[currentProfile];
+  if(!prof.hotelAwards) prof.hotelAwards = {};
+  if(award) prof.hotelAwards[countryId] = award;
+  else delete prof.hotelAwards[countryId];
+  saveData();
+  renderStats();
 }
 
 // ============ MODAL ============
