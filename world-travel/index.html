@@ -170,6 +170,9 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
   padding:2px 7px;border-radius:10px;font-size:.72rem;font-weight:700;
 }
 
+.tbl-link{color:var(--green-mid);font-weight:600;text-decoration:none;white-space:nowrap}
+.tbl-link:hover{text-decoration:underline}
+
 /* STATS VIEW */
 #view-stats{display:none;padding:16px;max-width:860px;margin:0 auto;width:100%}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px}
@@ -318,6 +321,8 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
           <th onclick="setSortAndRender('region')">Region ↕</th>
           <th onclick="setSortAndRender('year')">Year ↕</th>
           <th onclick="setSortAndRender('times')">Times ↕</th>
+          <th>Top Hotel</th>
+          <th>Photos</th>
           <th></th>
         </tr>
       </thead>
@@ -371,6 +376,14 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
         <option value="9">9</option>
         <option value="10+">10+</option>
       </select>
+    </div>
+    <div class="form-group">
+      <label>Top Hotel URL <span style="font-weight:400;color:#aaa">(optional)</span></label>
+      <input type="url" id="country-hotel" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label>Photos URL <span style="font-weight:400;color:#aaa">(optional)</span></label>
+      <input type="url" id="country-photos" placeholder="https://...">
     </div>
     <div class="modal-actions">
       <button class="btn btn-green" onclick="saveCountry()">Save</button>
@@ -791,6 +804,8 @@ function renderList(){
       <td><span class="region-pill" style="background:${regionColors[c.region]||'#607d8b'}">${escHtml(c.region)}</span></td>
       <td>${c.yearFirstVisited || '<span style="color:#aaa">—</span>'}</td>
       <td><span class="times-badge">${escHtml(c.timesVisited)}×</span></td>
+      <td>${c.hotelUrl ? `<a href="${escHtml(c.hotelUrl)}" target="_blank" rel="noopener" class="tbl-link">🏨 Hotel</a>` : '<span style="color:#aaa">—</span>'}</td>
+      <td>${c.photosUrl ? `<a href="${escHtml(c.photosUrl)}" target="_blank" rel="noopener" class="tbl-link">📷 Photos</a>` : '<span style="color:#aaa">—</span>'}</td>
       <td><button class="btn btn-outline btn-sm" onclick="openEditById('${escHtml(c.id)}')">Edit</button></td>
     </tr>
   `).join('');
@@ -901,6 +916,8 @@ function openAddModal(countryName){
   document.getElementById('country-region').value = '';
   document.getElementById('country-year').value = '';
   document.getElementById('country-times').value = '1';
+  document.getElementById('country-hotel').value = '';
+  document.getElementById('country-photos').value = '';
   document.getElementById('delete-country-btn').style.display = 'none';
   // Populate datalist
   const dl = document.getElementById('country-datalist');
@@ -919,6 +936,8 @@ function openEditModal(c){
   document.getElementById('country-region').value = c.region || '';
   document.getElementById('country-year').value = c.yearFirstVisited || '';
   document.getElementById('country-times').value = c.timesVisited || '1';
+  document.getElementById('country-hotel').value = c.hotelUrl || '';
+  document.getElementById('country-photos').value = c.photosUrl || '';
   document.getElementById('delete-country-btn').style.display = 'inline-flex';
   openModal('modal-country');
 }
@@ -927,17 +946,19 @@ function saveCountry(){
   const region = document.getElementById('country-region').value;
   const year = parseInt(document.getElementById('country-year').value) || null;
   const times = document.getElementById('country-times').value;
+  const hotelUrl = document.getElementById('country-hotel').value.trim();
+  const photosUrl = document.getElementById('country-photos').value.trim();
   if(!name){ toast('Country name required'); return; }
   if(!region){ toast('Select a region'); return; }
 
   const prof = profiles[currentProfile];
   if(editingCountry){
     const c = prof.countries.find(x => x.id === editingCountry.id);
-    if(c){ c.countryName = name; c.region = region; c.yearFirstVisited = year; c.timesVisited = times; }
+    if(c){ c.countryName = name; c.region = region; c.yearFirstVisited = year; c.timesVisited = times; c.hotelUrl = hotelUrl; c.photosUrl = photosUrl; }
   } else {
     const exists = prof.countries.find(c => c.countryName.toLowerCase() === name.toLowerCase());
     if(exists){ toast('Already in your list — click it to edit'); closeModal('modal-country'); return; }
-    prof.countries.push({ id: 'c'+Date.now(), countryName: name, region, yearFirstVisited: year, timesVisited: times });
+    prof.countries.push({ id: 'c'+Date.now(), countryName: name, region, yearFirstVisited: year, timesVisited: times, hotelUrl, photosUrl });
   }
   saveData();
   closeModal('modal-country');
