@@ -163,6 +163,22 @@ main{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;
   margin-top:10px;
 }
+.qbr-section-header{
+  display:flex;align-items:center;gap:10px;
+  font-size:1rem;font-weight:800;letter-spacing:.3px;
+  padding:10px 0 6px;margin-top:16px;margin-bottom:4px;
+  border-bottom:2px solid var(--border);
+}
+.qbr-section-header.guys{color:var(--green-dark)}
+.qbr-section-header.family{color:#0d47a1}
+.qbr-type-toggle{display:flex;gap:0;border:2px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:2px}
+.qbr-type-toggle input{display:none}
+.qbr-type-toggle label{
+  flex:1;text-align:center;padding:8px 14px;cursor:pointer;font-size:.85rem;font-weight:700;
+  background:#f5f0e8;color:#888;transition:all .15s;border:none;
+}
+.qbr-type-toggle input:checked + label{background:var(--green-mid);color:#fff}
+#qbr-type-family:checked + label{background:#1565c0}
 .qbr-card{
   background:var(--card);border:1px solid var(--border);border-radius:var(--r);
   padding:18px;cursor:pointer;transition:all .15s;
@@ -924,7 +940,7 @@ footer{
     <div class="page-title-bar">
       <div class="page-title">Your QBRs</div>
     </div>
-    <div id="qbr-grid" class="qbr-grid"></div>
+    <div id="qbr-grid"></div>
     <div id="qbr-empty" class="empty-state" style="display:none">
       <div class="emoji">QBR</div>
       <h2>No QBRs yet</h2>
@@ -1042,6 +1058,15 @@ footer{
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-qbr')">&times;</button>
     <h2 id="modal-qbr-title">New QBR</h2>
+    <div class="form-row">
+      <label>Trip Type</label>
+      <div class="qbr-type-toggle">
+        <input type="radio" name="qbr-type" id="qbr-type-guys" value="guys" checked>
+        <label for="qbr-type-guys">🍺 Guys Trip</label>
+        <input type="radio" name="qbr-type" id="qbr-type-family" value="family">
+        <label for="qbr-type-family">👨‍👩‍👧 Family Trip</label>
+      </div>
+    </div>
     <div class="form-row">
       <label>Name</label>
       <input type="text" id="qbr-name" placeholder="e.g. Don't Be The Asshole">
@@ -1705,7 +1730,11 @@ function renderHome(){
     return;
   }
   empty.style.display = 'none';
-  wrap.innerHTML = qbrs.map(q => {
+
+  const guysTrips = qbrs.filter(q => (q.tripType || 'guys') === 'guys');
+  const familyTrips = qbrs.filter(q => q.tripType === 'family');
+
+  function cardHtml(q){
     const status = qbrStatus(q);
     const memberCount = Object.keys(q.members || {}).length;
     const drOpts = {month:'numeric', day:'numeric', year:'numeric'};
@@ -1723,7 +1752,18 @@ function renderHome(){
         </div>
       </div>
     `;
-  }).join('');
+  }
+
+  let html = '';
+  if(guysTrips.length > 0){
+    html += `<div class="qbr-section-header guys">🍺 Guys Trips</div>
+    <div class="qbr-grid">${guysTrips.map(cardHtml).join('')}</div>`;
+  }
+  if(familyTrips.length > 0){
+    html += `<div class="qbr-section-header family">👨‍👩‍👧 Family Trips</div>
+    <div class="qbr-grid">${familyTrips.map(cardHtml).join('')}</div>`;
+  }
+  wrap.innerHTML = html;
   wrap.querySelectorAll('.qbr-card').forEach(el => {
     el.onclick = () => selectQbr(el.dataset.qbrId);
   });
@@ -2407,6 +2447,7 @@ function openQbrModal(id){
     $('#qbr-end').value = q.endDate || '';
     $('#qbr-stay-link').value = q.stayLink || '';
     $('#qbr-weather').value = q.weather || '';
+    document.querySelector(`input[name="qbr-type"][value="${q.tripType || 'guys'}"]`).checked = true;
   }else{
     $('#qbr-name').value = '';
     $('#qbr-location').value = '';
@@ -2414,6 +2455,7 @@ function openQbrModal(id){
     $('#qbr-end').value = '';
     $('#qbr-stay-link').value = '';
     $('#qbr-weather').value = '';
+    document.querySelector('input[name="qbr-type"][value="guys"]').checked = true;
   }
   openModal('modal-qbr');
 }
@@ -2437,6 +2479,7 @@ async function saveQbr(){
   q.endDate = $('#qbr-end').value;
   q.stayLink = $('#qbr-stay-link').value.trim();
   q.weather = $('#qbr-weather').value.trim();
+  q.tripType = document.querySelector('input[name="qbr-type"]:checked')?.value || 'guys';
   await fsSaveQbr(q);
   await persist();
   closeModal('modal-qbr');
