@@ -354,7 +354,9 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       <!-- TREND CHART -->
       <div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px;display:none" id="savings-chart-wrap">
         <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:12px">Net Worth Trend</div>
-        <canvas id="savings-chart" style="width:100%;height:200px"></canvas>
+        <div id="savings-chart-scroll" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+          <canvas id="savings-chart" style="height:200px;display:block"></canvas>
+        </div>
       </div>
 
       <!-- TABLE -->
@@ -953,19 +955,24 @@ function renderSavingsChart(rows){
   const pts = Object.keys(byYear).sort().map(yr=>byYear[yr]);
   if(pts.length < 2){ wrap.style.display='none'; return; }
 
-  const W = canvas.offsetWidth || 700;
+  const PX_PER_YEAR = 80;
+  const scrollDiv = document.getElementById('savings-chart-scroll');
+  const containerW = scrollDiv.offsetWidth || 700;
+  const minW = pts.length * PX_PER_YEAR;
+  const W = Math.max(containerW, minW);
   const H = 200;
-  canvas.width = W * (window.devicePixelRatio||1);
-  canvas.height = H * (window.devicePixelRatio||1);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
   canvas.style.width = W+'px';
   canvas.style.height = H+'px';
   const ctx = canvas.getContext('2d');
-  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+  ctx.scale(dpr, dpr);
 
   const vals = pts.map(r=>r.total);
   const minV = Math.min(...vals) * 0.9;
   const maxV = Math.max(...vals) * 1.05;
-  const pad = {t:10,r:20,b:30,l:60};
+  const pad = {t:10,r:30,b:30,l:60};
   const cw = W - pad.l - pad.r;
   const ch = H - pad.t - pad.b;
 
@@ -999,15 +1006,12 @@ function renderSavingsChart(rows){
     ctx.beginPath(); ctx.arc(xPos(i),yPos(vals[i]),3,0,Math.PI*2); ctx.fill();
   });
 
-  // X-axis labels (year only, every ~3rd point)
+  // X-axis labels: every year since chart is scrollable
   ctx.fillStyle='#999';
   ctx.font='10px sans-serif';
   ctx.textAlign='center';
-  const step = Math.max(1,Math.floor(pts.length/7));
   pts.forEach((p,i)=>{
-    if(i%step===0||i===pts.length-1){
-      ctx.fillText(p.date.slice(0,4), xPos(i), H-pad.b+14);
-    }
+    ctx.fillText(p.date.slice(0,4), xPos(i), H-pad.b+14);
   });
 
   // Y-axis labels
