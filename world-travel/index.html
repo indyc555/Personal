@@ -581,7 +581,7 @@ function renderStatsBar(){
 
 // ============ MAP ============
 async function initMap(){
-  worldData = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+  worldData = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
   renderMap();
 }
 function getVisitClass(times){
@@ -598,7 +598,7 @@ function renderMap(){
   const visitedMap = {};
   countries.forEach(c => {
     const code = nameToCode(c.countryName);
-    if(code) visitedMap[code] = c;
+    if(code) visitedMap[String(code)] = c;
   });
 
   const container = document.getElementById('map-container');
@@ -628,14 +628,14 @@ function renderMap(){
     .data(topo.features)
     .join('path')
     .attr('class', d => {
-      const c = visitedMap[+d.id];
+      const c = visitedMap[d.id];
       return 'country ' + (c ? getVisitClass(c.timesVisited) : 'unvisited');
     })
     .attr('d', path)
     .on('mousemove', (event, d) => {
-      const c = visitedMap[+d.id];
-      const name = CODE_TO_NAME[+d.id] || 'Unknown';
-      if(!c && !CODE_TO_NAME[+d.id]) return;
+      const c = visitedMap[d.id];
+      const name = CODE_TO_NAME[+d.id];
+      if(!c && !name) return;
       tooltip.style.display = 'block';
       tooltip.style.left = (event.clientX + 14) + 'px';
       tooltip.style.top = (event.clientY - 10) + 'px';
@@ -646,7 +646,7 @@ function renderMap(){
     .on('mouseleave', () => { tooltip.style.display = 'none'; })
     .on('click', (event, d) => {
       tooltip.style.display = 'none';
-      const c = visitedMap[+d.id];
+      const c = visitedMap[d.id];
       const name = CODE_TO_NAME[+d.id];
       if(c) openEditModal(c);
       else if(name) openAddModal(name);
