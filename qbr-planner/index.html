@@ -581,6 +581,33 @@ main{
   padding:0 4px;
 }
 
+/* ===================== PHOTOS ===================== */
+.photo-albums-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:16px}
+.album-card{
+  background:#fff;border-radius:var(--r);box-shadow:var(--shadow);
+  overflow:hidden;border:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+.album-card-banner{
+  height:140px;background:var(--green-hdr);
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;position:relative;overflow:hidden;
+}
+.album-card-banner img{
+  width:100%;height:100%;object-fit:cover;position:absolute;inset:0;
+}
+.album-card-banner .album-icon{position:relative;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.album-card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:6px}
+.album-card-title{font-weight:700;font-size:.95rem;color:var(--green-hdr)}
+.album-card-member{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.album-card-actions{display:flex;gap:8px;margin-top:10px;align-items:center}
+.album-open-btn{
+  background:var(--green-hdr);color:#fff;padding:7px 16px;border-radius:6px;
+  text-decoration:none;font-size:.82rem;font-weight:700;
+}
+.album-open-btn:hover{background:var(--green-mid)}
+.photos-empty{padding:40px;text-align:center;color:var(--muted)}
+.photos-empty h2{margin-bottom:8px}
 /* ===================== AWARDS ===================== */
 .awards-bg{
   background:linear-gradient(145deg,#0d0d1a 0%,#1a1a2e 40%,#12243e 100%);
@@ -880,6 +907,7 @@ footer{
   <button class="tab" data-tab="notes">Notes &amp; Todos</button>
   <button class="tab" data-tab="recs">Recommendations</button>
   <button class="tab" data-tab="awards">🏆 Awards</button>
+  <button class="tab" data-tab="photos">📸 Photos</button>
 </div>
 
 <main>
@@ -984,6 +1012,14 @@ footer{
   <!-- AWARDS -->
   <section id="view-awards" class="view">
     <div id="awards-root"></div>
+  </section>
+
+  <section id="view-photos" class="view">
+    <div class="page-title-bar">
+      <div class="page-title">📸 Photos</div>
+      <button class="btn btn-green btn-sm" onclick="openPhotoModal()">+ Add Album</button>
+    </div>
+    <div id="photos-root"></div>
   </section>
 
 </main>
@@ -1166,6 +1202,30 @@ footer{
   </div>
 </div>
 
+<div id="modal-photo" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-photo')">&times;</button>
+    <h2 id="modal-photo-title">Add Photo Album</h2>
+    <div class="form-group">
+      <label>Album Title</label>
+      <input type="text" id="photo-title" placeholder="e.g. Bend Trip 2025 — Indy's Photos">
+    </div>
+    <div class="form-group">
+      <label>Album URL</label>
+      <input type="url" id="photo-url" placeholder="https://photos.google.com/... or any link">
+    </div>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="photo-member" placeholder="e.g. Indy">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-green" onclick="savePhotoAlbum()">Save</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-photo')">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="photo-delete-btn" onclick="deletePhotoAlbum()" style="margin-left:auto;display:none">Delete</button>
+    </div>
+  </div>
+</div>
+
 <div id="modal-who" class="modal-overlay">
   <div class="modal modal-lg">
     <button class="modal-close" onclick="closeModal('modal-who')">&times;</button>
@@ -1303,20 +1363,22 @@ async function fsLoadAll(){
     const data = doc.data();
     out[id] = {
       id, ...data,
-      members:{}, activities:{}, notes:{}, todos:{}, comments:{}, dayOverviews: data.dayOverviews || {}
+      members:{}, activities:{}, notes:{}, todos:{}, comments:{}, dayOverviews: data.dayOverviews || {}, photos:{}
     };
-    const [members, activities, notes, todos, comments] = await Promise.all([
+    const [members, activities, notes, todos, comments, photos] = await Promise.all([
       db.collection('qbrs').doc(id).collection('members').get(),
       db.collection('qbrs').doc(id).collection('activities').get(),
       db.collection('qbrs').doc(id).collection('notes').get(),
       db.collection('qbrs').doc(id).collection('todos').get(),
       db.collection('qbrs').doc(id).collection('activity_comments').get(),
+      db.collection('qbrs').doc(id).collection('photos').get(),
     ]);
     members.docs.forEach(d => out[id].members[d.id] = {id:d.id, ...d.data()});
     activities.docs.forEach(d => out[id].activities[d.id] = {id:d.id, ...d.data()});
     notes.docs.forEach(d => out[id].notes[d.id] = {id:d.id, ...d.data()});
     todos.docs.forEach(d => out[id].todos[d.id] = {id:d.id, ...d.data()});
     comments.docs.forEach(d => out[id].comments[d.id] = {id:d.id, ...d.data()});
+    photos.docs.forEach(d => out[id].photos[d.id] = {id:d.id, ...d.data()});
   }
   return out;
 }
@@ -1329,7 +1391,7 @@ async function fsSaveQbr(qbr){
 async function fsDeleteQbr(id){
   if(!usingFirestore) return;
   // Delete subcollections (simple approach - get docs and delete)
-  const subs = ['members','activities','notes','todos','activity_comments'];
+  const subs = ['members','activities','notes','todos','activity_comments','photos'];
   for(const sub of subs){
     const snap = await db.collection('qbrs').doc(id).collection(sub).get();
     await Promise.all(snap.docs.map(d => d.ref.delete()));
@@ -1621,6 +1683,7 @@ function switchTab(name){
   else if(name === 'notes'){ renderNotesTodos(); showView('notes'); }
   else if(name === 'recs'){ renderRecs(); showView('recs'); }
   else if(name === 'awards'){ renderAwards(); showView('awards'); }
+  else if(name === 'photos'){ renderPhotos(); showView('photos'); }
 }
 
 // ============== HOME RENDER ==============
@@ -2354,7 +2417,7 @@ async function saveQbr(){
   }else{
     const id = genId();
     q = {
-      id, members:{}, activities:{}, notes:{}, todos:{}, comments:{}, dayOverviews:{},
+      id, members:{}, activities:{}, notes:{}, todos:{}, comments:{}, dayOverviews:{}, photos:{},
       createdAt: Date.now(),
     };
     state.qbrs[id] = q;
@@ -2730,6 +2793,118 @@ document.addEventListener('change', e => {
   if(e.target.matches('input[name="act-type"]')) refreshRadioStyles('act-type-row', 'act-type');
   if(e.target.matches('input[name="mem-rsvp"]')) refreshRadioStyles('mem-rsvp-row', 'mem-rsvp');
 });
+
+// ============== PHOTOS ==============
+const SERVICE_ICONS = {
+  'photos.google.com': { icon:'📷', label:'Google Photos', color:'#1a73e8' },
+  'icloud.com':        { icon:'☁️', label:'iCloud Photos', color:'#555' },
+  'flickr.com':        { icon:'🌸', label:'Flickr',        color:'#ff0084' },
+  'dropbox.com':       { icon:'📦', label:'Dropbox',       color:'#0061ff' },
+  'drive.google.com':  { icon:'📁', label:'Google Drive',  color:'#0f9d58' },
+  'instagram.com':     { icon:'📸', label:'Instagram',     color:'#c13584' },
+  'smugmug.com':       { icon:'🖼️', label:'SmugMug',       color:'#3d8b37' },
+  'amazon.com':        { icon:'🛍️', label:'Amazon Photos', color:'#ff9900' },
+};
+function serviceForUrl(url){
+  try{
+    const host = new URL(url).hostname.replace('www.','');
+    for(const [domain, info] of Object.entries(SERVICE_ICONS)){
+      if(host.includes(domain)) return info;
+    }
+  }catch(e){}
+  return { icon:'🔗', label:'Album', color:'var(--green-hdr)' };
+}
+function isDirectImage(url){
+  return /\.(jpe?g|png|gif|webp|avif|bmp)(\?.*)?$/i.test(url);
+}
+
+let editingPhotoId = null;
+function openPhotoModal(id){
+  const q = currentQbr();
+  if(!q){ toast('Select a QBR first'); return; }
+  editingPhotoId = id || null;
+  document.getElementById('modal-photo-title').textContent = id ? 'Edit Album' : 'Add Photo Album';
+  document.getElementById('photo-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if(id){
+    const p = q.photos[id];
+    document.getElementById('photo-title').value = p.title || '';
+    document.getElementById('photo-url').value = p.url || '';
+    document.getElementById('photo-member').value = p.memberName || '';
+  } else {
+    document.getElementById('photo-title').value = '';
+    document.getElementById('photo-url').value = '';
+    document.getElementById('photo-member').value = state.currentUserName || '';
+  }
+  openModal('modal-photo');
+}
+async function savePhotoAlbum(){
+  const q = currentQbr();
+  if(!q) return;
+  const title = document.getElementById('photo-title').value.trim();
+  const url = document.getElementById('photo-url').value.trim();
+  const memberName = document.getElementById('photo-member').value.trim();
+  if(!url){ toast('URL required'); return; }
+  if(!q.photos) q.photos = {};
+  let p;
+  if(editingPhotoId){
+    p = q.photos[editingPhotoId];
+    p.title = title; p.url = url; p.memberName = memberName;
+  } else {
+    const id = genId();
+    p = { id, title, url, memberName, addedAt: Date.now() };
+    q.photos[id] = p;
+  }
+  await fsSaveSub(q.id, 'photos', p);
+  await persist();
+  closeModal('modal-photo');
+  renderPhotos();
+  toast('Saved');
+}
+async function deletePhotoAlbum(){
+  const q = currentQbr();
+  if(!q || !editingPhotoId) return;
+  if(!confirm('Remove this album?')) return;
+  await fsDeleteSub(q.id, 'photos', editingPhotoId);
+  delete q.photos[editingPhotoId];
+  await persist();
+  closeModal('modal-photo');
+  renderPhotos();
+  toast('Removed');
+}
+function renderPhotos(){
+  const q = currentQbr();
+  const root = document.getElementById('photos-root');
+  if(!q){ root.innerHTML = ''; return; }
+  const albums = Object.values(q.photos || {}).sort((a,b) => (a.addedAt||0) - (b.addedAt||0));
+  if(albums.length === 0){
+    root.innerHTML = `<div class="photos-empty">
+      <h2>No albums yet</h2>
+      <p>Click "+ Add Album" to share a link to your photos.</p>
+    </div>`;
+    return;
+  }
+  root.innerHTML = `<div class="photo-albums-grid">${albums.map(p => {
+    const svc = serviceForUrl(p.url);
+    const isDirect = isDirectImage(p.url);
+    const banner = isDirect
+      ? `<div class="album-card-banner"><img src="${escapeHtml(p.url)}" alt="${escapeHtml(p.title)}" onerror="this.style.display='none'"><span class="album-icon">${svc.icon}</span></div>`
+      : `<div class="album-card-banner" style="background:${escapeHtml(svc.color)}20;border-bottom:3px solid ${escapeHtml(svc.color)}"><span class="album-icon">${svc.icon}</span></div>`;
+    const isMe = state.currentUserName && p.memberName === state.currentUserName;
+    return `
+      <div class="album-card">
+        ${banner}
+        <div class="album-card-body">
+          <div class="album-card-title">${escapeHtml(p.title || svc.label)}</div>
+          <div class="album-card-member">👤 ${escapeHtml(p.memberName || 'Unknown')} · <span style="color:${escapeHtml(svc.color)}">${svc.label}</span></div>
+          <div class="album-card-actions">
+            <a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" class="album-open-btn">Open Album →</a>
+            ${isMe ? `<button class="btn btn-outline btn-sm" onclick="openPhotoModal('${escapeHtml(p.id)}')">Edit</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('')}</div>`;
+}
 
 // ============== INIT ==============
 async function init(){
