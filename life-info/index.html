@@ -340,15 +340,16 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       <div class="settings-card">
         <h3>Import from CSV</h3>
         <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.5">
-          Export your Google Sheet as <strong>File → Download → CSV</strong>, then import it here.<br>
-          Expected columns: <code>Website, Username, Password, Comments, Type (Work/Personal), Company, Person</code>
+          Supports your multi-column Google Sheet format (one column per person/company).<br>
+          In Google Sheets: <strong>File → Download → Comma Separated Values (.csv)</strong>
         </p>
-        <div class="import-box" onclick="document.getElementById('csv-file').click()">
+        <div class="import-box" id="import-drop-zone" onclick="document.getElementById('csv-file').click()">
           <div style="font-size:1.6rem;margin-bottom:6px">📂</div>
           <div style="font-weight:700;margin-bottom:4px">Click to choose CSV file</div>
           <div style="font-size:.78rem">or drag and drop</div>
-          <input type="file" id="csv-file" accept=".csv" onchange="importCSV(this)">
+          <input type="file" id="csv-file" accept=".csv" onchange="importCSV(this.files[0])">
         </div>
+        <div id="import-status" style="margin-top:10px;font-size:.82rem;color:var(--muted)"></div>
       </div>
 
       <div class="settings-card">
@@ -760,46 +761,137 @@ function deleteProfile(){
 }
 
 // ============ CSV IMPORT ============
-function importCSV(input){
-  const file = input.files[0];
+function importCSV(file){
   if(!file) return;
+  const statusEl = document.getElementById('import-status');
+  statusEl.textContent = 'Reading file…';
   const reader = new FileReader();
   reader.onload = e => {
-    const lines = e.target.result.split(/\r?\n/).filter(l=>l.trim());
-    if(lines.length < 2){ toast('CSV appears empty'); return; }
-    const headers = parseCSVLine(lines[0]).map(h=>h.toLowerCase().trim());
-    let imported = 0;
-    for(let i=1;i<lines.length;i++){
-      const cols = parseCSVLine(lines[i]);
-      const row = {};
-      headers.forEach((h,j)=>row[h]=cols[j]||'');
-      const website = row['website']||row['site']||row['url']||'';
-      const username = row['username']||row['user']||row['email']||'';
-      const password = row['password']||row['pw']||row['pass']||'';
-      if(!website && !username && !password) continue;
-      const type = (row['type']||'').toLowerCase().includes('work') ? 'work' : 'personal';
-      const entry = {
-        id: genId(), createdAt: Date.now(), updatedAt: Date.now(),
-        type, website, username, password,
-        comments: row['comments']||row['notes']||row['comment']||'',
-        company: row['company']||'',
-        person: row['person']||'Indy',
-      };
-      profiles[currentProfile].vault.push(entry);
-      imported++;
+    try {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/);
+      if(lines.length < 2){ toast('CSV appears empty'); statusEl.textContent=''; return; }
+      const headers = parseCSVLine(lines[0]);
+
+      // Detect multi-column format: headers contain "Personal -" or "WORK -"
+      const isMultiCol = headers.some(h => /personal\s*-|work\s*-/i.test(h));
+
+      let imported = 0;
+      if(isMultiCol){
+        imported = importMultiColFormat(lines, headers);
+      } else {
+        imported = importStandardFormat(lines, headers);
+      }
+
+      saveProfiles();
+      renderVault();
+      document.getElementById('csv-file').value = '';
+      statusEl.textContent = `✅ Imported ${imported} entries successfully.`;
+      toast(`Imported ${imported} entries!`);
+    } catch(err) {
+      statusEl.textContent = '❌ Error reading file: ' + err.message;
+      toast('Import failed: ' + err.message);
     }
-    saveProfiles();
-    renderVault();
-    input.value = '';
-    toast(`Imported ${imported} entries!`);
   };
   reader.readAsText(file);
 }
+
+// Section-header keywords to skip (all-caps divider rows in the sheet)
+const SECTION_HEADERS = new Set(['LOYALTY PROGRAMS','KEY DATA','HOUSING','FINANCIAL CHANGES']);
+
+function importMultiColFormat(lines, headers){
+  // Build column metadata from row 0 headers
+  // Each non-empty header is either "Personal - Name" or "WORK - Company"
+  const colMeta = headers.map(h => {
+    h = (h||'').trim();
+    if(!h) return null;
+    const workMatch = h.match(/^WORK\s*-\s*(.+)/i);
+    const personalMatch = h.match(/^Personal\s*-\s*(.+)/i);
+    if(workMatch) return { isWork: true, name: workMatch[1].trim() };
+    if(personalMatch) return { isWork: false, name: personalMatch[1].trim() };
+    return null; // skip columns without a recognized header
+  });
+
+  let imported = 0;
+  // Row 1 is notes/hints row — skip it. Start at row 2.
+  for(let i = 2; i < lines.length; i++){
+    const line = lines[i];
+    if(!line.trim()) continue;
+    const cols = parseCSVLine(line);
+
+    // Check if this entire row is a section header (col 0 is one of the keywords, rest empty)
+    const col0 = (cols[0]||'').trim();
+    if(SECTION_HEADERS.has(col0)) continue;
+
+    cols.forEach((cell, colIdx) => {
+      cell = (cell||'').trim();
+      if(!cell) return;
+      const meta = colMeta[colIdx];
+      if(!meta) return; // skip unlabeled columns
+
+      // Parse "Website: rest of info" — everything before first colon is the service name
+      let website = cell;
+      let comments = '';
+      const colonIdx = cell.indexOf(':');
+      if(colonIdx > 0){
+        website = cell.substring(0, colonIdx).trim();
+        comments = cell.substring(colonIdx + 1).trim();
+      }
+
+      // Skip blank parsed websites
+      if(!website) return;
+
+      const entry = {
+        id: genId(), createdAt: Date.now() + imported, updatedAt: Date.now(),
+        type: meta.isWork ? 'work' : 'personal',
+        website,
+        username: '',
+        password: '',
+        comments,
+        company: meta.isWork ? meta.name : '',
+        person: meta.isWork ? '' : meta.name,
+      };
+      profiles[currentProfile].vault.push(entry);
+      imported++;
+    });
+  }
+  return imported;
+}
+
+function importStandardFormat(lines, headers){
+  const hdrs = headers.map(h=>(h||'').toLowerCase().trim());
+  let imported = 0;
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    const cols = parseCSVLine(lines[i]);
+    const row = {};
+    hdrs.forEach((h,j)=>row[h]=cols[j]||'');
+    const website = row['website']||row['site']||row['url']||'';
+    const username = row['username']||row['user']||row['email']||'';
+    const password = row['password']||row['pw']||row['pass']||'';
+    if(!website && !username && !password) continue;
+    const type = (row['type']||'').toLowerCase().includes('work') ? 'work' : 'personal';
+    profiles[currentProfile].vault.push({
+      id: genId(), createdAt: Date.now() + imported, updatedAt: Date.now(),
+      type, website, username, password,
+      comments: row['comments']||row['notes']||row['comment']||'',
+      company: row['company']||'',
+      person: row['person']||'Indy',
+    });
+    imported++;
+  }
+  return imported;
+}
+
 function parseCSVLine(line){
   const result=[]; let cur=''; let inQ=false;
   for(let i=0;i<line.length;i++){
     const c=line[i];
-    if(c==='"'){ inQ=!inQ; continue; }
+    if(c==='"'){
+      if(inQ && line[i+1]==='"'){ cur+='"'; i++; } // escaped quote
+      else inQ=!inQ;
+      continue;
+    }
     if(c===','&&!inQ){ result.push(cur); cur=''; continue; }
     cur+=c;
   }
@@ -857,6 +949,19 @@ showProfiles();
 setTimeout(()=>{
   if(!profiles['Indy'].pwHash)
     toast('Welcome! Add "Indy" in the form below to set your password.', 4000);
+
+  // Wire up drag-and-drop for import box
+  const dropZone = document.getElementById('import-drop-zone');
+  if(dropZone){
+    dropZone.addEventListener('dragover', ev => { ev.preventDefault(); dropZone.style.borderColor='var(--navy-mid)'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor=''; });
+    dropZone.addEventListener('drop', ev => {
+      ev.preventDefault();
+      dropZone.style.borderColor='';
+      const file = ev.dataTransfer.files[0];
+      if(file) importCSV(file);
+    });
+  }
 },400);
 </script>
 </body>
