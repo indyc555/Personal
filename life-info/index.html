@@ -339,6 +339,15 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       <div class="pw-table-wrap" id="savings-table-wrap">
         <div class="empty-state"><div class="big-icon">💰</div><p>No snapshots yet. Click <strong>+ Add Snapshot</strong> to get started.</p></div>
       </div>
+
+      <!-- EXPLANATION OF ASSETS -->
+      <div class="section-hdr" style="margin-top:32px">
+        <h2>Explanation of Assets</h2>
+        <button class="btn btn-gold" onclick="openAssetModal()">+ Add Item</button>
+      </div>
+      <div class="pw-table-wrap" id="assets-table-wrap">
+        <div class="empty-state"><div class="big-icon">📋</div><p>No asset explanations yet. Click <strong>+ Add Item</strong> to get started.</p></div>
+      </div>
     </div>
 
     <!-- SETTINGS TAB -->
@@ -540,6 +549,48 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
   </div>
 </div>
 
+<!-- =========== ASSET EXPLANATION MODAL =========== -->
+<div class="modal-overlay" id="modal-asset">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeModal('modal-asset')">&times;</button>
+    <h2 id="modal-asset-title">Add Asset Explanation</h2>
+    <div class="form-row">
+      <label>Category / Label</label>
+      <input type="text" id="as-category" placeholder="e.g. Vanguard, Schwab, Last Will">
+    </div>
+    <div class="form-row">
+      <label>As of Date</label>
+      <input type="month" id="as-date" placeholder="e.g. 2026-06">
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <textarea id="as-description" placeholder="Explain what this asset/item is…" style="min-height:90px"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Notes (text)</label>
+      <textarea id="as-notes" placeholder="Any additional notes…" style="min-height:60px"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Image (optional)</label>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          📎 Attach Image
+          <input type="file" id="as-image-file" accept="image/*" style="display:none" onchange="handleAssetImage(this)">
+        </label>
+        <span id="as-image-name" style="font-size:.78rem;color:var(--muted)"></span>
+        <button class="btn btn-ghost btn-sm" id="as-image-clear" style="display:none;color:var(--red)" onclick="clearAssetImage()">✕ Remove</button>
+      </div>
+      <div id="as-image-preview" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="as-delete-btn" style="display:none" onclick="deleteAssetEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-asset')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveAssetEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -695,6 +746,7 @@ function renderSavings(){
   const rows = getSavings();
   renderSavingsStats(rows);
   renderSavingsChart(rows);
+  renderAssets();
 
   const wrap = document.getElementById('savings-table-wrap');
   if(rows.length === 0){
@@ -906,6 +958,146 @@ function deleteSavingsEntry(){
   closeModal('modal-savings');
   renderSavings();
   toast('Deleted');
+}
+
+// ============ ASSET EXPLANATIONS ============
+let editingAssetId = null;
+let pendingAssetImageData = null; // base64 string or null
+
+function getAssets(){ return (profiles[currentProfile].assets || []); }
+
+function renderAssets(){
+  const items = getAssets();
+  const wrap = document.getElementById('assets-table-wrap');
+  if(!wrap) return;
+  if(items.length === 0){
+    wrap.innerHTML = `<div class="empty-state"><div class="big-icon">📋</div><p>No asset explanations yet. Click <strong>+ Add Item</strong> to get started.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<table class="pw-table" style="min-width:600px">
+    <thead><tr>
+      <th style="width:140px">Category</th>
+      <th style="width:100px">As Of</th>
+      <th>Description</th>
+      <th style="width:80px">Image</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${items.map(a => {
+      const imgThumb = a.imageData ? `<img src="${a.imageData}" style="width:48px;height:36px;object-fit:cover;border-radius:4px;cursor:pointer" onclick="openAssetImageViewer('${escH(a.id)}')">` : '—';
+      const desc = a.description || '';
+      const notes = a.notes ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px;font-style:italic">${escH(a.notes.length>80?a.notes.slice(0,80)+'…':a.notes)}</div>` : '';
+      return `<tr>
+        <td><strong>${escH(a.category||'')}</strong></td>
+        <td style="font-size:.8rem;color:var(--muted)">${a.asOfDate||'—'}</td>
+        <td>
+          <div style="font-size:.83rem">${escH(desc.length>120?desc.slice(0,120)+'…':desc)}</div>
+          ${notes}
+        </td>
+        <td>${imgThumb}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openAssetModal('${escH(a.id)}')">Edit</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function openAssetModal(id){
+  editingAssetId = id || null;
+  pendingAssetImageData = null;
+  document.getElementById('modal-asset-title').textContent = id ? 'Edit Asset Explanation' : 'Add Asset Explanation';
+  document.getElementById('as-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  document.getElementById('as-image-preview').innerHTML = '';
+  document.getElementById('as-image-name').textContent = '';
+  document.getElementById('as-image-clear').style.display = 'none';
+  document.getElementById('as-image-file').value = '';
+
+  if(id){
+    const a = getAssets().find(x=>x.id===id);
+    if(!a) return;
+    document.getElementById('as-category').value = a.category||'';
+    document.getElementById('as-date').value = a.asOfDate||'';
+    document.getElementById('as-description').value = a.description||'';
+    document.getElementById('as-notes').value = a.notes||'';
+    if(a.imageData){
+      pendingAssetImageData = a.imageData;
+      document.getElementById('as-image-preview').innerHTML = `<img src="${a.imageData}" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:4px">`;
+      document.getElementById('as-image-name').textContent = 'Current image';
+      document.getElementById('as-image-clear').style.display = 'inline-flex';
+    }
+  } else {
+    document.getElementById('as-category').value = '';
+    document.getElementById('as-date').value = '';
+    document.getElementById('as-description').value = '';
+    document.getElementById('as-notes').value = '';
+  }
+  openModal('modal-asset');
+}
+
+function handleAssetImage(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ toast('Image must be under 2 MB'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingAssetImageData = e.target.result;
+    document.getElementById('as-image-preview').innerHTML = `<img src="${pendingAssetImageData}" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:4px">`;
+    document.getElementById('as-image-name').textContent = file.name;
+    document.getElementById('as-image-clear').style.display = 'inline-flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearAssetImage(){
+  pendingAssetImageData = null;
+  document.getElementById('as-image-preview').innerHTML = '';
+  document.getElementById('as-image-name').textContent = '';
+  document.getElementById('as-image-clear').style.display = 'none';
+  document.getElementById('as-image-file').value = '';
+}
+
+function saveAssetEntry(){
+  const category = document.getElementById('as-category').value.trim();
+  if(!category){ toast('Category required'); return; }
+  const entry = {
+    id: editingAssetId || genId(),
+    category,
+    asOfDate: document.getElementById('as-date').value,
+    description: document.getElementById('as-description').value.trim(),
+    notes: document.getElementById('as-notes').value.trim(),
+    imageData: pendingAssetImageData || null,
+  };
+  if(!profiles[currentProfile].assets) profiles[currentProfile].assets = [];
+  const arr = profiles[currentProfile].assets;
+  if(editingAssetId){
+    const idx = arr.findIndex(x=>x.id===editingAssetId);
+    if(idx>=0) arr[idx]=entry; else arr.push(entry);
+  } else {
+    arr.push(entry);
+  }
+  saveProfiles();
+  closeModal('modal-asset');
+  renderAssets();
+  toast(editingAssetId ? 'Updated!' : 'Asset saved!');
+}
+
+function deleteAssetEntry(){
+  if(!editingAssetId) return;
+  if(!confirm('Delete this item?')) return;
+  profiles[currentProfile].assets = getAssets().filter(x=>x.id!==editingAssetId);
+  saveProfiles();
+  closeModal('modal-asset');
+  renderAssets();
+  toast('Deleted');
+}
+
+// Full-size image viewer
+function openAssetImageViewer(id){
+  const a = getAssets().find(x=>x.id===id);
+  if(!a||!a.imageData) return;
+  const ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:20px';
+  ov.innerHTML=`<img src="${a.imageData}" style="max-width:100%;max-height:90vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.5)">`;
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
 }
 
 // ============ VAULT RENDER ============
