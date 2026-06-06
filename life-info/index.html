@@ -936,7 +936,21 @@ function renderSavingsChart(rows){
   if(rows.length < 2){ wrap.style.display='none'; return; }
   wrap.style.display='block';
 
-  const pts = rows.filter(r=>r.total!==null);
+  // One point per year: pick entry closest to June 15
+  const june15DayOfYear = 166; // ~June 15
+  function dayOfYear(dateStr){
+    const d = new Date(dateStr);
+    const start = new Date(d.getFullYear(), 0, 0);
+    return Math.floor((d - start) / 86400000);
+  }
+  const byYear = {};
+  rows.filter(r=>r.total!==null).forEach(r => {
+    const yr = r.date.slice(0,4);
+    if(!byYear[yr] || Math.abs(dayOfYear(r.date)-june15DayOfYear) < Math.abs(dayOfYear(byYear[yr].date)-june15DayOfYear)){
+      byYear[yr] = r;
+    }
+  });
+  const pts = Object.keys(byYear).sort().map(yr=>byYear[yr]);
   if(pts.length < 2){ wrap.style.display='none'; return; }
 
   const W = canvas.offsetWidth || 700;
@@ -985,14 +999,14 @@ function renderSavingsChart(rows){
     ctx.beginPath(); ctx.arc(xPos(i),yPos(vals[i]),3,0,Math.PI*2); ctx.fill();
   });
 
-  // X-axis labels (every ~3rd point)
+  // X-axis labels (year only, every ~3rd point)
   ctx.fillStyle='#999';
   ctx.font='10px sans-serif';
   ctx.textAlign='center';
   const step = Math.max(1,Math.floor(pts.length/7));
   pts.forEach((p,i)=>{
     if(i%step===0||i===pts.length-1){
-      ctx.fillText(p.date.slice(0,7), xPos(i), H-pad.b+14);
+      ctx.fillText(p.date.slice(0,4), xPos(i), H-pad.b+14);
     }
   });
 
