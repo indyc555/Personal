@@ -268,6 +268,7 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
         <button class="tab active" data-tab="map" onclick="switchTab('map')">🗺 Map</button>
         <button class="tab" data-tab="list" onclick="switchTab('list')">📋 List</button>
         <button class="tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</button>
+        <button class="tab" data-tab="photos" onclick="switchTab('photos')">📷 Photos</button>
       </div>
       <button class="btn btn-gold btn-sm" onclick="openAddModal(null)">+ Add Country</button>
       <div class="profile-pill" onclick="showProfileScreen()">
@@ -340,6 +341,11 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
   <!-- STATS -->
   <div id="view-stats">
     <div id="stats-content"></div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div id="view-photos" style="display:none">
+    <div id="photos-content"></div>
   </div>
 </div>
 
@@ -612,9 +618,11 @@ function switchTab(tab){
   document.getElementById('view-map').style.display = tab === 'map' ? 'block' : 'none';
   document.getElementById('view-list').style.display = tab === 'list' ? 'block' : 'none';
   document.getElementById('view-stats').style.display = tab === 'stats' ? 'block' : 'none';
+  document.getElementById('view-photos').style.display = tab === 'photos' ? 'block' : 'none';
   if(tab === 'map') renderMap();
   if(tab === 'list') renderList();
   if(tab === 'stats') renderStats();
+  if(tab === 'photos') renderPhotos();
 }
 
 // ============ STATS BAR ============
@@ -1029,6 +1037,31 @@ function renderAll(){
   if(currentTab === 'map') renderMap();
   if(currentTab === 'list') renderList();
   if(currentTab === 'stats') renderStats();
+  if(currentTab === 'photos') renderPhotos();
+}
+
+// ============ PHOTOS ============
+function renderPhotos(){
+  const countries = getData().filter(c => c.photosUrl);
+  const el = document.getElementById('photos-content');
+  if(!countries.length){
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:3rem;margin-bottom:12px">📷</div><div style="font-size:1.1rem">No photo links yet.</div><div style="font-size:.85rem;margin-top:8px">Add a Photos URL when editing a country to see it here.</div></div>';
+    return;
+  }
+  const sorted = [...countries].sort((a,b) => a.countryName.localeCompare(b.countryName));
+  el.innerHTML = `
+    <div style="padding:16px 20px 8px;font-size:.82rem;color:var(--muted)">${sorted.length} countr${sorted.length===1?'y':'ies'} with photos</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;padding:0 20px 24px">
+      ${sorted.map(c => `
+        <a href="${escHtml(c.photosUrl)}" target="_blank" rel="noopener" style="display:block;background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px rgba(0,0,0,.13)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <div style="background:linear-gradient(135deg,var(--green-dark),var(--green-mid));height:80px;display:flex;align-items:center;justify-content:center;font-size:2.2rem">🌍</div>
+          <div style="padding:10px 12px">
+            <div style="font-weight:600;font-size:.92rem">${escHtml(c.countryName)}</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:2px">${escHtml(c.region)}${c.yearFirstVisited ? ' · '+c.yearFirstVisited : ''}</div>
+            <div style="margin-top:8px;font-size:.78rem;color:var(--green-mid);font-weight:500">📷 View Photos →</div>
+          </div>
+        </a>`).join('')}
+    </div>`;
 }
 
 // ============ UTILS ============
