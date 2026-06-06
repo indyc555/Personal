@@ -16,6 +16,8 @@
   --dest-bg:rgba(255,109,0,.15);
   --special:#1565C0;
   --special-bg:rgba(21,101,192,.15);
+  --meal:#e91e8c;
+  --meal-bg:rgba(233,30,140,.13);
   --member-present:#FF6D00;
   --bg:#f4f6f4;
   --card:#ffffff;
@@ -397,8 +399,10 @@ main{
 .cal-event.act-travel{background:var(--travel-bg);border-left-color:var(--travel)}
 .cal-event.act-dest{background:var(--dest-bg);border-left-color:var(--dest)}
 .cal-event.act-special{background:var(--special-bg);border-left-color:var(--special)}
+.cal-event.act-meal{background:var(--meal-bg);border-left-color:var(--meal)}
 .cal-event-title{font-weight:700;line-height:1.2;color:var(--text)}
 .cal-event-time{font-size:.62rem;color:var(--muted);margin-top:1px}
+.cal-note-icon{font-size:.7rem;position:absolute;top:3px;right:4px;opacity:.7;line-height:1}
 
 /* ===================== LIST VIEW ===================== */
 .list-section{
@@ -439,6 +443,7 @@ main{
 .list-item-color.act-travel{background:var(--travel)}
 .list-item-color.act-dest{background:var(--dest)}
 .list-item-color.act-special{background:var(--special)}
+.list-item-color.act-meal{background:var(--meal)}
 .list-item-time{
   font-size:.82rem;color:var(--muted);
   font-weight:600;width:140px;flex-shrink:0;
@@ -788,6 +793,7 @@ main{
 .radio-row label.checked.t-travel{background:var(--travel-bg);border-color:var(--travel);color:#7a5e10}
 .radio-row label.checked.t-destination{background:var(--dest-bg);border-color:var(--dest);color:#a04500}
 .radio-row label.checked.t-special{background:var(--special-bg);border-color:var(--special);color:#0a3c7a}
+.radio-row label.checked.t-meal{background:var(--meal-bg);border-color:var(--meal);color:#8b005a}
 .check-row{display:flex;gap:10px;flex-wrap:wrap}
 .check-row label{
   display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;
@@ -830,6 +836,7 @@ main{
 .act-type-pill.act-travel{background:var(--travel-bg);color:#7a5e10}
 .act-type-pill.act-dest{background:var(--dest-bg);color:#a04500}
 .act-type-pill.act-special{background:var(--special-bg);color:#0a3c7a}
+.act-type-pill.act-meal{background:var(--meal-bg);color:#8b005a}
 .comments-section{
   margin-top:14px;border-top:1px solid #eee;padding-top:12px;
 }
@@ -1100,6 +1107,7 @@ footer{
         <label class="t-travel"><input type="radio" name="act-type" value="travel"> Travel</label>
         <label class="t-destination"><input type="radio" name="act-type" value="destination" checked> Destination</label>
         <label class="t-special"><input type="radio" name="act-type" value="special"> Special</label>
+        <label class="t-meal"><input type="radio" name="act-type" value="meal"> Meal</label>
       </div>
     </div>
     <div class="form-row">
@@ -1857,6 +1865,7 @@ function renderCalendar(){
         <div class="cal-event ${typeCls}"
              data-act-id="${a.id}"
              style="top:${top}px;height:${h}px;left:calc(${leftPct}% + 2px);width:calc(${widthPct}% - 4px);">
+          ${(a.description || Object.values(q.comments||{}).some(c=>c.activityId===a.id)) ? '<span class="cal-note-icon" title="Has notes">💬</span>' : ''}
           <div class="cal-event-title">${escapeHtml(a.title)}</div>
           <div class="cal-event-time">${escapeHtml(formatTimeRange(a.startTime, a.endTime))}</div>
         </div>
@@ -1974,7 +1983,7 @@ function renderListView(){
     byDate[a.date].push(a);
   });
   const dates = Object.keys(byDate).sort();
-  const typeLabel = {house:'House', travel:'Travel', destination:'Destination', special:'Special'};
+  const typeLabel = {house:'House', travel:'Travel', destination:'Destination', special:'Special', meal:'Meal'};
 
   root.innerHTML = dates.map(d => {
     const items = byDate[d].sort((a,b) => timeToMin(a.startTime) - timeToMin(b.startTime));
