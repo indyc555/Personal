@@ -163,6 +163,7 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
 }
 .type-work{background:#dbeafe;color:#1e40af}
 .type-personal{background:#d1fae5;color:#065f46}
+.type-loyalty{background:#fef3c7;color:#92400e}
 .sub-label{font-size:.72rem;color:var(--muted);margin-top:2px}
 .pw-actions{display:flex;gap:6px;justify-content:flex-end}
 .empty-state{text-align:center;padding:52px 20px;color:var(--muted)}
@@ -347,6 +348,9 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
         <select class="filter-select" id="filter-work-select" onchange="setFilterSelect('work',this)">
           <option value="">💼 Work</option>
         </select>
+        <select class="filter-select" id="filter-loyalty-select" onchange="setFilterSelect('loyalty',this)">
+          <option value="">🎖️ Loyalty</option>
+        </select>
         <input class="search-input" type="text" id="search-input" placeholder="Search website, username…" oninput="renderVault()">
       </div>
       <div class="pw-table-wrap" id="vault-wrap">
@@ -525,6 +529,8 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
         <label for="type-personal">👤 Personal</label>
         <input type="radio" name="pw-type" id="type-work" value="work" onchange="onTypeChange()">
         <label for="type-work">💼 Work</label>
+        <input type="radio" name="pw-type" id="type-loyalty" value="loyalty" onchange="onTypeChange()">
+        <label for="type-loyalty">🎖️ Loyalty</label>
       </div>
     </div>
 
@@ -545,6 +551,20 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
     <div class="form-row" id="row-company" style="display:none">
       <label>Company</label>
       <input type="text" id="pw-company" placeholder="e.g. Jaggaer">
+    </div>
+
+    <div class="form-row" id="row-loyalty-person" style="display:none">
+      <label>Person</label>
+      <select id="pw-loyalty-person">
+        <option value="Indy">Indy</option>
+        <option value="Ananya">Ananya</option>
+        <option value="Ronin">Ronin</option>
+        <option value="Kai">Kai</option>
+        <option value="Janci">Janci</option>
+        <option value="Simran">Simran</option>
+        <option value="Banani">Banani</option>
+        <option value="Pankaj">Pankaj</option>
+      </select>
     </div>
 
     <div class="form-row">
@@ -1632,9 +1652,51 @@ const LEGEND_SEED = {
   'Indy': 'Passwords: "DAK! means Dc120904!"; "Romo! is Dc121109!", "No ! means dont add !"\nPearson is DC122288 or Dc122288\nMy different Pins, listed in order of frequency of usage: 2288, 222888, 8822, 8750, 1406, 0770, 22888 if 5 digits\nSamsung Lock Screen is 222111',
 };
 
+const LOYALTY_SEED = [
+  {website:'AA',username:'XN9L664',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Avis',username:'G7Q24Y',password:'',comments:'work no bang',loyaltyPerson:'Indy'},
+  {website:'Avis AWD discount for Chase',username:'S107100',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Amwest',username:'40014308932',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'British',username:'20043773',password:'Dak!',comments:'',loyaltyPerson:'Indy'},
+  {website:'Canada',username:'326229770',password:'',comments:'pwd has to !! (10 digits)',loyaltyPerson:'Indy'},
+  {website:'Delta',username:'2261458927',password:'',comments:'Pearson',loyaltyPerson:'Indy'},
+  {website:'Emirates',username:'EK356557320',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Enterprise',username:'xvsj22w',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Etihad',username:'103285283301',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Hertz',username:'40352198',password:'',comments:'new normal',loyaltyPerson:'Indy'},
+  {website:'Hhonors',username:'139138842',password:'Dak!',comments:'',loyaltyPerson:'Indy'},
+  {website:'Hyatt',username:'G99443886y',password:'',comments:'Pearson',loyaltyPerson:'Indy'},
+  {website:'KLM FlyBlue',username:'5180 360 882',password:'Dak!!!!',comments:'',loyaltyPerson:'Indy'},
+  {website:'Library',username:'22477003493728',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Marriot',username:'185672453',password:'',comments:'Pearson!',loyaltyPerson:'Indy'},
+  {website:'MyChart',username:'gmail',password:'Dak!!',comments:'',loyaltyPerson:'Indy'},
+  {website:'National Car',username:'763882232',password:'',comments:'Avetta Account # XZ32A32',loyaltyPerson:'Indy'},
+  {website:'PriorityPass',username:'1058671437',password:'',comments:'indy555 no gmail, Romo! valid to 4/26',loyaltyPerson:'Indy'},
+  {website:'Qantas',username:'1912655683',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Qatar',username:'415081867',password:'Romo!',comments:'',loyaltyPerson:'Indy'},
+  {website:'Radisson Blu Carlson',username:'6015 9957 5461 9221',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'SAS',username:'',password:'Dak!',comments:'',loyaltyPerson:'Indy'},
+  {website:'Southwest',username:'20550714531',password:'Dak!',comments:'',loyaltyPerson:'Indy'},
+  {website:'Starwood',username:'50897806646',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'Turkish',username:'# TK641111681',password:'',comments:'pwd 120904',loyaltyPerson:'Indy'},
+  {website:'TSA Pre & Global Entry',username:'983282509',password:'',comments:'',loyaltyPerson:'Indy'},
+  {website:'United',username:'DP743489',password:'Dak!',comments:'',loyaltyPerson:'Indy'},
+];
+
 function seedLegend(){
   if(!profiles[currentProfile].legend){
     profiles[currentProfile].legend = {...LEGEND_SEED};
+    saveProfiles();
+  }
+}
+
+function seedLoyalty(){
+  const vault = profiles[currentProfile].vault || [];
+  if(!vault.some(e=>e.type==='loyalty')){
+    LOYALTY_SEED.forEach(e => {
+      vault.push({...e, type:'loyalty', id:genId(), createdAt:Date.now(), updatedAt:Date.now()});
+    });
+    profiles[currentProfile].vault = vault;
     saveProfiles();
   }
 }
@@ -1699,41 +1761,44 @@ function setFilter(f, el){
   currentFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  // Reset dropdowns
-  const ps = document.getElementById('filter-personal-select');
-  const ws = document.getElementById('filter-work-select');
-  if(ps){ ps.value=''; ps.classList.remove('active'); }
-  if(ws){ ws.value=''; ws.classList.remove('active'); }
+  ['filter-personal-select','filter-work-select','filter-loyalty-select'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.value=''; el.classList.remove('active'); }
+  });
   renderVault();
 }
 function setFilterSelect(type, select){
-  // Deactivate All button
   const allBtn = document.getElementById('filter-all-btn');
   if(allBtn) allBtn.classList.remove('active');
-  // Deactivate the other select
-  const otherId = type==='personal' ? 'filter-work-select' : 'filter-personal-select';
-  const other = document.getElementById(otherId);
-  if(other){ other.value=''; other.classList.remove('active'); }
-  // Set currentFilter
-  if(select.value === ''){
-    currentFilter = type; // 'personal' or 'work' (show all of that type)
-  } else {
-    currentFilter = type + ':' + select.value;
-  }
+  ['filter-personal-select','filter-work-select','filter-loyalty-select'].forEach(id => {
+    if(id !== select.id){
+      const el = document.getElementById(id);
+      if(el){ el.value=''; el.classList.remove('active'); }
+    }
+  });
+  currentFilter = select.value === '' ? type : type + ':' + select.value;
   select.classList.toggle('active', true);
   renderVault();
 }
-function populateWorkDropdown(){
+function populateFilterDropdowns(){
   const vault = profiles[currentProfile]?.vault || [];
-  const companies = [...new Set(vault.filter(e=>e.type==='work'&&e.company).map(e=>e.company))].sort();
-  const sel = document.getElementById('filter-work-select');
-  if(!sel) return;
-  const cur = sel.value;
-  sel.innerHTML = `<option value="">💼 Work</option>` + companies.map(c=>`<option value="${escH(c)}"${c===cur?'selected':''}>${escH(c)}</option>`).join('');
+  const wSel = document.getElementById('filter-work-select');
+  if(wSel){
+    const cur = wSel.value;
+    const companies = [...new Set(vault.filter(e=>e.type==='work'&&e.company).map(e=>e.company))].sort();
+    wSel.innerHTML = `<option value="">💼 Work</option>` + companies.map(c=>`<option value="${escH(c)}"${c===cur?'selected':''}>${escH(c)}</option>`).join('');
+  }
+  const lSel = document.getElementById('filter-loyalty-select');
+  if(lSel){
+    const cur = lSel.value;
+    const persons = [...new Set(vault.filter(e=>e.type==='loyalty'&&e.loyaltyPerson).map(e=>e.loyaltyPerson))].sort();
+    lSel.innerHTML = `<option value="">🎖️ Loyalty</option>` + persons.map(p=>`<option value="${escH(p)}"${p===cur?'selected':''}>${escH(p)}</option>`).join('');
+  }
 }
 function renderVault(){
   renderLegend();
-  populateWorkDropdown();
+  seedLoyalty();
+  populateFilterDropdowns();
   const vault = profiles[currentProfile]?.vault || [];
   const search = document.getElementById('search-input').value.toLowerCase();
   let entries = vault.filter(e => {
@@ -1744,9 +1809,12 @@ function renderVault(){
     } else if(fType === 'work'){
       if(e.type !== 'work') return false;
       if(fVal && e.company !== fVal) return false;
+    } else if(fType === 'loyalty'){
+      if(e.type !== 'loyalty') return false;
+      if(fVal && e.loyaltyPerson !== fVal) return false;
     }
     if(search){
-      const hay = (e.website+e.username+e.comments+(e.company||'')+(e.person||'')).toLowerCase();
+      const hay = (e.website+e.username+e.comments+(e.company||'')+(e.person||'')+(e.loyaltyPerson||'')).toLowerCase();
       if(!hay.includes(search)) return false;
     }
     return true;
@@ -1769,9 +1837,11 @@ function renderVault(){
       <th></th>
     </tr></thead>
     <tbody>${entries.map(e => {
-      const owner = e.type === 'work' ? e.company||'' : e.person||'';
+      const owner = e.type === 'work' ? e.company||'' : e.type === 'loyalty' ? e.loyaltyPerson||'' : e.person||'';
       const typeLabel = e.type === 'work'
         ? `<span class="type-pill type-work" style="white-space:nowrap">💼 ${escH(owner)}</span>`
+        : e.type === 'loyalty'
+        ? `<span class="type-pill type-loyalty" style="white-space:nowrap">🎖️ ${escH(owner)}</span>`
         : `<span class="type-pill type-personal" style="white-space:nowrap">👤 ${escH(owner)}</span>`;
       const notesShort = e.comments
         ? `<span title="${escH(e.comments)}" style="font-size:.78rem;color:var(--muted);cursor:help;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">${escH(e.comments.length>60?e.comments.slice(0,60)+'…':e.comments)}</span>`
@@ -1805,9 +1875,10 @@ function toggleEntryVis(id){
 
 // ============ ADD / EDIT MODAL ============
 function onTypeChange(){
-  const isWork = document.getElementById('type-work').checked;
-  document.getElementById('row-company').style.display = isWork ? 'block' : 'none';
-  document.getElementById('row-person').style.display = isWork ? 'none' : 'block';
+  const type = document.querySelector('input[name="pw-type"]:checked').value;
+  document.getElementById('row-company').style.display = type==='work' ? 'block' : 'none';
+  document.getElementById('row-person').style.display = type==='personal' ? 'block' : 'none';
+  document.getElementById('row-loyalty-person').style.display = type==='loyalty' ? 'block' : 'none';
 }
 function openPwModal(id){
   editingEntryId = id || null;
@@ -1816,14 +1887,15 @@ function openPwModal(id){
   if(id){
     const e = (profiles[currentProfile].vault||[]).find(x=>x.id===id);
     if(!e) return;
-    const isWork = e.type === 'work';
-    document.getElementById(isWork ? 'type-work' : 'type-personal').checked = true;
+    const t = e.type||'personal';
+    document.getElementById('type-'+t).checked = true;
     document.getElementById('pw-website').value = e.website||'';
     document.getElementById('pw-username').value = e.username||'';
     document.getElementById('pw-password').value = e.password||'';
     document.getElementById('pw-comments').value = e.comments||'';
     document.getElementById('pw-company').value = e.company||'';
     document.getElementById('pw-person').value = e.person||'Indy';
+    document.getElementById('pw-loyalty-person').value = e.loyaltyPerson||'Indy';
   } else {
     document.getElementById('type-personal').checked = true;
     document.getElementById('pw-website').value = '';
@@ -1849,6 +1921,7 @@ function savePwEntry(){
     comments: document.getElementById('pw-comments').value.trim(),
     company: type==='work' ? document.getElementById('pw-company').value.trim() : '',
     person: type==='personal' ? document.getElementById('pw-person').value : '',
+    loyaltyPerson: type==='loyalty' ? document.getElementById('pw-loyalty-person').value : '',
     updatedAt: Date.now(),
   };
   const vault = profiles[currentProfile].vault || [];
