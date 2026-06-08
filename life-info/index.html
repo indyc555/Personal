@@ -251,6 +251,9 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
 </head>
 <body>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
 <!-- =========== PROFILE SCREEN =========== -->
 <div id="screen-profiles">
   <h1>🔐 Life Info</h1>
@@ -303,6 +306,7 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
         <button class="nav-tab" onclick="switchTab('taxes')" id="tab-taxes">🧾 Taxes</button>
         <button class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙️ Settings</button>
       </div>
+      <span id="firebase-status" style="font-size:.75rem;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.2)">💾 Local only</span>
       <div class="profile-badge" onclick="showProfiles()">
         <span id="hdr-avatar"></span>
         <span id="hdr-name"></span>
@@ -437,6 +441,34 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
         <h3>Export</h3>
         <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px">Download all your passwords as a CSV file.</p>
         <button class="btn btn-outline" onclick="exportCSV()">⬇ Download CSV</button>
+      </div>
+
+      <div class="settings-card" id="firebase-setup-card">
+        <h3>☁️ Firebase Sync Setup</h3>
+        <p id="firebase-status-detail" style="font-size:.83rem;margin-bottom:14px;padding:8px 12px;border-radius:6px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0">
+          ☁️ Firebase is configured and active — data syncs across all devices.
+        </p>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.6">
+          To enable cross-device sync, set up a free Firebase project and paste the config into this file.
+        </p>
+        <ol style="font-size:.83rem;color:var(--text);line-height:1.8;padding-left:20px;margin-bottom:14px">
+          <li>Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--navy-mid)">console.firebase.google.com</a></li>
+          <li>Create a new project called <strong>life-info</strong></li>
+          <li>Click "Add app" → Web app and copy the config</li>
+          <li>Enable Firestore Database (test mode is fine to start)</li>
+          <li>Open <code>life-info/index.html</code> and replace the <code>REPLACE_WITH_…</code> values in <code>FIREBASE_CONFIG</code></li>
+        </ol>
+        <details style="font-size:.82rem">
+          <summary style="cursor:pointer;font-weight:700;color:var(--navy);margin-bottom:8px">Recommended Firestore Rules</summary>
+          <pre style="background:#f8f9fa;border:1px solid var(--border);border-radius:6px;padding:12px;overflow-x:auto;line-height:1.5;font-size:.78rem">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{collection}/{docId} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+        </details>
       </div>
 
       <div class="settings-card">
@@ -677,6 +709,34 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
 <div id="toast"></div>
 
 <script>
+// ============ FIREBASE CONFIG ============
+const FIREBASE_CONFIG = {
+  apiKey: "REPLACE_WITH_YOUR_API_KEY",
+  authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+  storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
+  appId: "REPLACE_WITH_YOUR_APP_ID"
+};
+
+function isFirebaseConfigured(){
+  return !FIREBASE_CONFIG.apiKey.includes('REPLACE');
+}
+
+let db = null;
+let usingFirestore = false;
+
+if(isFirebaseConfigured()){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    usingFirestore = true;
+  }catch(e){
+    console.error('Firebase init failed, falling back to localStorage:', e);
+    usingFirestore = false;
+  }
+}
+
 // ============ STATE ============
 let profiles = {};
 let currentProfile = null;
@@ -684,10 +744,66 @@ let currentFilter = 'all';
 let editingEntryId = null;
 
 // ============ STORAGE ============
-function saveProfiles(){ localStorage.setItem('lifeinfo_profiles', JSON.stringify(profiles)); }
-function loadProfiles(){
-  try{ profiles = JSON.parse(localStorage.getItem('lifeinfo_profiles') || '{}'); }
+const LS_KEY = 'lifeinfo_profiles';
+
+function saveProfiles(){
+  // Always write to localStorage as cache/fallback
+  localStorage.setItem(LS_KEY, JSON.stringify(profiles));
+  // Fire-and-forget Firestore writes (don't await — keep UI snappy)
+  if(usingFirestore){
+    Object.keys(profiles).forEach(name => {
+      const p = profiles[name];
+      const doc = {
+        emoji: p.emoji || '🧑',
+        pwHash: p.pwHash || '',
+        vault: p.vault || [],
+        savings: p.savings || [],
+        taxes: p.taxes || [],
+        assets: p.assets || [],
+      };
+      db.collection('lifeinfo_profiles').doc(name).set(doc)
+        .catch(err => console.error('Firestore write error for', name, err));
+    });
+  }
+}
+
+async function loadProfiles(){
+  if(usingFirestore){
+    try{
+      const snap = await db.collection('lifeinfo_profiles').get();
+      if(!snap.empty){
+        profiles = {};
+        snap.docs.forEach(doc => { profiles[doc.id] = { ...doc.data() }; });
+        // Also update localStorage cache
+        localStorage.setItem(LS_KEY, JSON.stringify(profiles));
+        return;
+      }
+      // Empty Firestore — fall through to localStorage seed
+    }catch(e){
+      console.error('Firestore load failed, falling back to localStorage:', e);
+    }
+  }
+  // Fallback: localStorage
+  try{ profiles = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
   catch(e){ profiles = {}; }
+}
+
+function updateFirebaseStatusUI(){
+  const el = document.getElementById('firebase-status');
+  const detail = document.getElementById('firebase-status-detail');
+  if(usingFirestore){
+    if(el){ el.textContent = '☁️ Synced'; el.style.color='rgba(255,255,255,.9)'; }
+    if(detail){
+      detail.style.background='#f0fdf4'; detail.style.color='#166534'; detail.style.border='1px solid #bbf7d0';
+      detail.textContent = '☁️ Firebase is configured and active — data syncs across all devices.';
+    }
+  }else{
+    if(el){ el.textContent = '💾 Local only'; }
+    if(detail){
+      detail.style.background='#fffbeb'; detail.style.color='#92400e'; detail.style.border='1px solid #fde68a';
+      detail.textContent = '💾 Firebase is not configured — data is stored locally in this browser only. Follow the steps below to enable sync.';
+    }
+  }
 }
 
 // ============ HASH ============
@@ -712,11 +828,12 @@ function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function $(sel){ return document.querySelector(sel); }
 
 // ============ PROFILE SCREEN ============
-function showProfiles(){
+async function showProfiles(){
   currentProfile = null;
   $('#screen-lock').style.display = 'none';
   $('#screen-app').style.display = 'none';
   $('#screen-profiles').style.display = 'flex';
+  await loadProfiles();
   renderProfiles();
 }
 function renderProfiles(){
@@ -1676,8 +1793,14 @@ async function changePassword(){
 }
 function deleteProfile(){
   if(!confirm(`Delete the profile "${currentProfile}" and ALL its data? This cannot be undone.`)) return;
-  delete profiles[currentProfile];
+  const name = currentProfile;
+  delete profiles[name];
   saveProfiles();
+  // Also delete the Firestore document (fire-and-forget)
+  if(usingFirestore){
+    db.collection('lifeinfo_profiles').doc(name).delete()
+      .catch(err => console.error('Firestore delete error', err));
+  }
   showProfiles();
   toast('Profile deleted');
 }
@@ -1834,16 +1957,7 @@ function exportCSV(){
 }
 
 // ============ INIT ============
-loadProfiles();
-
-// Seed "Indy" profile stub if not present
-if(!profiles['Indy']){
-  profiles['Indy'] = { emoji:'👑', vault:[] };
-  saveProfiles();
-}
-
 // Override createProfile to handle updating an existing stub (no pwHash yet)
-const _origCreate = createProfile;
 async function createProfile(){
   const name = document.getElementById('new-profile-name').value.trim();
   const emoji = document.getElementById('new-profile-emoji').value.trim() || '🧑';
@@ -1867,10 +1981,20 @@ async function createProfile(){
   toast('Profile ready! Click it to log in.');
 }
 
-showProfiles();
-setTimeout(()=>{
-  if(!profiles['Indy'].pwHash)
-    toast('Welcome! Add "Indy" in the form below to set your password.', 4000);
+async function init(){
+  updateFirebaseStatusUI();
+  await loadProfiles();
+
+  // Seed "Indy" profile stub if not present
+  if(!profiles['Indy']){
+    profiles['Indy'] = { emoji:'👑', vault:[] };
+    saveProfiles();
+  }
+
+  await showProfiles();
+  setTimeout(()=>{
+    if(!profiles['Indy'] || !profiles['Indy'].pwHash)
+      toast('Welcome! Add "Indy" in the form below to set your password.', 4000);
 
   // Wire up drag-and-drop for import box
   const dropZone = document.getElementById('import-drop-zone');
@@ -1884,7 +2008,10 @@ setTimeout(()=>{
       if(file) importCSV(file);
     });
   }
-},400);
+  },400);
+}
+
+init();
 </script>
 </body>
 </html>
