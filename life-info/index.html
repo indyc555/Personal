@@ -438,9 +438,14 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       </div>
 
       <div class="settings-card">
-        <h3>Export</h3>
-        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px">Download all your passwords as a CSV file.</p>
-        <button class="btn btn-outline" onclick="exportCSV()">⬇ Download CSV</button>
+        <h3>Export Data</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Download each section as a CSV file.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <button class="btn btn-outline" onclick="exportCSV()">⬇ Passwords CSV</button>
+          <button class="btn btn-outline" onclick="exportSavingsCSV()">⬇ Savings CSV</button>
+          <button class="btn btn-outline" onclick="exportTaxesCSV()">⬇ Taxes CSV</button>
+          <button class="btn btn-outline" onclick="exportAssetsCSV()">⬇ Assets CSV</button>
+        </div>
       </div>
 
       <div class="settings-card" id="firebase-setup-card">
@@ -551,20 +556,16 @@ service cloud.firestore {
 <div class="modal-overlay" id="modal-reset">
   <div class="modal" style="max-width:380px;text-align:center">
     <button class="modal-close" onclick="closeModal('modal-reset')">&times;</button>
-    <div style="font-size:2rem;margin-bottom:8px">⚠️</div>
+    <div style="font-size:2rem;margin-bottom:8px">🔑</div>
     <h2>Reset Password</h2>
     <p style="font-size:.85rem;color:var(--muted);margin:10px 0 20px;line-height:1.5">
-      This will delete all your saved passwords along with your profile password.<br>
-      Type <strong>RESET</strong> to confirm.
+      Enter a new password below. Your saved data will <strong>not</strong> be affected.
     </p>
-    <div class="form-row">
-      <input type="text" id="reset-confirm-input" placeholder='Type RESET'>
-    </div>
     <div class="form-row">
       <label>New Password</label>
       <input type="password" id="reset-new-pw" placeholder="New password">
     </div>
-    <button class="btn btn-danger" style="width:100%" onclick="doReset()">Reset & Wipe Data</button>
+    <button class="btn btn-primary" style="width:100%" onclick="doReset()">Reset Password</button>
   </div>
 </div>
 
@@ -894,21 +895,17 @@ function openApp(){
   renderVault();
 }
 function showResetModal(){
-  document.getElementById('reset-confirm-input').value = '';
   document.getElementById('reset-new-pw').value = '';
   openModal('modal-reset');
 }
 async function doReset(){
-  const confirm = document.getElementById('reset-confirm-input').value.trim();
   const newPw = document.getElementById('reset-new-pw').value;
-  if(confirm !== 'RESET'){ toast('Type RESET to confirm'); return; }
   if(!newPw){ toast('Enter a new password'); return; }
   const hash = await hashPw(newPw);
   profiles[currentProfile].pwHash = hash;
-  profiles[currentProfile].vault = [];
   saveProfiles();
   closeModal('modal-reset');
-  toast('Password reset. All data cleared.');
+  toast('Password reset successfully!');
   openApp();
 }
 
@@ -1954,6 +1951,29 @@ function exportCSV(){
   a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download = currentProfile.replace(/\s/g,'_')+'_passwords.csv';
   a.click();
+}
+
+function csvDownload(filename, rows){
+  const csv = rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = filename;
+  a.click();
+}
+function exportSavingsCSV(){
+  const rows = [['Date','Total Assets','Liquid Assets','Cash','Investments','MSI/Lean','House Debt','Home Equity','Credit Score','College Funds','Comments']];
+  getSavings().forEach(r=>rows.push([r.date,r.total,r.liquid,r.cash,r.investments,r.msi,r.hdebt,r.hequity,r.credit,r.college,r.comments]));
+  csvDownload(currentProfile.replace(/\s/g,'_')+'_savings.csv', rows);
+}
+function exportTaxesCSV(){
+  const rows = [['Tax Year','AGI','Effective Rate (%)','Capital Gains','Comments']];
+  getTaxes().forEach(r=>rows.push([r.year,r.agi,r.rate,r.capGains?'Yes':'No',r.comments]));
+  csvDownload(currentProfile.replace(/\s/g,'_')+'_taxes.csv', rows);
+}
+function exportAssetsCSV(){
+  const rows = [['Category','As Of','Description','Notes']];
+  getAssets().forEach(a=>rows.push([a.category,a.asOfDate,a.description,a.notes]));
+  csvDownload(currentProfile.replace(/\s/g,'_')+'_assets.csv', rows);
 }
 
 // ============ INIT ============
