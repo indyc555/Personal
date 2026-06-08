@@ -817,12 +817,13 @@ let editingEntryId = null;
 const LS_KEY = 'lifeinfo_profiles';
 
 function saveProfiles(){
-  // Always write to localStorage as cache/fallback
   localStorage.setItem(LS_KEY, JSON.stringify(profiles));
-  // Fire-and-forget Firestore writes (don't await — keep UI snappy)
   if(usingFirestore){
-    Object.keys(profiles).forEach(name => {
+    // Only write the currently active profile to avoid overwriting other profiles' data
+    const namesToWrite = currentProfile ? [currentProfile] : Object.keys(profiles);
+    namesToWrite.forEach(name => {
       const p = profiles[name];
+      if(!p) return;
       const doc = {
         emoji: p.emoji || '🧑',
         pwHash: p.pwHash || '',
@@ -830,6 +831,7 @@ function saveProfiles(){
         savings: p.savings || [],
         taxes: p.taxes || [],
         assets: p.assets || [],
+        legend: p.legend || {},
       };
       db.collection('lifeinfo_profiles').doc(name).set(doc)
         .catch(err => console.error('Firestore write error for', name, err));
@@ -842,18 +844,15 @@ async function loadProfiles(){
     try{
       const snap = await db.collection('lifeinfo_profiles').get();
       if(!snap.empty){
-        profiles = {};
+        // Merge Firestore data into profiles — never discard existing profiles
         snap.docs.forEach(doc => { profiles[doc.id] = { ...doc.data() }; });
-        // Also update localStorage cache
         localStorage.setItem(LS_KEY, JSON.stringify(profiles));
         return;
       }
-      // Empty Firestore — fall through to localStorage seed
     }catch(e){
       console.error('Firestore load failed, falling back to localStorage:', e);
     }
   }
-  // Fallback: localStorage
   try{ profiles = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
   catch(e){ profiles = {}; }
 }
@@ -913,7 +912,7 @@ function renderProfiles(){
     return `<div class="profile-tile" onclick="selectProfile('${escH(name)}')">
       <div class="av">${escH(p.emoji||'🧑')}</div>
       <div class="pname">${escH(name)}</div>
-      <div style="font-size:.72rem;opacity:.6;margin-top:4px">${(p.vault||[]).length} entries</div>
+      <div style="font-size:.72rem;opacity:.6;margin-top:4px">${(p.vault||[]).length} passwords</div>
     </div>`;
   }).join('');
 }
@@ -923,7 +922,9 @@ async function createProfile(){
   const pw = document.getElementById('new-profile-pw').value;
   if(!name){ toast('Enter a name'); return; }
   if(!pw){ toast('Set a password'); return; }
-  if(profiles[name]){ toast('Profile already exists'); return; }
+  // Re-load to ensure we have all existing profiles before writing
+  await loadProfiles();
+  if(profiles[name]){ toast('Profile already exists'); renderProfiles(); return; }
   const hash = await hashPw(pw);
   profiles[name] = { emoji, pwHash: hash, vault: [] };
   saveProfiles();
