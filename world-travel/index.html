@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Travel Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<style>
+:root{
+  --green-dark:#1a472a;
+  --green-mid:#2d6a4f;
+  --green-light:#52b788;
+  --gold:#c9a227;
+  --gold-light:#f0c040;
+  --bg:#f5f0e8;
+  --card:#fff;
+  --border:#d9d0b8;
+  --text:#1a1a1a;
+  --muted:#7a7060;
+  --r:10px;
+  --shadow:0 2px 12px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ---- PROFILE SCREEN ---- */
+#profile-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;background:linear-gradient(135deg,var(--green-dark) 0%,var(--green-mid) 100%);
+  padding:20px;
+}
+#profile-screen h1{color:#fff;font-size:2rem;margin-bottom:6px;letter-spacing:1px}
+#profile-screen p{color:rgba(255,255,255,.7);margin-bottom:30px;font-size:.95rem}
+.profile-cards{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:28px}
+.profile-card{
+  background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);
+  border-radius:var(--r);padding:18px 24px;cursor:pointer;text-align:center;
+  color:#fff;transition:.2s;min-width:120px;
+}
+.profile-card:hover{background:rgba(255,255,255,.22);border-color:var(--gold)}
+.profile-card .av{font-size:2rem;margin-bottom:6px}
+.profile-card .pname{font-weight:700;font-size:.95rem}
+.new-profile-box{
+  background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.35);
+  border-radius:var(--r);padding:20px;width:100%;max-width:340px;
+}
+.new-profile-box h3{color:#fff;margin-bottom:14px;font-size:1rem}
+.new-profile-box input,.new-profile-box select{
+  width:100%;padding:9px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.15);color:#fff;font-size:.9rem;margin-bottom:10px;
+}
+.new-profile-box input::placeholder{color:rgba(255,255,255,.5)}
+.new-profile-box select option{color:#000}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:6px;border:none;cursor:pointer;
+  font-size:.88rem;font-weight:600;transition:.15s;
+}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:var(--gold-light);color:#1a1a1a}
+.btn-green{background:var(--green-mid);color:#fff}
+.btn-green:hover{background:var(--green-dark)}
+.btn-outline{background:transparent;color:var(--green-dark);border:1.5px solid var(--green-dark)}
+.btn-outline:hover{background:var(--green-dark);color:#fff}
+.btn-danger{background:#c0392b;color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-sm{padding:5px 11px;font-size:.8rem}
+
+/* ---- MAIN APP ---- */
+#app{display:none;flex-direction:column;min-height:100vh}
+
+/* HEADER */
+header{
+  background:var(--green-dark);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px;gap:12px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.profile-pill{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  border-radius:20px;padding:5px 12px;font-size:.82rem;cursor:pointer;
+  display:flex;align-items:center;gap:6px;color:#fff;
+}
+.profile-pill:hover{background:rgba(255,255,255,.25)}
+.tab-bar{display:flex;gap:4px;background:rgba(0,0,0,.2);border-radius:6px;padding:3px}
+.tab{
+  padding:5px 14px;border-radius:4px;border:none;background:transparent;
+  color:rgba(255,255,255,.7);font-size:.82rem;font-weight:600;cursor:pointer;
+}
+.tab.active{background:rgba(255,255,255,.15);color:#fff}
+
+/* STATS BAR */
+#stats-bar{
+  background:var(--green-mid);color:#fff;
+  display:flex;flex-wrap:wrap;gap:0;
+  border-bottom:3px solid var(--gold);
+}
+.stat-item{
+  padding:10px 20px;border-right:1px solid rgba(255,255,255,.15);
+  text-align:center;flex:1;min-width:100px;
+}
+.stat-item:last-child{border-right:none}
+.stat-num{font-size:1.4rem;font-weight:800;color:var(--gold-light);line-height:1}
+.stat-label{font-size:.68rem;opacity:.8;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+/* MAP VIEW */
+#view-map{padding:0;background:#b8d4e8}
+#map-container{position:relative;width:100%;background:#b8d4e8;cursor:grab}
+#map-container:active{cursor:grabbing}
+#map-container svg{display:block;width:100%;height:auto}
+.country{stroke:#fff;stroke-width:.4px;transition:opacity .15s}
+.country:hover{opacity:.75;cursor:pointer}
+.country.visited-1{fill:#74c69d}
+.country.visited-2-4{fill:#40916c}
+.country.visited-5-9{fill:#1b4332}
+.country.visited-10plus{fill:var(--gold)}
+.country.unvisited{fill:#d0cdc8}
+.country.highlighted{stroke:var(--gold);stroke-width:2px}
+#map-tooltip{
+  position:fixed;background:rgba(26,71,42,.95);color:#fff;
+  padding:8px 12px;border-radius:6px;font-size:.82rem;pointer-events:none;
+  display:none;z-index:200;max-width:200px;border:1px solid var(--gold);
+  box-shadow:var(--shadow);
+}
+#map-tooltip strong{color:var(--gold-light);display:block;margin-bottom:2px}
+.map-legend{
+  position:absolute;bottom:12px;left:12px;background:rgba(255,255,255,.9);
+  border-radius:8px;padding:10px 14px;font-size:.75rem;
+  box-shadow:var(--shadow);
+}
+.map-legend h4{font-size:.72rem;color:var(--green-dark);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.legend-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.legend-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+.map-controls{
+  position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:6px;
+}
+.map-ctrl-btn{
+  width:32px;height:32px;border-radius:6px;background:#fff;border:1px solid var(--border);
+  font-size:1.1rem;cursor:pointer;box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:center;
+}
+.map-ctrl-btn:hover{background:var(--green-dark);color:#fff}
+.map-add-btn{
+  position:absolute;top:10px;right:10px;
+}
+
+/* LIST VIEW */
+#view-list{display:none;padding:16px;max-width:900px;margin:0 auto;width:100%}
+.list-controls{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.list-controls select{padding:7px 10px;border-radius:6px;border:1px solid var(--border);font-size:.85rem;background:#fff}
+#countries-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+#countries-table th{
+  background:var(--green-dark);color:#fff;padding:10px 14px;
+  text-align:left;font-size:.8rem;letter-spacing:.5px;cursor:pointer;
+}
+#countries-table th:hover{background:var(--green-mid)}
+#countries-table td{padding:9px 14px;font-size:.85rem;border-bottom:1px solid #f0ebe0}
+#countries-table tr:last-child td{border-bottom:none}
+#countries-table tr:hover td{background:#f9f5ec}
+.region-pill{
+  background:var(--green-light);color:#fff;
+  padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:600;
+  white-space:nowrap;
+}
+.times-badge{
+  background:var(--gold);color:#fff;
+  padding:2px 7px;border-radius:10px;font-size:.72rem;font-weight:700;
+}
+
+.tbl-link{color:var(--green-mid);font-weight:600;text-decoration:none;white-space:nowrap}
+.tbl-link:hover{text-decoration:underline}
+
+/* STATS VIEW */
+#view-stats{display:none;padding:16px;max-width:860px;margin:0 auto;width:100%}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+.region-card{
+  background:var(--card);border-radius:var(--r);padding:16px;
+  box-shadow:var(--shadow);border-left:4px solid var(--green-light);
+}
+.region-card h3{font-size:.85rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.region-card .big{font-size:2rem;font-weight:800;color:var(--green-dark);line-height:1}
+.region-card .sub{font-size:.75rem;color:var(--muted);margin-top:4px}
+.progress-bar{height:8px;background:#e8e0d0;border-radius:4px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green-mid);border-radius:4px;transition:.4s}
+.stats-section-title{font-size:1rem;font-weight:700;color:var(--green-dark);margin:20px 0 10px;border-bottom:2px solid var(--border);padding-bottom:6px}
+.hotel-card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:16px 20px;display:flex;align-items:flex-start;gap:14px;border-left:4px solid var(--gold)}
+.hotel-card-info{flex:1;min-width:0}
+.hotel-card-country{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.hotel-card-name{font-weight:700;font-size:.95rem;color:var(--green-dark)}
+.hotel-award-pill{display:inline-block;background:var(--gold);color:#fff;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:10px;margin-top:5px;letter-spacing:.3px}
+.hotel-award-select{font-size:.78rem;border:1px solid var(--border);border-radius:6px;padding:3px 6px;color:var(--green-dark);background:#faf8f2;cursor:pointer}
+.hotel-awards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
+
+/* MODAL */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:300;align-items:center;justify-content:center;padding:16px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:var(--r);padding:24px;width:100%;
+  max-width:420px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 8px 40px rgba(0,0,0,.3);position:relative;
+}
+.modal h2{font-size:1.1rem;color:var(--green-dark);margin-bottom:16px}
+.modal-close{
+  position:absolute;top:12px;right:14px;background:none;border:none;
+  font-size:1.3rem;cursor:pointer;color:var(--muted);
+}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:6px;
+  font-size:.9rem;background:#fff;
+}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--green-mid)}
+.modal-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--green-dark);color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:.85rem;opacity:0;transition:.3s;z-index:400;pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:600px){
+  .stat-item{min-width:80px;padding:8px 10px}
+  .stat-num{font-size:1.1rem}
+  #view-list,#view-stats{padding:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- PROFILE SCREEN -->
+<div id="profile-screen">
+  <h1>🌍 World Travel Tracker</h1>
+  <p>Select your profile or create a new one</p>
+  <div class="profile-cards" id="profile-cards"></div>
+  <div class="new-profile-box">
+    <h3>✨ Create New Profile</h3>
+    <input type="text" id="new-profile-name" placeholder="Your name">
+    <select id="new-profile-emoji">
+      <option value="🌍">🌍 Explorer</option>
+      <option value="✈️">✈️ Traveler</option>
+      <option value="🧭">🧭 Adventurer</option>
+      <option value="🗺️">🗺️ Wanderer</option>
+      <option value="🏔️">🏔️ Mountaineer</option>
+      <option value="🏖️">🏖️ Beach Lover</option>
+      <option value="🎒">🎒 Backpacker</option>
+      <option value="👑">👑 Jetsetter</option>
+    </select>
+    <button class="btn btn-gold" onclick="createProfile()" style="width:100%">Create Profile</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <header>
+    <a href="../" style="color:rgba(255,255,255,.6);font-size:.78rem;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:4px" title="Back to all apps">← Home</a>
+    <h1>🌍 World Travel Tracker</h1>
+    <div class="header-right">
+      <div class="tab-bar">
+        <button class="tab active" data-tab="map" onclick="switchTab('map')">🗺 Map</button>
+        <button class="tab" data-tab="list" onclick="switchTab('list')">📋 List</button>
+        <button class="tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</button>
+        <button class="tab" data-tab="photos" onclick="switchTab('photos')">📷 Photos</button>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="openAddModal(null)">+ Add Country</button>
+      <div class="profile-pill" onclick="showProfileScreen()">
+        <span id="header-avatar"></span>
+        <span id="header-name"></span>
+        <span style="opacity:.6;font-size:.75rem">▾</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="stats-bar"></div>
+
+  <!-- MAP -->
+  <div id="view-map">
+    <div id="map-container">
+      <svg id="world-svg"></svg>
+      <div id="map-tooltip"></div>
+      <div class="map-legend">
+        <h4>Times Visited</h4>
+        <div class="legend-row"><div class="legend-swatch" style="background:#74c69d"></div>1 time</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:#40916c"></div>2–4 times</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:#1b4332"></div>5–9 times</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:#c9a227"></div>10+ times</div>
+        <div class="legend-row"><div class="legend-swatch" style="background:#d0cdc8"></div>Not visited</div>
+      </div>
+      <div class="map-controls">
+        <button class="map-ctrl-btn" onclick="mapZoom(1.4)" title="Zoom in">+</button>
+        <button class="map-ctrl-btn" onclick="mapZoom(1/1.4)" title="Zoom out">−</button>
+        <button class="map-ctrl-btn" onclick="mapReset()" title="Reset">⌂</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST -->
+  <div id="view-list">
+    <div class="list-controls">
+      <select id="sort-select" onchange="renderList()">
+        <option value="name">Sort: Country</option>
+        <option value="region">Sort: Region</option>
+        <option value="year">Sort: Year</option>
+        <option value="times">Sort: Times Visited</option>
+      </select>
+      <select id="filter-region" onchange="renderList()">
+        <option value="">All Regions</option>
+        <option>N America</option>
+        <option>S America</option>
+        <option>Europe</option>
+        <option>Mid East/Africa</option>
+        <option>Asia/ANZ</option>
+        <option>Other</option>
+      </select>
+      <span id="list-count" style="margin-left:auto;font-size:.82rem;color:var(--muted)"></span>
+    </div>
+    <table id="countries-table">
+      <thead>
+        <tr>
+          <th onclick="setSortAndRender('name')">Country ↕</th>
+          <th onclick="setSortAndRender('region')">Region ↕</th>
+          <th onclick="setSortAndRender('year')">Year ↕</th>
+          <th onclick="setSortAndRender('times')">Times ↕</th>
+          <th>Top Hotel</th>
+          <th>Photos</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="list-body"></tbody>
+    </table>
+  </div>
+
+  <!-- STATS -->
+  <div id="view-stats">
+    <div id="stats-content"></div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div id="view-photos" style="display:none">
+    <div id="photos-content"></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal-country">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-country')">&times;</button>
+    <h2 id="modal-country-title">Add Country</h2>
+    <div class="form-group">
+      <label>Country</label>
+      <input type="text" id="country-name" placeholder="e.g. Japan" list="country-datalist">
+      <datalist id="country-datalist"></datalist>
+    </div>
+    <div class="form-group">
+      <label>Region</label>
+      <select id="country-region">
+        <option value="">Select region...</option>
+        <option>N America</option>
+        <option>S America</option>
+        <option>Europe</option>
+        <option>Mid East/Africa</option>
+        <option>Asia/ANZ</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Year First Visited</label>
+      <input type="number" id="country-year" placeholder="e.g. 2023" min="1900" max="2100">
+    </div>
+    <div class="form-group">
+      <label>Times Visited</label>
+      <select id="country-times">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10+">10+</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Top Hotel URL <span style="font-weight:400;color:#aaa">(optional)</span></label>
+      <input type="url" id="country-hotel" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label>Photos URL <span style="font-weight:400;color:#aaa">(optional)</span></label>
+      <input type="url" id="country-photos" placeholder="https://...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="saveCountry()">Save</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-country')">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="delete-country-btn" onclick="deleteCountry()" style="margin-left:auto;display:none">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============ DATA ============
+const REGIONS = ['N America','S America','Europe','Mid East/Africa','Asia/ANZ','Other'];
+const REGION_COLORS = {
+  'N America':'#2196f3','S America':'#9c27b0','Europe':'#ff9800',
+  'Mid East/Africa':'#f44336','Asia/ANZ':'#009688','Other':'#607d8b'
+};
+const TOTAL_WORLD_COUNTRIES = 195;
+
+// ISO numeric -> country name mapping (subset used for map clicks)
+const CODE_TO_NAME = {
+  4:'Afghanistan',8:'Albania',12:'Algeria',24:'Angola',32:'Argentina',36:'Australia',
+  40:'Austria',50:'Bangladesh',56:'Belgium',64:'Bhutan',68:'Bolivia',76:'Brazil',
+  100:'Bulgaria',116:'Cambodia',120:'Cameroon',124:'Canada',152:'Chile',156:'China',
+  170:'Colombia',180:'DR Congo',188:'Costa Rica',191:'Croatia',192:'Cuba',
+  196:'Cyprus',203:'Czech Republic',208:'Denmark',214:'Dominican Republic',
+  218:'Ecuador',818:'Egypt',222:'El Salvador',231:'Ethiopia',246:'Finland',
+  250:'France',276:'Germany',288:'Ghana',300:'Greece',320:'Guatemala',
+  332:'Haiti',340:'Honduras',348:'Hungary',356:'India',360:'Indonesia',
+  364:'Iran',368:'Iraq',372:'Ireland',376:'Israel',380:'Italy',388:'Jamaica',
+  392:'Japan',400:'Jordan',398:'Kazakhstan',404:'Kenya',410:'South Korea',
+  414:'Kuwait',418:'Laos',422:'Lebanon',434:'Libya',442:'Luxembourg',
+  458:'Malaysia',484:'Mexico',504:'Morocco',508:'Mozambique',524:'Nepal',
+  528:'Netherlands',554:'New Zealand',566:'Nigeria',578:'Norway',512:'Oman',
+  586:'Pakistan',591:'Panama',600:'Paraguay',604:'Peru',608:'Philippines',
+  616:'Poland',620:'Portugal',634:'Qatar',642:'Romania',643:'Russia',
+  682:'Saudi Arabia',686:'Senegal',694:'Sierra Leone',703:'Slovakia',
+  706:'Somalia',710:'South Africa',724:'Spain',144:'Sri Lanka',
+  729:'Sudan',752:'Sweden',756:'Switzerland',760:'Syria',764:'Thailand',
+  792:'Turkey',800:'Uganda',804:'Ukraine',784:'UAE',826:'United Kingdom',
+  840:'USA',858:'Uruguay',860:'Uzbekistan',862:'Venezuela',704:'Vietnam',
+  887:'Yemen',894:'Zambia',716:'Zimbabwe',44:'Bahamas',84:'Belize',
+  136:'Cayman Islands',470:'Malta',796:'Turks and Caicos',336:'Vatican City',
+  702:'Singapore',308:'Grenada',52:'Barbados',
+};
+
+const NAME_TO_CODE = {};
+Object.entries(CODE_TO_NAME).forEach(([c,n]) => NAME_TO_CODE[n.toLowerCase()] = +c);
+// extra aliases
+const ALIASES = {
+  'uk':826,'england':826,'britain':826,'great britain':826,
+  'uae':784,'united arab emirates':784,'emirates':784,
+  'usa':840,'united states':840,'america':840,'us':840,
+  'czech rep':203,'czechia':203,'czech republic':203,
+  'dom rep':214,'dominican rep':214,
+  'caymans':136,'cayman islands':136,
+  'turks & caicos':796,'turks and caicos':796,
+  'south korea':410,'korea':410,
+  'saudi':682,'ksa':682,
+};
+function nameToCode(name){
+  const l = name.toLowerCase().trim();
+  if(ALIASES[l]) return ALIASES[l];
+  return NAME_TO_CODE[l] || null;
+}
+
+// Indy seed data
+const INDY_SEED = [
+  {countryName:'Bahamas',region:'N America',timesVisited:'1'},
+  {countryName:'Belize',region:'N America',timesVisited:'1'},
+  {countryName:'Canada',region:'N America',timesVisited:'10+'},
+  {countryName:'Costa Rica',region:'N America',timesVisited:'1'},
+  {countryName:'Mexico',region:'N America',timesVisited:'10+'},
+  {countryName:'Turks and Caicos',region:'N America',timesVisited:'1'},
+  {countryName:'Dominican Republic',region:'N America',timesVisited:'2'},
+  {countryName:'Cayman Islands',region:'N America',timesVisited:'1'},
+  {countryName:'USA',region:'N America',timesVisited:'10+'},
+  {countryName:'Brazil',region:'S America',timesVisited:'2',yearFirstVisited:2000},
+  {countryName:'Peru',region:'S America',timesVisited:'1',yearFirstVisited:2023},
+  {countryName:'Poland',region:'Europe',timesVisited:'1',yearFirstVisited:2023},
+  {countryName:'United Kingdom',region:'Europe',timesVisited:'10+'},
+  {countryName:'France',region:'Europe',timesVisited:'5'},
+  {countryName:'Norway',region:'Europe',timesVisited:'2'},
+  {countryName:'Sweden',region:'Europe',timesVisited:'1'},
+  {countryName:'Denmark',region:'Europe',timesVisited:'2'},
+  {countryName:'Netherlands',region:'Europe',timesVisited:'10+'},
+  {countryName:'Belgium',region:'Europe',timesVisited:'1'},
+  {countryName:'Germany',region:'Europe',timesVisited:'4'},
+  {countryName:'Spain',region:'Europe',timesVisited:'4'},
+  {countryName:'Italy',region:'Europe',timesVisited:'6'},
+  {countryName:'Austria',region:'Europe',timesVisited:'1'},
+  {countryName:'Switzerland',region:'Europe',timesVisited:'2'},
+  {countryName:'Czech Republic',region:'Europe',timesVisited:'1'},
+  {countryName:'Greece',region:'Europe',timesVisited:'1'},
+  {countryName:'Turkey',region:'Europe',timesVisited:'2',yearFirstVisited:1998},
+  {countryName:'Portugal',region:'Europe',timesVisited:'2',yearFirstVisited:2022},
+  {countryName:'Vatican City',region:'Europe',timesVisited:'1'},
+  {countryName:'Malta',region:'Europe',timesVisited:'1',yearFirstVisited:2024},
+  {countryName:'Egypt',region:'Mid East/Africa',timesVisited:'1',yearFirstVisited:1995},
+  {countryName:'Israel',region:'Mid East/Africa',timesVisited:'2'},
+  {countryName:'Kuwait',region:'Mid East/Africa',timesVisited:'1'},
+  {countryName:'Oman',region:'Mid East/Africa',timesVisited:'1',yearFirstVisited:2024},
+  {countryName:'Morocco',region:'Mid East/Africa',timesVisited:'1',yearFirstVisited:2025},
+  {countryName:'Qatar',region:'Mid East/Africa',timesVisited:'1',yearFirstVisited:2024},
+  {countryName:'Saudi Arabia',region:'Mid East/Africa',timesVisited:'1'},
+  {countryName:'UAE',region:'Mid East/Africa',timesVisited:'4',yearFirstVisited:2023},
+  {countryName:'India',region:'Asia/ANZ',timesVisited:'10+',yearFirstVisited:1975},
+  {countryName:'Thailand',region:'Asia/ANZ',timesVisited:'2'},
+  {countryName:'China',region:'Asia/ANZ',timesVisited:'2'},
+  {countryName:'Malaysia',region:'Asia/ANZ',timesVisited:'2'},
+  {countryName:'Indonesia',region:'Asia/ANZ',timesVisited:'1'},
+  {countryName:'Russia',region:'Asia/ANZ',timesVisited:'2'},
+  {countryName:'Australia',region:'Asia/ANZ',timesVisited:'3'},
+  {countryName:'South Korea',region:'Asia/ANZ',timesVisited:'1'},
+  {countryName:'Singapore',region:'Asia/ANZ',timesVisited:'1'},
+  {countryName:'Japan',region:'Asia/ANZ',timesVisited:'1',yearFirstVisited:2024},
+  {countryName:'Nepal',region:'Asia/ANZ',timesVisited:'1',yearFirstVisited:2024},
+  {countryName:'Vietnam',region:'Asia/ANZ',timesVisited:'1',yearFirstVisited:2025},
+];
+
+// ============ TRAVELER LEVELS ============
+// Level up every 5 countries for first 15, then every 10
+const LEVELS = [
+  { min:  1, label:'Day Tripper',        emoji:'🌱' },
+  { min:  5, label:'Weekend Wanderer',   emoji:'🎒' },
+  { min: 10, label:'Explorer',           emoji:'🗺️' },
+  { min: 15, label:'Globetrotter',       emoji:'✈️' },
+  { min: 25, label:'World Traveler',     emoji:'🌍' },
+  { min: 35, label:'Jet Setter',         emoji:'🛫' },
+  { min: 45, label:'Seasoned Nomad',     emoji:'🧭' },
+  { min: 55, label:'Continental Master', emoji:'🌐' },
+  { min: 65, label:'Globe Conqueror',    emoji:'🏆' },
+  { min: 75, label:'World Scholar',      emoji:'📜' },
+  { min: 85, label:'Passport Elite',     emoji:'👑' },
+  { min: 95, label:'Grand Ambassador',   emoji:'🌟' },
+  { min:105, label:'Universal Traveler', emoji:'🚀' },
+  { min:115, label:'World Legend',       emoji:'⭐' },
+  { min:125, label:'Planet Champion',    emoji:'🎖️' },
+  { min:135, label:'Global Sage',        emoji:'🔮' },
+  { min:145, label:'World Master',       emoji:'💎' },
+  { min:155, label:'Transcontinental',   emoji:'🌌' },
+  { min:165, label:'World Virtuoso',     emoji:'🏅' },
+  { min:175, label:'Planet Sovereign',   emoji:'👸' },
+  { min:185, label:'World Conqueror',    emoji:'🌏' },
+  { min:195, label:'Planet Complete',    emoji:'🌎' },
+];
+function getTravelerLevel(count){
+  let level = LEVELS[0];
+  for(const l of LEVELS){ if(count >= l.min) level = l; else break; }
+  const levelNum = LEVELS.indexOf(level) + 1;
+  const next = LEVELS[levelNum] || null;
+  const toNext = next ? next.min - count : 0;
+  return { ...level, levelNum, next, toNext };
+}
+
+// ============ STATE ============
+let profiles = {};
+let currentProfile = null;
+let editingCountry = null;
+let worldData = null;
+let projection, path, svg, g, zoom;
+let currentTab = 'map';
+
+function getData(){ return profiles[currentProfile]?.countries || []; }
+function saveData(){
+  localStorage.setItem('worldtravel_profiles', JSON.stringify(profiles));
+}
+function loadData(){
+  try{ profiles = JSON.parse(localStorage.getItem('worldtravel_profiles') || '{}'); }
+  catch(e){ profiles = {}; }
+}
+
+// ============ PROFILES ============
+function showProfileScreen(){
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+  renderProfileCards();
+}
+function renderProfileCards(){
+  const wrap = document.getElementById('profile-cards');
+  const names = Object.keys(profiles);
+  if(names.length === 0){ wrap.innerHTML = '<p style="color:rgba(255,255,255,.5);font-size:.85rem">No profiles yet — create one below</p>'; return; }
+  wrap.innerHTML = names.map(n => `
+    <div class="profile-card" onclick="selectProfile('${escHtml(n)}')">
+      <div class="av">${escHtml(profiles[n].emoji||'🌍')}</div>
+      <div class="pname">${escHtml(n)}</div>
+      <div style="font-size:.75rem;opacity:.7;margin-top:2px">${profiles[n].countries?.length||0} countries</div>
+    </div>
+  `).join('');
+}
+function createProfile(){
+  const name = document.getElementById('new-profile-name').value.trim();
+  const emoji = document.getElementById('new-profile-emoji').value;
+  if(!name){ toast('Enter a name'); return; }
+  if(profiles[name]){ toast('Profile already exists'); return; }
+  const isIndy = name.toLowerCase() === 'indy';
+  profiles[name] = {
+    emoji,
+    countries: isIndy ? INDY_SEED.map((c,i) => ({...c, id: 'c'+i})) : []
+  };
+  saveData();
+  selectProfile(name);
+}
+function selectProfile(name){
+  currentProfile = name;
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').style.flexDirection = 'column';
+  document.getElementById('header-avatar').textContent = profiles[name].emoji || '🌍';
+  document.getElementById('header-name').textContent = name;
+  renderAll();
+}
+
+// ============ TABS ============
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('view-map').style.display = tab === 'map' ? 'block' : 'none';
+  document.getElementById('view-list').style.display = tab === 'list' ? 'block' : 'none';
+  document.getElementById('view-stats').style.display = tab === 'stats' ? 'block' : 'none';
+  document.getElementById('view-photos').style.display = tab === 'photos' ? 'block' : 'none';
+  if(tab === 'map') renderMap();
+  if(tab === 'list') renderList();
+  if(tab === 'stats') renderStats();
+  if(tab === 'photos') renderPhotos();
+}
+
+// ============ STATS BAR ============
+function renderStatsBar(){
+  const countries = getData();
+  const total = countries.length;
+  const byRegion = {};
+  REGIONS.forEach(r => byRegion[r] = 0);
+  countries.forEach(c => { if(byRegion[c.region] !== undefined) byRegion[c.region]++; });
+  const pct = Math.round(total / TOTAL_WORLD_COUNTRIES * 100);
+  const lv = total > 0 ? getTravelerLevel(total) : null;
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-item"><div class="stat-num">${total}</div><div class="stat-label">Countries</div></div>
+    <div class="stat-item"><div class="stat-num">${pct}%</div><div class="stat-label">Of World</div></div>
+    ${lv ? `<div class="stat-item" style="border-left:2px solid var(--gold-light)">
+      <div class="stat-num" style="font-size:1rem">${lv.emoji} Lv.${lv.levelNum}</div>
+      <div class="stat-label">${lv.label}${lv.next ? ` · ${lv.toNext} to Lv.${lv.levelNum+1}` : ''}</div>
+    </div>` : ''}
+    <div class="stat-item"><div class="stat-num">${byRegion['N America']}</div><div class="stat-label">N America</div></div>
+    <div class="stat-item"><div class="stat-num">${byRegion['S America']}</div><div class="stat-label">S America</div></div>
+    <div class="stat-item"><div class="stat-num">${byRegion['Europe']}</div><div class="stat-label">Europe</div></div>
+    <div class="stat-item"><div class="stat-num">${byRegion['Mid East/Africa']}</div><div class="stat-label">Mid East/Africa</div></div>
+    <div class="stat-item"><div class="stat-num">${byRegion['Asia/ANZ']}</div><div class="stat-label">Asia/ANZ</div></div>
+  `;
+}
+
+// ============ MAP ============
+async function initMap(){
+  worldData = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
+  renderMap();
+}
+function getVisitClass(times){
+  if(!times) return 'unvisited';
+  if(times === '10+') return 'visited-10plus';
+  const n = parseInt(times);
+  if(n >= 5) return 'visited-5-9';
+  if(n >= 2) return 'visited-2-4';
+  return 'visited-1';
+}
+function renderMap(){
+  if(!worldData) return;
+  const countries = getData();
+  const visitedMap = {};
+  countries.forEach(c => {
+    const code = nameToCode(c.countryName);
+    if(code) visitedMap[String(code)] = c;
+  });
+
+  const container = document.getElementById('map-container');
+  const W = container.clientWidth || 900;
+  const H = Math.round(W * 0.5);
+
+  projection = d3.geoNaturalEarth1()
+    .scale(W / 6.3)
+    .translate([W/2, H/2]);
+  path = d3.geoPath().projection(projection);
+
+  svg = d3.select('#world-svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', W).attr('height', H);
+  svg.selectAll('*').remove();
+
+  zoom = d3.zoom().scaleExtent([1, 8]).on('zoom', e => g.attr('transform', e.transform));
+  svg.call(zoom);
+
+  // Ocean background
+  svg.append('rect').attr('width', W).attr('height', H).attr('fill','#b8d4e8');
+
+  g = svg.append('g');
+
+  const topo = topojson.feature(worldData, worldData.objects.countries);
+  const tooltip = document.getElementById('map-tooltip');
+
+  g.selectAll('.country')
+    .data(topo.features)
+    .join('path')
+    .attr('class', d => {
+      const c = visitedMap[d.id];
+      return 'country ' + (c ? getVisitClass(c.timesVisited) : 'unvisited');
+    })
+    .attr('d', path)
+    .on('mousemove', (event, d) => {
+      const c = visitedMap[d.id];
+      const name = CODE_TO_NAME[+d.id];
+      if(!c && !name) return;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (event.clientX + 14) + 'px';
+      tooltip.style.top = (event.clientY - 10) + 'px';
+      tooltip.innerHTML = c
+        ? `<strong>${escHtml(c.countryName)}</strong>${c.yearFirstVisited ? 'Since '+c.yearFirstVisited+'<br>':''}Visited: ${escHtml(c.timesVisited)}x`
+        : `<strong>${escHtml(name)}</strong><br><span style="opacity:.7">Not visited yet</span>`;
+    })
+    .on('mouseleave', () => { tooltip.style.display = 'none'; })
+    .on('click', (event, d) => {
+      tooltip.style.display = 'none';
+      const c = visitedMap[d.id];
+      const name = CODE_TO_NAME[+d.id];
+      if(c) openEditModal(c);
+      else if(name) openAddModal(name);
+    });
+
+  // Country borders
+  g.append('path')
+    .datum(topojson.mesh(worldData, worldData.objects.countries, (a,b) => a !== b))
+    .attr('fill','none').attr('stroke','#fff').attr('stroke-width','.4').attr('d',path);
+
+  // Dot markers for small countries/territories too tiny to see at world zoom
+  // [lon, lat, radius_override]
+  const SMALL_COUNTRY_COORDS = {
+    136: [  -81.25,  19.32 ],       // Cayman Islands
+    796: [  -71.80,  21.80 ],       // Turks & Caicos
+    336: [   12.45,  41.90 ],       // Vatican City
+    470: [   14.37,  35.93 ],       // Malta
+    702: [  103.82,   1.35, 7, true], // Singapore — larger dot + label
+    44:  [  -77.40,  25.05 ],       // Bahamas
+    388: [  -77.30,  18.10 ],       // Jamaica
+    52:  [  -59.55,  13.10 ],       // Barbados
+    308: [  -61.68,  12.12 ],       // Grenada
+  };
+
+  const dotLayer = g.append('g').attr('class','small-country-dots');
+  Object.entries(SMALL_COUNTRY_COORDS).forEach(([code, [lon, lat, rOverride, showLabel]]) => {
+    const visited = visitedMap[String(code)];
+    const name = CODE_TO_NAME[+code];
+    if(!name) return;
+    const projected = projection([lon, lat]);
+    if(!projected) return;
+    const [x, y] = projected;
+    const r = rOverride || 5;
+    const fillColor = visited ? (
+      visited.timesVisited === '10+' ? '#c9a227' :
+      parseInt(visited.timesVisited) >= 5 ? '#1b4332' :
+      parseInt(visited.timesVisited) >= 2 ? '#40916c' : '#74c69d'
+    ) : '#d0cdc8';
+
+    const handlers = sel => sel
+      .on('mousemove', (event) => {
+        tooltip.style.display = 'block';
+        tooltip.style.left = (event.clientX + 14) + 'px';
+        tooltip.style.top = (event.clientY - 10) + 'px';
+        tooltip.innerHTML = visited
+          ? `<strong>${escHtml(visited.countryName)}</strong>${visited.yearFirstVisited ? 'Since '+visited.yearFirstVisited+'<br>':''}Visited: ${escHtml(visited.timesVisited)}x`
+          : `<strong>${escHtml(name)}</strong><br><span style="opacity:.7">Not visited yet</span>`;
+      })
+      .on('mouseleave', () => { tooltip.style.display = 'none'; })
+      .on('click', () => {
+        tooltip.style.display = 'none';
+        if(visited) openEditModal(visited);
+        else openAddModal(name);
+      });
+
+    handlers(dotLayer.append('circle')
+      .attr('cx', x).attr('cy', y).attr('r', r)
+      .attr('fill', fillColor).attr('stroke', '#fff').attr('stroke-width', 1.5)
+      .style('cursor', 'pointer'));
+
+    if(showLabel){
+      handlers(dotLayer.append('text')
+        .attr('x', x + r + 3).attr('y', y + 4)
+        .attr('font-size', '8px').attr('font-weight', '700')
+        .attr('fill', visited ? fillColor : '#999')
+        .attr('stroke', '#fff').attr('stroke-width', 2).attr('paint-order', 'stroke')
+        .style('cursor', 'pointer')
+        .text(name));
+    }
+  });
+}
+function mapZoom(factor){
+  svg.transition().duration(300).call(zoom.scaleBy, factor);
+}
+function mapReset(){
+  svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
+}
+
+// ============ LIST ============
+function setSortAndRender(s){ document.getElementById('sort-select').value = s; renderList(); }
+function renderList(){
+  const sort = document.getElementById('sort-select').value;
+  const filterRegion = document.getElementById('filter-region').value;
+  let data = getData();
+  if(filterRegion) data = data.filter(c => c.region === filterRegion);
+  data = [...data].sort((a,b) => {
+    if(sort === 'name') return a.countryName.localeCompare(b.countryName);
+    if(sort === 'region') return a.region.localeCompare(b.region) || a.countryName.localeCompare(b.countryName);
+    if(sort === 'year') return (a.yearFirstVisited||9999) - (b.yearFirstVisited||9999);
+    if(sort === 'times'){
+      const tv = t => t === '10+' ? 10 : parseInt(t)||0;
+      return tv(b.timesVisited) - tv(a.timesVisited);
+    }
+    return 0;
+  });
+  document.getElementById('list-count').textContent = data.length + ' countries';
+  const regionColors = {'N America':'#1a6fb5','S America':'#7b1fa2','Europe':'#e65100','Mid East/Africa':'#b71c1c','Asia/ANZ':'#00695c','Other':'#37474f'};
+  document.getElementById('list-body').innerHTML = data.map(c => `
+    <tr>
+      <td><strong>${escHtml(c.countryName)}</strong></td>
+      <td><span class="region-pill" style="background:${regionColors[c.region]||'#607d8b'}">${escHtml(c.region)}</span></td>
+      <td>${c.yearFirstVisited || '<span style="color:#aaa">—</span>'}</td>
+      <td><span class="times-badge">${escHtml(c.timesVisited)}×</span></td>
+      <td>${c.hotelUrl ? `<a href="${escHtml(c.hotelUrl)}" target="_blank" rel="noopener" class="tbl-link">🏨 Hotel</a>` : '<span style="color:#aaa">—</span>'}</td>
+      <td>${c.photosUrl ? `<a href="${escHtml(c.photosUrl)}" target="_blank" rel="noopener" class="tbl-link">📷 Photos</a>` : '<span style="color:#aaa">—</span>'}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openEditById('${escHtml(c.id)}')">Edit</button></td>
+    </tr>
+  `).join('');
+}
+
+// ============ STATS VIEW ============
+function renderStats(){
+  const countries = getData();
+  const byRegion = {};
+  REGIONS.forEach(r => byRegion[r] = []);
+  countries.forEach(c => { if(byRegion[c.region]) byRegion[c.region].push(c); else byRegion['Other'].push(c); });
+
+  const REGION_TOTALS = {'N America':23,'S America':12,'Europe':44,'Mid East/Africa':54,'Asia/ANZ':47,'Other':15};
+  const tenPlus = countries.filter(c => c.timesVisited === '10+').length;
+  const withYear = countries.filter(c => c.yearFirstVisited).sort((a,b) => a.yearFirstVisited - b.yearFirstVisited);
+  const earliest = withYear[0];
+  const latest = withYear[withYear.length-1];
+
+  const lv = countries.length > 0 ? getTravelerLevel(countries.length) : null;
+  const lvPct = lv && lv.next ? Math.round((countries.length - lv.min) / (lv.next.min - lv.min) * 100) : 100;
+
+  let html = lv ? `
+    <div class="stats-section-title">Traveler Level</div>
+    <div style="background:#fff;border-radius:var(--r);padding:20px 24px;box-shadow:var(--shadow);margin-bottom:20px;border-left:5px solid var(--gold)">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="font-size:3rem;line-height:1">${lv.emoji}</div>
+        <div style="flex:1">
+          <div style="font-size:1.3rem;font-weight:800;color:var(--green-dark)">Level ${lv.levelNum} — ${lv.label}</div>
+          <div style="font-size:.85rem;color:var(--muted);margin-top:2px">${countries.length} countries visited${lv.next ? ` · ${lv.toNext} more to reach Level ${lv.levelNum+1} (${lv.next.emoji} ${lv.next.label})` : ' · Maximum level reached!'}</div>
+          ${lv.next ? `<div style="background:#e8e0d0;border-radius:4px;height:10px;margin-top:8px;overflow:hidden">
+            <div style="width:${lvPct}%;height:100%;background:var(--gold);border-radius:4px;transition:.4s"></div>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="stats-section-title">Level Roadmap</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+      ${LEVELS.map((l,i) => {
+        const reached = countries.length >= l.min;
+        const current = lv.levelNum === i+1;
+        return `<div style="
+          padding:6px 12px;border-radius:20px;font-size:.75rem;font-weight:700;
+          background:${current ? 'var(--gold)' : reached ? 'var(--green-mid)' : '#e8e0d0'};
+          color:${reached || current ? '#fff' : '#999'};
+          border:${current ? '2px solid var(--green-dark)' : '2px solid transparent'};
+        " title="${l.min} countries">${l.emoji} Lv.${i+1} ${l.label} <span style="opacity:.7">(${l.min}+)</span></div>`;
+      }).join('')}
+    </div>
+  ` : '';
+
+  html += `
+    <div class="stats-section-title">By Region</div>
+    <div class="stats-grid">
+  `;
+  REGIONS.forEach(r => {
+    const cnt = byRegion[r].length;
+    const total = REGION_TOTALS[r] || 20;
+    const pct = Math.round(cnt/total*100);
+    html += `
+      <div class="region-card">
+        <h3>${r}</h3>
+        <div class="big">${cnt}</div>
+        <div class="sub">${pct}% of region (est. ${total})</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  });
+  html += `</div>
+    <div class="stats-section-title">Highlights</div>
+    <div class="stats-grid">
+      <div class="region-card" style="border-left-color:var(--gold)">
+        <h3>Total Countries</h3>
+        <div class="big">${countries.length}</div>
+        <div class="sub">${Math.round(countries.length/TOTAL_WORLD_COUNTRIES*100)}% of the world</div>
+      </div>
+      <div class="region-card" style="border-left-color:var(--gold)">
+        <h3>Frequent Flyer</h3>
+        <div class="big">${tenPlus}</div>
+        <div class="sub">Countries visited 10+ times</div>
+      </div>
+      ${earliest ? `<div class="region-card" style="border-left-color:var(--gold)">
+        <h3>Earliest Trip</h3>
+        <div class="big">${earliest.yearFirstVisited}</div>
+        <div class="sub">${escHtml(earliest.countryName)}</div>
+      </div>` : ''}
+      ${latest ? `<div class="region-card" style="border-left-color:var(--gold)">
+        <h3>Most Recent</h3>
+        <div class="big">${latest.yearFirstVisited}</div>
+        <div class="sub">${escHtml(latest.countryName)}</div>
+      </div>` : ''}
+    </div>
+    <div class="stats-section-title">Frequent Destinations (10+ visits)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      ${countries.filter(c=>c.timesVisited==='10+').map(c=>`
+        <span style="background:var(--gold);color:#fff;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:700">${escHtml(c.countryName)}</span>
+      `).join('')||'<span style="color:var(--muted);font-size:.85rem">None yet</span>'}
+    </div>
+  `;
+  // Best Hotels section
+  const hotelsWithUrl = countries.filter(c => c.hotelUrl);
+  const awards = (profiles[currentProfile].hotelAwards || {});
+  const AWARD_OPTIONS = ['','Most Romantic','Best View','Best Value','Most Luxurious','Best Service','Best Location','Hidden Gem','Best Pool','Best Food','Most Unique'];
+
+  if(hotelsWithUrl.length > 0){
+    html += `<div class="stats-section-title">🏨 Best Hotels</div>
+    <div class="hotel-awards-grid">`;
+    hotelsWithUrl.forEach(c => {
+      const award = awards[c.id] || '';
+      html += `
+      <div class="hotel-card">
+        <div style="font-size:2rem;line-height:1">🏨</div>
+        <div class="hotel-card-info">
+          <div class="hotel-card-country">${escHtml(c.countryName)}</div>
+          <div class="hotel-card-name"><a href="${escHtml(c.hotelUrl)}" target="_blank" rel="noopener" class="tbl-link">${escHtml(c.hotelUrl.replace(/^https?:\/\//,'').split('/')[0])}</a></div>
+          ${award ? `<div class="hotel-award-pill">🏆 ${escHtml(award)}</div>` : ''}
+          <div style="margin-top:8px">
+            <select class="hotel-award-select" onchange="setHotelAward('${escHtml(c.id)}', this.value)">
+              ${AWARD_OPTIONS.map(o => `<option value="${escHtml(o)}"${o===award?' selected':''}>${o || '— Set Award —'}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('stats-content').innerHTML = html;
+}
+
+function setHotelAward(countryId, award){
+  const prof = profiles[currentProfile];
+  if(!prof.hotelAwards) prof.hotelAwards = {};
+  if(award) prof.hotelAwards[countryId] = award;
+  else delete prof.hotelAwards[countryId];
+  saveData();
+  renderStats();
+}
+
+// ============ MODAL ============
+function openAddModal(countryName){
+  editingCountry = null;
+  document.getElementById('modal-country-title').textContent = 'Add Country';
+  document.getElementById('country-name').value = countryName || '';
+  document.getElementById('country-name').readOnly = !!countryName;
+  document.getElementById('country-region').value = '';
+  document.getElementById('country-year').value = '';
+  document.getElementById('country-times').value = '1';
+  document.getElementById('country-hotel').value = '';
+  document.getElementById('country-photos').value = '';
+  document.getElementById('delete-country-btn').style.display = 'none';
+  // Populate datalist
+  const dl = document.getElementById('country-datalist');
+  dl.innerHTML = Object.values(CODE_TO_NAME).sort().map(n => `<option value="${escHtml(n)}">`).join('');
+  openModal('modal-country');
+}
+function openEditById(id){
+  const c = getData().find(x => x.id === id);
+  if(c) openEditModal(c);
+}
+function openEditModal(c){
+  editingCountry = c;
+  document.getElementById('modal-country-title').textContent = 'Edit — ' + c.countryName;
+  document.getElementById('country-name').value = c.countryName;
+  document.getElementById('country-name').readOnly = true;
+  document.getElementById('country-region').value = c.region || '';
+  document.getElementById('country-year').value = c.yearFirstVisited || '';
+  document.getElementById('country-times').value = c.timesVisited || '1';
+  document.getElementById('country-hotel').value = c.hotelUrl || '';
+  document.getElementById('country-photos').value = c.photosUrl || '';
+  document.getElementById('delete-country-btn').style.display = 'inline-flex';
+  openModal('modal-country');
+}
+function saveCountry(){
+  const name = document.getElementById('country-name').value.trim();
+  const region = document.getElementById('country-region').value;
+  const year = parseInt(document.getElementById('country-year').value) || null;
+  const times = document.getElementById('country-times').value;
+  const hotelUrl = document.getElementById('country-hotel').value.trim();
+  const photosUrl = document.getElementById('country-photos').value.trim();
+  if(!name){ toast('Country name required'); return; }
+  if(!region){ toast('Select a region'); return; }
+
+  const prof = profiles[currentProfile];
+  if(editingCountry){
+    const c = prof.countries.find(x => x.id === editingCountry.id);
+    if(c){ c.countryName = name; c.region = region; c.yearFirstVisited = year; c.timesVisited = times; c.hotelUrl = hotelUrl; c.photosUrl = photosUrl; }
+  } else {
+    const exists = prof.countries.find(c => c.countryName.toLowerCase() === name.toLowerCase());
+    if(exists){ toast('Already in your list — click it to edit'); closeModal('modal-country'); return; }
+    prof.countries.push({ id: 'c'+Date.now(), countryName: name, region, yearFirstVisited: year, timesVisited: times, hotelUrl, photosUrl });
+  }
+  saveData();
+  closeModal('modal-country');
+  renderAll();
+  toast(editingCountry ? 'Updated!' : 'Added ' + name + '!');
+}
+function deleteCountry(){
+  if(!editingCountry) return;
+  if(!confirm('Remove ' + editingCountry.countryName + ' from your list?')) return;
+  const prof = profiles[currentProfile];
+  prof.countries = prof.countries.filter(c => c.id !== editingCountry.id);
+  saveData();
+  closeModal('modal-country');
+  renderAll();
+  toast('Removed');
+}
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ============ RENDER ALL ============
+function renderAll(){
+  renderStatsBar();
+  if(currentTab === 'map') renderMap();
+  if(currentTab === 'list') renderList();
+  if(currentTab === 'stats') renderStats();
+  if(currentTab === 'photos') renderPhotos();
+}
+
+// ============ PHOTOS ============
+function renderPhotos(){
+  const countries = getData().filter(c => c.photosUrl);
+  const el = document.getElementById('photos-content');
+  if(!countries.length){
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:3rem;margin-bottom:12px">📷</div><div style="font-size:1.1rem">No photo links yet.</div><div style="font-size:.85rem;margin-top:8px">Add a Photos URL when editing a country to see it here.</div></div>';
+    return;
+  }
+  const sorted = [...countries].sort((a,b) => a.countryName.localeCompare(b.countryName));
+  el.innerHTML = `
+    <div style="padding:16px 20px 8px;font-size:.82rem;color:var(--muted)">${sorted.length} countr${sorted.length===1?'y':'ies'} with photos</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;padding:0 20px 24px">
+      ${sorted.map(c => `
+        <a href="${escHtml(c.photosUrl)}" target="_blank" rel="noopener" style="display:block;background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px rgba(0,0,0,.13)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <div style="background:linear-gradient(135deg,var(--green-dark),var(--green-mid));height:80px;display:flex;align-items:center;justify-content:center;font-size:2.2rem">🌍</div>
+          <div style="padding:10px 12px">
+            <div style="font-weight:600;font-size:.92rem">${escHtml(c.countryName)}</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:2px">${escHtml(c.region)}${c.yearFirstVisited ? ' · '+c.yearFirstVisited : ''}</div>
+            <div style="margin-top:8px;font-size:.78rem;color:var(--green-mid);font-weight:500">📷 View Photos →</div>
+          </div>
+        </a>`).join('')}
+    </div>`;
+}
+
+// ============ UTILS ============
+function escHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target === el) el.classList.remove('open'); });
+});
+
+// ============ INIT ============
+loadData();
+// Start
+if(Object.keys(profiles).length === 0){
+  // Auto-create Indy profile
+  profiles['Indy'] = { emoji:'👑', countries: INDY_SEED.map((c,i) => ({...c, id:'c'+i})) };
+  saveData();
+}
+showProfileScreen();
+// Load map data in background
+initMap();
+</script>
+</body>
+</html>

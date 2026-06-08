@@ -3,59 +3,234 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Apps</title>
+<title>Indy's Personal Apps</title>
 <style>
+:root{
+  --green-dark:#1a472a;
+  --green-mid:#2d6a4f;
+  --green-light:#52b788;
+  --gold:#c9a227;
+  --gold-light:#f0c040;
+  --bg:#f5f0e8;
+  --border:#d9d0b8;
+  --r:14px;
+  --shadow:0 4px 20px rgba(0,0,0,.12);
+}
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:24px;
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
-h1{
-  font-size:1.8rem;font-weight:900;letter-spacing:2px;text-align:center;
-  background:linear-gradient(90deg,#D4AF37,#ffd700,#D4AF37);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+header{
+  background:linear-gradient(135deg,var(--green-dark) 0%,var(--green-mid) 100%);
+  padding:48px 24px 40px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+header::before{
+  content:'';
+  position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+header h1{
+  color:#fff;
+  font-size:2.2rem;
+  font-weight:800;
+  letter-spacing:.5px;
+  position:relative;
+}
+header p{
+  color:rgba(255,255,255,.7);
+  margin-top:8px;
+  font-size:1rem;
+  position:relative;
+}
+.gold-bar{
+  height:4px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin-top:32px;
+}
+main{
+  flex:1;
+  max-width:900px;
+  margin:0 auto;
+  width:100%;
+  padding:40px 20px;
+}
+.apps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:22px;
+}
+.app-card{
+  background:#fff;
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  text-decoration:none;
+  color:inherit;
+  display:flex;
+  flex-direction:column;
+  transition:transform .18s, box-shadow .18s;
+  border:1px solid var(--border);
+}
+.app-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 10px 32px rgba(0,0,0,.18);
+}
+.app-card-banner{
+  height:100px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:3.2rem;
+  position:relative;
+  overflow:hidden;
+}
+.app-card-body{
+  padding:18px 20px 22px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.app-card-body h2{
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--green-dark);
   margin-bottom:6px;
 }
-p.sub{color:rgba(255,255,255,.45);text-align:center;font-size:.88rem;margin-bottom:36px;letter-spacing:1px}
-.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;width:100%;max-width:700px}
-.app-card{
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-  border-radius:18px;padding:28px 24px;text-decoration:none;color:inherit;
-  display:flex;align-items:center;gap:18px;
-  transition:transform .2s,background .2s;
+.app-card-body p{
+  font-size:.85rem;
+  color:#666;
+  line-height:1.5;
+  flex:1;
 }
-.app-card:hover{transform:translateY(-4px);background:rgba(255,255,255,.12)}
-.app-icon{
-  width:58px;height:58px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.8rem;flex-shrink:0;
+.app-card-footer{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
-.app-body .app-name{font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:4px}
-.app-body .app-desc{font-size:.8rem;color:rgba(255,255,255,.5);line-height:1.4}
-footer{margin-top:40px;color:rgba(255,255,255,.2);font-size:.75rem}
+.open-btn{
+  background:var(--green-mid);
+  color:#fff;
+  padding:7px 16px;
+  border-radius:20px;
+  font-size:.8rem;
+  font-weight:700;
+  letter-spacing:.3px;
+}
+.app-card:hover .open-btn{
+  background:var(--green-dark);
+}
+.tag{
+  font-size:.7rem;
+  color:var(--gold);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+footer{
+  text-align:center;
+  padding:24px;
+  font-size:.78rem;
+  color:#aaa;
+  border-top:1px solid var(--border);
+  background:#fff;
+}
 </style>
 </head>
 <body>
-<h1>My Apps</h1>
-<p class="sub">indyc555</p>
-<div class="apps">
-  <a class="app-card" href="./hindi-app/">
-    <div class="app-icon" style="background:linear-gradient(135deg,#c0392b,#922b21)">🎬</div>
-    <div class="app-body">
-      <div class="app-name">Seekho Hindi Aap</div>
-      <div class="app-desc">Learn Hindi through Bollywood films, songs & quizzes</div>
-    </div>
-  </a>
-  <a class="app-card" href="./qbr-planner/">
-    <div class="app-icon" style="background:linear-gradient(135deg,#1a6b3c,#0f3d22)">🏔️</div>
-    <div class="app-body">
-      <div class="app-name">QBR Planner</div>
-      <div class="app-desc">Quarterly Bros Reunion — schedule, members & activities</div>
-    </div>
-  </a>
-</div>
-<footer>indyc555.github.io/Personal</footer>
+
+<header>
+  <h1>👋 Indy's Apps</h1>
+  <p>Personal tools & projects</p>
+</header>
+<div class="gold-bar"></div>
+
+<main>
+  <div class="apps-grid">
+
+    <a class="app-card" href="qbr-planner/">
+      <div class="app-card-banner" style="background:linear-gradient(135deg,#1a472a,#2d6a4f)">
+        🍺
+      </div>
+      <div class="app-card-body">
+        <h2>QBR Planner</h2>
+        <p>Plan your Quarterly Bros Reunions — track members, flights, activities, itinerary, notes, and todos all in one place.</p>
+        <div class="app-card-footer">
+          <span class="open-btn">Open →</span>
+          <span class="tag">Group Trips</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="app-card" href="world-travel/">
+      <div class="app-card-banner" style="background:linear-gradient(135deg,#0d3b6e,#1a6fb5)">
+        🌍
+      </div>
+      <div class="app-card-body">
+        <h2>World Travel Tracker</h2>
+        <p>Visualize every country you've visited on an interactive world map. Track visit counts, years, and stats by region.</p>
+        <div class="app-card-footer">
+          <span class="open-btn">Open →</span>
+          <span class="tag">Travel</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="app-card" href="hindi-app/">
+      <div class="app-card-banner" style="background:linear-gradient(135deg,#7b1fa2,#ab47bc)">
+        🇮🇳
+      </div>
+      <div class="app-card-body">
+        <h2>Hindi App</h2>
+        <p>Learn and practice Hindi — vocabulary, phrases, and language tools.</p>
+        <div class="app-card-footer">
+          <span class="open-btn">Open →</span>
+          <span class="tag">Language</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="app-card" href="life-info/">
+      <div class="app-card-banner" style="background:linear-gradient(135deg,#0d1b2a,#1b2d45)">
+        🔐
+      </div>
+      <div class="app-card-body">
+        <h2>Life Info</h2>
+        <p>Password-protected personal vault. Store passwords, logins, and sensitive info by type — Personal or Work.</p>
+        <div class="app-card-footer">
+          <span class="open-btn">Open →</span>
+          <span class="tag">Private</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="app-card" href="iron-log/">
+      <div class="app-card-banner" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
+        🏋️
+      </div>
+      <div class="app-card-body">
+        <h2>Iron Log</h2>
+        <p>Track your workouts and weights over time. Log exercises, monitor progress, and crush your fitness goals.</p>
+        <div class="app-card-footer">
+          <span class="open-btn">Open →</span>
+          <span class="tag">Fitness</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</main>
+
+<footer>
+  Built with ❤️ · Hosted on GitHub Pages
+</footer>
+
 </body>
 </html>

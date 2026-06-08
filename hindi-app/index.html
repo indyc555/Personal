@@ -2463,6 +2463,73 @@ function openSongChapter(key){
   });
   showView('song-lesson');
 }
+
+// ═══════════════════════════════════
+// ADMIN PANEL (tap version badge 5×)
+// ═══════════════════════════════════
+(function(){
+  let taps=0,tapTimer=null;
+  document.getElementById('app-version').style.cursor='pointer';
+  document.getElementById('app-version').addEventListener('click',function(){
+    taps++;
+    clearTimeout(tapTimer);
+    tapTimer=setTimeout(()=>taps=0,1500);
+    if(taps>=5){taps=0;openAdminPanel();}
+  });
+  function openAdminPanel(){
+    const existing=document.getElementById('admin-overlay');
+    if(existing)existing.remove();
+    const overlay=document.createElement('div');
+    overlay.id='admin-overlay';
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    const userOpts=users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+    overlay.innerHTML=`<div style="background:#fff;border-radius:14px;padding:24px;max-width:340px;width:100%;font-family:inherit">
+      <h3 style="margin:0 0 16px;font-size:1.1rem">🔧 Admin Panel</h3>
+      <div style="margin-bottom:12px">
+        <label style="font-size:.82rem;font-weight:700;color:#666;display:block;margin-bottom:4px">User</label>
+        <select id="adm-user" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:.9rem">${userOpts}</select>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:.82rem;font-weight:700;color:#666;display:block;margin-bottom:4px">Movie Points (totalPoints)</label>
+        <input id="adm-pts" type="number" min="0" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:.9rem" placeholder="e.g. 200">
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:.82rem;font-weight:700;color:#666;display:block;margin-bottom:4px">Singer Points (singerPoints)</label>
+        <input id="adm-spts" type="number" min="0" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:.9rem" placeholder="e.g. 0">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="adm-cancel" style="padding:8px 16px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:.88rem">Cancel</button>
+        <button id="adm-save" style="padding:8px 16px;border:none;border-radius:8px;background:#c0392b;color:#fff;cursor:pointer;font-size:.88rem;font-weight:700">Save</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    // Pre-fill on user change
+    function prefill(){
+      const uid=document.getElementById('adm-user').value;
+      const u=users.find(u=>u.id===uid);
+      if(u){
+        document.getElementById('adm-pts').value=u.totalPoints||0;
+        document.getElementById('adm-spts').value=u.singerPoints||0;
+      }
+    }
+    document.getElementById('adm-user').addEventListener('change',prefill);
+    prefill();
+    document.getElementById('adm-cancel').onclick=()=>overlay.remove();
+    document.getElementById('adm-save').onclick=function(){
+      const uid=document.getElementById('adm-user').value;
+      const pts=parseInt(document.getElementById('adm-pts').value)||0;
+      const spts=parseInt(document.getElementById('adm-spts').value)||0;
+      const u=users.find(u=>u.id===uid);
+      if(u){u.totalPoints=pts;u.singerPoints=spts;}
+      if(uid===currentUserId){totalPoints=pts;singerPoints=spts;}
+      saveState();
+      overlay.remove();
+      showToast('Points updated for '+( u?u.name:'user'));
+      renderHome();
+    };
+    overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  }
+})();
 </script>
 </body>
 </html>

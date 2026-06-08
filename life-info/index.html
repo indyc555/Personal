@@ -1,0 +1,2245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Info</title>
+<style>
+:root{
+  --navy:#0d1b2a;
+  --navy-mid:#1b2d45;
+  --navy-light:#243b55;
+  --gold:#c9a227;
+  --gold-light:#f0c040;
+  --green:#2d6a4f;
+  --red:#c0392b;
+  --bg:#f0f2f5;
+  --card:#fff;
+  --border:#dde3ea;
+  --text:#1a1a2e;
+  --muted:#6b7280;
+  --r:10px;
+  --shadow:0 2px 14px rgba(0,0,0,.10);
+  --shadow-lg:0 6px 28px rgba(0,0,0,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ============ BUTTONS ============ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;
+  border:none;cursor:pointer;font-size:.88rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--navy-mid);color:#fff}
+.btn-primary:hover{background:var(--navy)}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:var(--gold-light);color:#1a1a1a}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#1a472a}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-outline{background:transparent;border:1.5px solid var(--navy-mid);color:var(--navy-mid)}
+.btn-outline:hover{background:var(--navy-mid);color:#fff}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--navy-mid);color:var(--navy-mid)}
+.btn-sm{padding:5px 11px;font-size:.78rem}
+
+/* ============ PROFILE SCREEN ============ */
+#screen-profiles{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+  padding:32px 20px;
+}
+#screen-profiles h1{color:#fff;font-size:2rem;font-weight:800;letter-spacing:.5px;margin-bottom:6px}
+#screen-profiles .sub{color:rgba(255,255,255,.6);margin-bottom:32px;font-size:.95rem}
+.profile-grid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:28px}
+.profile-tile{
+  background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);
+  border-radius:var(--r);padding:20px 26px;cursor:pointer;text-align:center;
+  color:#fff;transition:.18s;min-width:120px;
+}
+.profile-tile:hover{background:rgba(255,255,255,.2);border-color:var(--gold);transform:translateY(-2px)}
+.profile-tile .av{font-size:2.2rem;margin-bottom:8px}
+.profile-tile .pname{font-weight:700;font-size:.95rem}
+.new-profile-box{
+  background:rgba(255,255,255,.08);border:2px dashed rgba(255,255,255,.3);
+  border-radius:var(--r);padding:22px;width:100%;max-width:360px;
+}
+.new-profile-box h3{color:#fff;margin-bottom:14px;font-size:.95rem;font-weight:700}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.field input,.field select{
+  width:100%;padding:9px 12px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.12);color:#fff;font-size:.9rem;
+}
+.field input::placeholder{color:rgba(255,255,255,.4)}
+.field select option{color:#000}
+
+/* ============ LOCK SCREEN ============ */
+#screen-lock{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+  padding:32px 20px;
+}
+.lock-box{
+  background:#fff;border-radius:14px;padding:36px 40px;width:100%;max-width:380px;
+  box-shadow:var(--shadow-lg);text-align:center;
+}
+.lock-icon{font-size:3rem;margin-bottom:12px}
+.lock-box h2{font-size:1.4rem;font-weight:800;color:var(--navy);margin-bottom:4px}
+.lock-box .sub{font-size:.85rem;color:var(--muted);margin-bottom:24px}
+.lock-box input{
+  width:100%;padding:11px 14px;border-radius:7px;border:1.5px solid var(--border);
+  font-size:1rem;margin-bottom:14px;outline:none;transition:.15s;
+}
+.lock-box input:focus{border-color:var(--navy-mid)}
+.lock-error{color:var(--red);font-size:.82rem;margin-top:6px;min-height:18px}
+.lock-links{margin-top:16px;font-size:.8rem;color:var(--muted)}
+.lock-links a{color:var(--navy-mid);cursor:pointer;text-decoration:underline}
+
+/* ============ MAIN APP ============ */
+#screen-app{display:none;flex-direction:column;min-height:100vh}
+header{
+  background:linear-gradient(90deg,var(--navy) 0%,var(--navy-light) 100%);
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-wrap:wrap;gap:10px;
+}
+header h1{color:#fff;font-size:1.1rem;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.profile-badge{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  border-radius:20px;padding:5px 14px;font-size:.82rem;color:#fff;
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+}
+.profile-badge:hover{background:rgba(255,255,255,.2)}
+
+/* ============ MAIN CONTENT ============ */
+main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
+
+.section-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;flex-wrap:wrap;gap:10px;
+}
+.section-hdr h2{font-size:1.2rem;font-weight:800;color:var(--navy)}
+
+/* ============ FILTER BAR ============ */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.filter-btn{
+  padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;
+}
+.filter-btn.active{background:var(--navy-mid);color:#fff;border-color:var(--navy-mid)}
+.search-input{
+  flex:1;min-width:180px;padding:7px 12px;border-radius:7px;
+  border:1.5px solid var(--border);font-size:.85rem;outline:none;background:#fff;
+}
+.search-input:focus{border-color:var(--navy-mid)}
+.filter-select{
+  padding:6px 28px 6px 12px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance:none;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;transition:.15s;
+}
+.filter-select.active{background-color:var(--navy-mid);color:#fff;border-color:var(--navy-mid);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff'/%3E%3C/svg%3E");
+}
+.filter-select:focus{outline:none;border-color:var(--navy-mid)}
+
+/* ============ PASSWORD TABLE ============ */
+.pw-table-wrap{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.pw-table{width:100%;border-collapse:collapse}
+.pw-table th{
+  background:var(--navy);color:#fff;padding:10px 14px;text-align:left;
+  font-size:.75rem;letter-spacing:.5px;font-weight:700;
+}
+.pw-table td{padding:10px 14px;font-size:.84rem;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+.pw-table tr:last-child td{border-bottom:none}
+.pw-table tr:hover td{background:#f7f9fc}
+.pw-val{font-family:monospace;letter-spacing:.5px;font-size:.82rem}
+.pw-mask{letter-spacing:2px;color:var(--muted)}
+.type-pill{
+  display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.type-work{background:#dbeafe;color:#1e40af}
+.type-personal{background:#d1fae5;color:#065f46}
+.sub-label{font-size:.72rem;color:var(--muted);margin-top:2px}
+.pw-actions{display:flex;gap:6px;justify-content:flex-end}
+.empty-state{text-align:center;padding:52px 20px;color:var(--muted)}
+.empty-state .big-icon{font-size:3rem;margin-bottom:10px}
+
+/* ============ MODAL ============ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:500;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:14px;padding:28px 30px;width:100%;max-width:500px;
+  max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);position:relative;
+}
+.modal h2{font-size:1.1rem;font-weight:800;color:var(--navy);margin-bottom:20px}
+.modal-close{
+  position:absolute;top:14px;right:16px;background:none;border:none;
+  font-size:1.3rem;cursor:pointer;color:var(--muted);line-height:1;
+}
+.modal-close:hover{color:var(--navy)}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.form-row input,.form-row select,.form-row textarea{
+  width:100%;padding:9px 12px;border-radius:6px;border:1.5px solid var(--border);
+  font-size:.9rem;outline:none;transition:.15s;background:#fff;
+}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--navy-mid)}
+.form-row textarea{resize:vertical;min-height:70px;font-family:inherit}
+.pw-input-wrap{position:relative}
+.pw-input-wrap input{padding-right:44px}
+.pw-toggle{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;font-size:1rem;color:var(--muted);
+}
+.pw-toggle:hover{color:var(--navy)}
+.type-toggle{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;margin-top:4px}
+.type-toggle input{display:none}
+.type-toggle label{
+  flex:1;text-align:center;padding:8px;cursor:pointer;font-size:.85rem;font-weight:600;
+  color:var(--muted);transition:.15s;
+}
+.type-toggle input:checked + label{background:var(--navy-mid);color:#fff}
+.modal-actions{display:flex;gap:10px;margin-top:20px;align-items:center}
+.modal-actions .spacer{flex:1}
+
+/* ============ SETTINGS SECTION ============ */
+.settings-card{
+  background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:22px 24px;margin-bottom:16px;
+}
+.settings-card h3{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:14px;
+  padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ============ IMPORT ============ */
+.import-box{
+  border:2px dashed var(--border);border-radius:var(--r);padding:24px;text-align:center;
+  color:var(--muted);cursor:pointer;transition:.15s;background:#fafbfc;
+}
+.import-box:hover{border-color:var(--navy-mid);color:var(--navy)}
+.import-box input[type=file]{display:none}
+
+/* ============ NAV TABS ============ */
+.nav-tabs{display:flex;gap:4px;background:rgba(0,0,0,.15);border-radius:6px;padding:3px}
+.nav-tab{
+  padding:5px 14px;border-radius:4px;border:none;background:transparent;
+  color:rgba(255,255,255,.65);font-size:.82rem;font-weight:600;cursor:pointer;transition:.15s;
+}
+.nav-tab.active{background:rgba(255,255,255,.15);color:#fff}
+
+/* ============ TOAST ============ */
+#toast{
+  position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;
+  padding:11px 20px;border-radius:8px;font-size:.85rem;font-weight:600;
+  box-shadow:var(--shadow-lg);z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;
+}
+#toast.show{opacity:1}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:640px){
+  .pw-table th:nth-child(2),.pw-table td:nth-child(2),
+  .pw-table th:nth-child(4),.pw-table td:nth-child(4){display:none}
+  .modal{padding:20px 16px}
+  main{padding:16px 12px}
+}
+</style>
+</head>
+<body>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<!-- =========== PROFILE SCREEN =========== -->
+<div id="screen-profiles">
+  <h1>🔐 Life Info</h1>
+  <p class="sub">Your secure personal information vault</p>
+  <div class="profile-grid" id="profile-grid"></div>
+  <div class="new-profile-box">
+    <h3>+ Add Profile</h3>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="new-profile-name" placeholder="e.g. Ananya">
+    </div>
+    <div class="field">
+      <label>Emoji</label>
+      <input type="text" id="new-profile-emoji" placeholder="🧑" maxlength="2">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="new-profile-pw" placeholder="Set a password">
+    </div>
+    <button class="btn btn-gold" onclick="createProfile()">Create Profile</button>
+  </div>
+</div>
+
+<!-- =========== LOCK SCREEN =========== -->
+<div id="screen-lock">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <h2 id="lock-name"></h2>
+    <p class="sub">Enter your password to unlock</p>
+    <input type="password" id="lock-pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockProfile()">
+    <button class="btn btn-primary" style="width:100%" onclick="unlockProfile()">Unlock</button>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-links">
+      <a onclick="showProfiles()">← Back</a>
+      &nbsp;·&nbsp;
+      <a onclick="showResetModal()">Forgot password?</a>
+    </div>
+  </div>
+</div>
+
+<!-- =========== MAIN APP =========== -->
+<div id="screen-app">
+  <header>
+    <h1>🔐 Life Info</h1>
+    <a href="../" style="color:rgba(255,255,255,.65);font-size:.8rem;font-weight:600;text-decoration:none;margin-left:10px;padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.25);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='transparent'">🏠 Home</a>
+    <div class="hdr-right">
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('passwords')" id="tab-passwords">🔑 Passwords</button>
+        <button class="nav-tab" onclick="switchTab('savings')" id="tab-savings">💰 Savings</button>
+        <button class="nav-tab" onclick="switchTab('taxes')" id="tab-taxes">🧾 Taxes</button>
+        <button class="nav-tab" onclick="switchTab('settings')" id="tab-settings">⚙️ Settings</button>
+      </div>
+      <span id="firebase-status" style="font-size:.75rem;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.2)">💾 Local only</span>
+      <div class="profile-badge" onclick="showProfiles()">
+        <span id="hdr-avatar"></span>
+        <span id="hdr-name"></span>
+        <span style="opacity:.6">↩</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- PASSWORDS TAB -->
+    <div id="tab-content-passwords">
+      <div class="section-hdr">
+        <h2>Password Vault</h2>
+        <button class="btn btn-gold" onclick="openPwModal()">+ Add Password</button>
+      </div>
+
+      <!-- LEGEND -->
+      <div id="legend-section" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <span style="font-size:.88rem;font-weight:700;color:var(--navy)">📖 Legend</span>
+          <button class="btn btn-ghost btn-sm" onclick="openLegendModal()">+ Add / Edit Legend</button>
+        </div>
+        <div id="legend-cards" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-btn active" id="filter-all-btn" onclick="setFilter('all',this)">All</button>
+        <select class="filter-select" id="filter-personal-select" onchange="setFilterSelect('personal',this)">
+          <option value="">👤 Personal</option>
+          <option value="Indy">Indy</option>
+          <option value="Ananya">Ananya</option>
+          <option value="Ronin">Ronin</option>
+          <option value="Kai">Kai</option>
+          <option value="Janci">Janci</option>
+          <option value="Simran">Simran</option>
+          <option value="Banani">Banani</option>
+          <option value="Pankaj">Pankaj</option>
+        </select>
+        <select class="filter-select" id="filter-work-select" onchange="setFilterSelect('work',this)">
+          <option value="">💼 Work</option>
+        </select>
+        <input class="search-input" type="text" id="search-input" placeholder="Search website, username…" oninput="renderVault()">
+      </div>
+      <div class="pw-table-wrap" id="vault-wrap">
+        <div class="empty-state"><div class="big-icon">🔑</div><p>No passwords yet. Click + Add Password to get started.</p></div>
+      </div>
+    </div>
+
+    <!-- SAVINGS TAB -->
+    <div id="tab-content-savings" style="display:none">
+      <div class="section-hdr">
+        <h2>Savings & Net Worth</h2>
+        <button class="btn btn-gold" onclick="openSavingsModal()">+ Add Snapshot</button>
+      </div>
+
+      <!-- STATS CARDS -->
+      <div id="savings-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:22px"></div>
+
+      <!-- TREND CHART -->
+      <div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px;display:none" id="savings-chart-wrap">
+        <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:12px">Net Worth Trend</div>
+        <div id="savings-chart-scroll" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+          <canvas id="savings-chart" style="height:200px;display:block"></canvas>
+        </div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="pw-table-wrap" id="savings-table-wrap">
+        <div class="empty-state"><div class="big-icon">💰</div><p>No snapshots yet. Click <strong>+ Add Snapshot</strong> to get started.</p></div>
+      </div>
+
+      <!-- EXPLANATION OF ASSETS -->
+      <div class="section-hdr" style="margin-top:32px">
+        <h2>Explanation of Assets</h2>
+        <button class="btn btn-gold" onclick="openAssetModal()">+ Add Item</button>
+      </div>
+      <div class="pw-table-wrap" id="assets-table-wrap">
+        <div class="empty-state"><div class="big-icon">📋</div><p>No asset explanations yet. Click <strong>+ Add Item</strong> to get started.</p></div>
+      </div>
+    </div>
+
+    <!-- TAXES TAB -->
+    <div id="tab-content-taxes" style="display:none">
+      <div class="section-hdr">
+        <h2>Tax History</h2>
+        <button class="btn btn-gold" onclick="openTaxModal()">+ Add Year</button>
+      </div>
+
+      <!-- STATS -->
+      <div id="tax-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:22px"></div>
+
+      <!-- CHART -->
+      <div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px;display:none" id="tax-chart-wrap">
+        <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:12px">AGI by Year <span style="font-size:.72rem;font-weight:400;color:var(--muted)">(🔴 = large capital gains event)</span></div>
+        <canvas id="tax-chart" style="width:100%;height:220px"></canvas>
+      </div>
+
+      <!-- TABLE -->
+      <div class="pw-table-wrap" id="tax-table-wrap">
+        <div class="empty-state"><div class="big-icon">🧾</div><p>No tax records yet.</p></div>
+      </div>
+      <div style="margin-top:10px;font-size:.78rem;color:var(--muted)">🔴 Red row = large capital gains event</div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="tab-content-settings" style="display:none">
+      <div class="section-hdr"><h2>Settings</h2></div>
+
+      <div class="settings-card">
+        <h3>Change Password</h3>
+        <div class="form-row">
+          <label>Current Password</label>
+          <input type="password" id="chg-current" placeholder="Current password">
+        </div>
+        <div class="form-row">
+          <label>New Password</label>
+          <input type="password" id="chg-new" placeholder="New password">
+        </div>
+        <div class="form-row">
+          <label>Confirm New Password</label>
+          <input type="password" id="chg-confirm" placeholder="Confirm new password">
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>Import from CSV</h3>
+        <div style="margin-bottom:14px">
+          <div style="font-size:.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Parse Mode</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.83rem">
+              <input type="radio" name="import-mode" value="auto" checked style="margin-top:2px;accent-color:var(--navy-mid)">
+              <span><strong>Auto-detect</strong> — detects multi-column Google Sheets format or standard CSV</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.83rem">
+              <input type="radio" name="import-mode" value="password-parse" style="margin-top:2px;accent-color:var(--navy-mid)">
+              <span><strong>Password Parse</strong> — parses each cell as <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">Website: username, password!</code> — text before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">:</code> is the site, before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">,</code> is the username, up to 12 chars ending at last <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">!</code> is the password, remainder goes to Comments. Each cell is parsed independently per its column owner. <strong>Tip:</strong> In Google Sheets use <em>File → Download → TSV</em> to avoid comma conflicts inside cells.</span>
+            </label>
+          </div>
+        </div>
+        <div class="import-box" id="import-drop-zone" onclick="document.getElementById('csv-file').click()">
+          <div style="font-size:1.6rem;margin-bottom:6px">📂</div>
+          <div style="font-weight:700;margin-bottom:4px">Click to choose CSV file</div>
+          <div style="font-size:.78rem">or drag and drop</div>
+          <input type="file" id="csv-file" accept=".csv,.tsv" onchange="importCSV(this.files[0])">
+        </div>
+        <div id="import-status" style="margin-top:10px;font-size:.82rem;color:var(--muted)"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>Export Data</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Download each section as a CSV file.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <button class="btn btn-outline" onclick="exportCSV()">⬇ Passwords CSV</button>
+          <button class="btn btn-outline" onclick="exportSavingsCSV()">⬇ Savings CSV</button>
+          <button class="btn btn-outline" onclick="exportTaxesCSV()">⬇ Taxes CSV</button>
+          <button class="btn btn-outline" onclick="exportAssetsCSV()">⬇ Assets CSV</button>
+        </div>
+      </div>
+
+
+
+      <div class="settings-card">
+        <h3 style="color:var(--red)">Delete Data</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Permanently clear a section's data. You can export first to keep a copy.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">🔑 Passwords</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('vault','Passwords')">Delete All</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">💰 Savings</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportSavingsCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('savings','Savings')">Delete All</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">🧾 Taxes</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportTaxesCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('taxes','Taxes')">Delete All</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">📋 Asset Explanations</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportAssetsCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('assets','Asset Explanations')">Delete All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3 style="color:var(--red)">Danger Zone</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px">Permanently delete this profile and all its data.</p>
+        <button class="btn btn-danger" onclick="deleteProfile()">Delete Profile</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- =========== ADD/EDIT PASSWORD MODAL =========== -->
+<div class="modal-overlay" id="modal-pw">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-pw')">&times;</button>
+    <h2 id="modal-pw-title">Add Password</h2>
+
+    <div class="form-row">
+      <label>Type</label>
+      <div class="type-toggle">
+        <input type="radio" name="pw-type" id="type-personal" value="personal" checked onchange="onTypeChange()">
+        <label for="type-personal">👤 Personal</label>
+        <input type="radio" name="pw-type" id="type-work" value="work" onchange="onTypeChange()">
+        <label for="type-work">💼 Work</label>
+      </div>
+    </div>
+
+    <div class="form-row" id="row-person">
+      <label>Person</label>
+      <select id="pw-person">
+        <option value="Indy">Indy</option>
+        <option value="Ananya">Ananya</option>
+        <option value="Ronin">Ronin</option>
+        <option value="Kai">Kai</option>
+        <option value="Janci">Janci</option>
+        <option value="Simran">Simran</option>
+        <option value="Banani">Banani</option>
+        <option value="Pankaj">Pankaj</option>
+      </select>
+    </div>
+
+    <div class="form-row" id="row-company" style="display:none">
+      <label>Company</label>
+      <input type="text" id="pw-company" placeholder="e.g. Jaggaer">
+    </div>
+
+    <div class="form-row">
+      <label>Website</label>
+      <input type="text" id="pw-website" placeholder="e.g. google.com">
+    </div>
+
+    <div class="form-row">
+      <label>Username / Email</label>
+      <input type="text" id="pw-username" placeholder="e.g. indy@email.com">
+    </div>
+
+    <div class="form-row">
+      <label>Password</label>
+      <div class="pw-input-wrap">
+        <input type="password" id="pw-password" placeholder="Enter password">
+        <button class="pw-toggle" type="button" onclick="togglePwVis('pw-password',this)">👁</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Comments</label>
+      <textarea id="pw-comments" placeholder="Any notes…"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="pw-delete-btn" style="display:none" onclick="deletePwEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-pw')">Cancel</button>
+      <button class="btn btn-gold" onclick="savePwEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== RESET PASSWORD MODAL =========== -->
+<div class="modal-overlay" id="modal-reset">
+  <div class="modal" style="max-width:380px;text-align:center">
+    <button class="modal-close" onclick="closeModal('modal-reset')">&times;</button>
+    <div style="font-size:2rem;margin-bottom:8px">🔑</div>
+    <h2>Reset Password</h2>
+    <p style="font-size:.85rem;color:var(--muted);margin:10px 0 20px;line-height:1.5">
+      Enter a new password below. Your saved data will <strong>not</strong> be affected.
+    </p>
+    <div class="form-row">
+      <label>New Password</label>
+      <input type="password" id="reset-new-pw" placeholder="New password">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="doReset()">Reset Password</button>
+  </div>
+</div>
+
+<!-- =========== SAVINGS MODAL =========== -->
+<div class="modal-overlay" id="modal-savings">
+  <div class="modal" style="max-width:620px">
+    <button class="modal-close" onclick="closeModal('modal-savings')">&times;</button>
+    <h2 id="modal-savings-title">Add Snapshot</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+      <div class="form-row">
+        <label>Date</label>
+        <input type="date" id="sv-date">
+      </div>
+      <div class="form-row">
+        <label>Total Assets</label>
+        <input type="text" id="sv-total" placeholder="e.g. 5,317,992">
+      </div>
+      <div class="form-row">
+        <label>Liquid Assets</label>
+        <input type="text" id="sv-liquid" placeholder="e.g. 3,722,310">
+      </div>
+      <div class="form-row">
+        <label>Cash</label>
+        <input type="text" id="sv-cash" placeholder="e.g. 1,033,544">
+      </div>
+      <div class="form-row">
+        <label>Investments</label>
+        <input type="text" id="sv-investments" placeholder="e.g. 2,688,766">
+      </div>
+      <div class="form-row">
+        <label>MSI / Lean</label>
+        <input type="text" id="sv-msi" placeholder="e.g. 150,000">
+      </div>
+      <div class="form-row">
+        <label>House Debt</label>
+        <input type="text" id="sv-hdebt" placeholder="e.g. 1,284,318">
+      </div>
+      <div class="form-row">
+        <label>Home Equity</label>
+        <input type="text" id="sv-hequity" placeholder="e.g. 1,595,682">
+      </div>
+      <div class="form-row">
+        <label>Experian Credit Score</label>
+        <input type="text" id="sv-credit" placeholder="e.g. 761">
+      </div>
+      <div class="form-row">
+        <label>Vanguard College Funds</label>
+        <input type="text" id="sv-college" placeholder="e.g. 684,000">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Comments</label>
+      <textarea id="sv-comments" placeholder="Notes about this snapshot…" style="min-height:60px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="sv-delete-btn" style="display:none" onclick="deleteSavingsEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-savings')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveSavingsEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== TAX MODAL =========== -->
+<div class="modal-overlay" id="modal-tax">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('modal-tax')">&times;</button>
+    <h2 id="modal-tax-title">Add Tax Year</h2>
+    <div class="form-row">
+      <label>Tax Year</label>
+      <input type="number" id="tx-year" placeholder="e.g. 2024" min="1990" max="2099">
+    </div>
+    <div class="form-row">
+      <label>AGI (Adjusted Gross Income)</label>
+      <input type="text" id="tx-agi" placeholder="e.g. 1,570,115">
+    </div>
+    <div class="form-row">
+      <label>Effective Tax Rate (%)</label>
+      <input type="text" id="tx-rate" placeholder="e.g. 22.00">
+    </div>
+    <div class="form-row">
+      <label>Comments</label>
+      <textarea id="tx-comments" placeholder="Any notes about this year…" style="min-height:80px"></textarea>
+    </div>
+    <div class="form-row">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">
+        <input type="checkbox" id="tx-capgains" style="width:16px;height:16px;accent-color:var(--red)">
+        <span>🔴 Large capital gains event (highlights row in red)</span>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="tx-delete-btn" style="display:none" onclick="deleteTaxEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-tax')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTaxEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== ASSET EXPLANATION MODAL =========== -->
+<div class="modal-overlay" id="modal-asset">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeModal('modal-asset')">&times;</button>
+    <h2 id="modal-asset-title">Add Asset Explanation</h2>
+    <div class="form-row">
+      <label>Category / Label</label>
+      <input type="text" id="as-category" placeholder="e.g. Vanguard, Schwab, Last Will">
+    </div>
+    <div class="form-row">
+      <label>As of Date</label>
+      <input type="month" id="as-date" placeholder="e.g. 2026-06">
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <textarea id="as-description" placeholder="Explain what this asset/item is…" style="min-height:90px"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Notes (text)</label>
+      <textarea id="as-notes" placeholder="Any additional notes…" style="min-height:60px"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Image (optional)</label>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          📎 Attach Image
+          <input type="file" id="as-image-file" accept="image/*" style="display:none" onchange="handleAssetImage(this)">
+        </label>
+        <span id="as-image-name" style="font-size:.78rem;color:var(--muted)"></span>
+        <button class="btn btn-ghost btn-sm" id="as-image-clear" style="display:none;color:var(--red)" onclick="clearAssetImage()">✕ Remove</button>
+      </div>
+      <div id="as-image-preview" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="as-delete-btn" style="display:none" onclick="deleteAssetEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-asset')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveAssetEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== LEGEND MODAL =========== -->
+<div class="modal-overlay" id="modal-legend">
+  <div class="modal" style="max-width:540px">
+    <button class="modal-close" onclick="closeModal('modal-legend')">&times;</button>
+    <h2 id="modal-legend-title">Add Legend Entry</h2>
+    <div class="form-row">
+      <label>Name (person or company)</label>
+      <input type="text" id="lg-name" placeholder="e.g. Indy, Ananya, Jaggaer">
+    </div>
+    <div class="form-row">
+      <label>Legend / Notes</label>
+      <textarea id="lg-notes" style="min-height:140px" placeholder="Password hints, PINs, lock codes…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="lg-delete-btn" style="display:none" onclick="deleteLegendEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-legend')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLegendEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============ FIREBASE CONFIG ============
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD3yRXyBm1IUz240GHrkPJ7b9Ro6urqtSI",
+  authDomain: "life-info-58e1d.firebaseapp.com",
+  projectId: "life-info-58e1d",
+  storageBucket: "life-info-58e1d.firebasestorage.app",
+  messagingSenderId: "572956640256",
+  appId: "1:572956640256:web:eec17cda012c00bded44e5"
+};
+
+function isFirebaseConfigured(){
+  return !FIREBASE_CONFIG.apiKey.includes('REPLACE');
+}
+
+let db = null;
+let usingFirestore = false;
+
+if(isFirebaseConfigured()){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    usingFirestore = true;
+  }catch(e){
+    console.error('Firebase init failed, falling back to localStorage:', e);
+    usingFirestore = false;
+  }
+}
+
+// ============ STATE ============
+let profiles = {};
+let currentProfile = null;
+let currentFilter = 'all';
+let editingEntryId = null;
+
+// ============ STORAGE ============
+const LS_KEY = 'lifeinfo_profiles';
+
+function saveProfiles(){
+  // Always write to localStorage as cache/fallback
+  localStorage.setItem(LS_KEY, JSON.stringify(profiles));
+  // Fire-and-forget Firestore writes (don't await — keep UI snappy)
+  if(usingFirestore){
+    Object.keys(profiles).forEach(name => {
+      const p = profiles[name];
+      const doc = {
+        emoji: p.emoji || '🧑',
+        pwHash: p.pwHash || '',
+        vault: p.vault || [],
+        savings: p.savings || [],
+        taxes: p.taxes || [],
+        assets: p.assets || [],
+      };
+      db.collection('lifeinfo_profiles').doc(name).set(doc)
+        .catch(err => console.error('Firestore write error for', name, err));
+    });
+  }
+}
+
+async function loadProfiles(){
+  if(usingFirestore){
+    try{
+      const snap = await db.collection('lifeinfo_profiles').get();
+      if(!snap.empty){
+        profiles = {};
+        snap.docs.forEach(doc => { profiles[doc.id] = { ...doc.data() }; });
+        // Also update localStorage cache
+        localStorage.setItem(LS_KEY, JSON.stringify(profiles));
+        return;
+      }
+      // Empty Firestore — fall through to localStorage seed
+    }catch(e){
+      console.error('Firestore load failed, falling back to localStorage:', e);
+    }
+  }
+  // Fallback: localStorage
+  try{ profiles = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+  catch(e){ profiles = {}; }
+}
+
+function updateFirebaseStatusUI(){
+  const el = document.getElementById('firebase-status');
+  const detail = document.getElementById('firebase-status-detail');
+  if(usingFirestore){
+    if(el){ el.textContent = '☁️ Synced'; el.style.color='rgba(255,255,255,.9)'; }
+    if(detail){
+      detail.style.background='#f0fdf4'; detail.style.color='#166534'; detail.style.border='1px solid #bbf7d0';
+      detail.textContent = '☁️ Firebase is configured and active — data syncs across all devices.';
+    }
+  }else{
+    if(el){ el.textContent = '💾 Local only'; }
+    if(detail){
+      detail.style.background='#fffbeb'; detail.style.color='#92400e'; detail.style.border='1px solid #fde68a';
+      detail.textContent = '💾 Firebase is not configured — data is stored locally in this browser only. Follow the steps below to enable sync.';
+    }
+  }
+}
+
+// ============ HASH ============
+async function hashPw(pw){
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(pw + 'lifeinfo_salt_v1'));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ============ UTILS ============
+function genId(){ return 'e' + Date.now() + Math.random().toString(36).slice(2,7); }
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg, dur=2500){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('show'), dur);
+}
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function $(sel){ return document.querySelector(sel); }
+
+// ============ PROFILE SCREEN ============
+async function showProfiles(){
+  currentProfile = null;
+  $('#screen-lock').style.display = 'none';
+  $('#screen-app').style.display = 'none';
+  $('#screen-profiles').style.display = 'flex';
+  await loadProfiles();
+  renderProfiles();
+}
+function renderProfiles(){
+  const grid = document.getElementById('profile-grid');
+  grid.innerHTML = Object.keys(profiles).map(name => {
+    const p = profiles[name];
+    return `<div class="profile-tile" onclick="selectProfile('${escH(name)}')">
+      <div class="av">${escH(p.emoji||'🧑')}</div>
+      <div class="pname">${escH(name)}</div>
+      <div style="font-size:.72rem;opacity:.6;margin-top:4px">${(p.vault||[]).length} entries</div>
+    </div>`;
+  }).join('');
+}
+async function createProfile(){
+  const name = document.getElementById('new-profile-name').value.trim();
+  const emoji = document.getElementById('new-profile-emoji').value.trim() || '🧑';
+  const pw = document.getElementById('new-profile-pw').value;
+  if(!name){ toast('Enter a name'); return; }
+  if(!pw){ toast('Set a password'); return; }
+  if(profiles[name]){ toast('Profile already exists'); return; }
+  const hash = await hashPw(pw);
+  profiles[name] = { emoji, pwHash: hash, vault: [] };
+  saveProfiles();
+  document.getElementById('new-profile-name').value = '';
+  document.getElementById('new-profile-emoji').value = '';
+  document.getElementById('new-profile-pw').value = '';
+  renderProfiles();
+  toast('Profile created!');
+}
+
+// ============ LOCK SCREEN ============
+function selectProfile(name){
+  currentProfile = name;
+  $('#screen-profiles').style.display = 'none';
+  $('#screen-lock').style.display = 'flex';
+  document.getElementById('lock-name').textContent = (profiles[name].emoji||'🧑') + ' ' + name;
+  document.getElementById('lock-pw-input').value = '';
+  document.getElementById('lock-error').textContent = '';
+  setTimeout(()=>document.getElementById('lock-pw-input').focus(),100);
+}
+async function unlockProfile(){
+  const input = document.getElementById('lock-pw-input').value;
+  const hash = await hashPw(input);
+  if(hash !== profiles[currentProfile].pwHash){
+    document.getElementById('lock-error').textContent = 'Incorrect password.';
+    return;
+  }
+  document.getElementById('lock-error').textContent = '';
+  openApp();
+}
+function openApp(){
+  const p = profiles[currentProfile];
+  $('#screen-lock').style.display = 'none';
+  $('#screen-app').style.display = 'flex';
+  document.getElementById('hdr-avatar').textContent = p.emoji || '🧑';
+  document.getElementById('hdr-name').textContent = currentProfile;
+  switchTab('passwords');
+  renderVault();
+}
+function showResetModal(){
+  document.getElementById('reset-new-pw').value = '';
+  openModal('modal-reset');
+}
+async function doReset(){
+  const newPw = document.getElementById('reset-new-pw').value;
+  if(!newPw){ toast('Enter a new password'); return; }
+  const hash = await hashPw(newPw);
+  profiles[currentProfile].pwHash = hash;
+  saveProfiles();
+  closeModal('modal-reset');
+  toast('Password reset successfully!');
+  openApp();
+}
+
+// ============ TABS ============
+function switchTab(tab){
+  ['passwords','savings','taxes','settings'].forEach(t => {
+    document.getElementById('tab-content-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if(tab === 'savings') renderSavings();
+  if(tab === 'taxes') renderTaxes();
+}
+
+// ============ SAVINGS ============
+let editingSavingsId = null;
+
+function parseMoney(s){
+  if(!s && s !== 0) return null;
+  const n = parseFloat(String(s).replace(/[$,\s]/g,''));
+  return isNaN(n) ? null : n;
+}
+function fmtMoney(n){
+  if(n === null || n === undefined || n === '') return '—';
+  return '$' + Number(n).toLocaleString();
+}
+function fmtMoneyShort(n){
+  if(n === null || n === undefined || n === '') return '—';
+  if(Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if(Math.abs(n) >= 1e3) return '$' + (n/1e3).toFixed(0) + 'k';
+  return '$' + n;
+}
+
+const SAVINGS_SEED = [
+  {date:'2013-04-06',total:null,liquid:1016000,cash:164000,investments:752000,msi:100000,hdebt:246000,hequity:null,credit:'',college:null,comments:'SMT Millenium rolled into Vanguard in june'},
+  {date:'2014-06-01',total:null,liquid:1081000,cash:215000,investments:766000,msi:100000,hdebt:565600,hequity:null,credit:'',college:null,comments:'Post house buy and Tesla purchase'},
+  {date:'2016-02-22',total:null,liquid:1094500,cash:172500,investments:822000,msi:100000,hdebt:545000,hequity:null,credit:'',college:null,comments:'SP500 flat since last entry.'},
+  {date:'2016-07-18',total:null,liquid:1232000,cash:188000,investments:944000,msi:100000,hdebt:556000,hequity:null,credit:'',college:null,comments:'Refinanced house down to 3.75% from 4.5% at Chase'},
+  {date:'2017-10-18',total:null,liquid:1440000,cash:110000,investments:1230000,msi:100000,hdebt:null,hequity:null,credit:'',college:null,comments:'Bought Braeger $50k'},
+  {date:'2018-05-23',total:null,liquid:2025000,cash:387000,investments:1538000,msi:100000,hdebt:null,hequity:null,credit:'',college:null,comments:'Sold Pdgm ($900k), Bought Lexus RX ($55k)'},
+  {date:'2019-08-01',total:null,liquid:1959000,cash:215000,investments:1644000,msi:100000,hdebt:523000,hequity:null,credit:'',college:null,comments:'Pool ($80k), Big Charity ($45k)'},
+  {date:'2020-07-21',total:null,liquid:2069000,cash:342000,investments:1727000,msi:0,hdebt:512000,hequity:200000,credit:'840/850',college:null,comments:'Covid. MSI+Braeger losses. EMR double pay. Refi 2.5%'},
+  {date:'2020-12-07',total:null,liquid:2649000,cash:570000,investments:2079000,msi:0,hdebt:null,hequity:null,credit:'',college:null,comments:'Stopped 529 12/7. $152k EMR stocks inc;Xtra BoA acnt'},
+  {date:'2021-06-08',total:3174351,liquid:2074351,cash:76351,investments:1998000,msi:0,hdebt:1408000,hequity:1100000,credit:'',college:null,comments:'Sold SYY 1/27: $27k; VTIAX: $58k; VFORX:$150k; Bought Cardwell in Feb; Own 2 homes. VG buy at $200 from $2k on 6-8-21; Sold 6/19 VFORX $50k on Avg Cost Expect net $400k after selling Pecan Trail'},
+  {date:'2022-07-05',total:2939000,liquid:1839000,cash:107000,investments:1732000,msi:0,hdebt:1356000,hequity:1100000,credit:'',college:null,comments:'Pecan Trail rent: $5600/mth, renew at $6k on 1/23 to 4/24'},
+  {date:'2023-01-30',total:3020510,liquid:1920510,cash:72264,investments:1848246,msi:null,hdebt:1361324,hequity:1100000,credit:'',college:null,comments:'Pecan rent at $6k; $1k still at Upstart'},
+  {date:'2023-06-25',total:3200200,liquid:1774200,cash:65557,investments:1708643,msi:null,hdebt:1324000,hequity:1426000,credit:'740',college:null,comments:'3 yr Pecan rent $6k; Avelta $965 not arrived; Sold $30k VG'},
+  {date:'2024-01-04',total:2313000,liquid:null,cash:51000,investments:2262000,msi:null,hdebt:null,hequity:null,credit:'',college:null,comments:'Avetta ~$615k in Merrill ($350 taxes paid), Bought GX'},
+  {date:'2024-03-31',total:4016930,liquid:2536200,cash:125000,investments:2411200,msi:null,hdebt:1299270,hequity:1480730,credit:'',college:600000,comments:'Tesla totaled for $30k, Moved Neens VG IRA Bonds to Stox'},
+  {date:'2024-08-13',total:5317992,liquid:3722310,cash:1033544,investments:2688766,msi:150000,hdebt:1284318,hequity:1595682,credit:'761',college:null,comments:"Avetta $1.2M pretax, Model X, Turk's Lean Carbon"},
+  {date:'2025-06-09',total:5613603,liquid:3988082,cash:151465,investments:3836617,msi:150000,hdebt:1254479,hequity:1625521,credit:'751',college:684000,comments:'IRS still owes $139,594. Lean Carbon refund $41k.'},
+  {date:'2026-06-06',total:6347000,liquid:5125000,cash:198000,investments:4777000,msi:150000,hdebt:778000,hequity:1222000,credit:'',college:832000,comments:'IRS refund in Vanguard Money Mkt on 9/25. House sale profit $657k on 9/25. Moved $300k VG Money Mkt to Stocks'},
+];
+
+function seedSavings(){
+  if(!profiles[currentProfile].savings){
+    profiles[currentProfile].savings = SAVINGS_SEED.map(r=>({...r, id:genId()}));
+    saveProfiles();
+  }
+}
+
+function getSavings(){ return (profiles[currentProfile].savings || []).slice().sort((a,b)=>a.date.localeCompare(b.date)); }
+
+function renderSavings(){
+  seedSavings();
+  const rows = getSavings();
+  renderSavingsStats(rows);
+  renderSavingsChart(rows);
+  renderAssets();
+
+  const wrap = document.getElementById('savings-table-wrap');
+  if(rows.length === 0){
+    wrap.innerHTML = `<div class="empty-state"><div class="big-icon">💰</div><p>No snapshots yet. Click <strong>+ Add Snapshot</strong> to get started.</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<div style="overflow-x:auto"><table class="pw-table" style="min-width:900px">
+    <thead><tr>
+      <th>Date</th>
+      <th>Total Assets</th>
+      <th>Liquid Assets</th>
+      <th>Cash</th>
+      <th>Investments</th>
+      <th>MSI/Lean</th>
+      <th>House Debt</th>
+      <th>Home Equity</th>
+      <th>Credit</th>
+      <th>College</th>
+      <th style="min-width:180px">Comments</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${[...rows].reverse().map(r => `<tr>
+      <td style="white-space:nowrap;font-weight:700">${r.date}</td>
+      <td style="font-weight:700;color:var(--green)">${fmtMoney(r.total)}</td>
+      <td>${fmtMoney(r.liquid)}</td>
+      <td>${fmtMoney(r.cash)}</td>
+      <td>${fmtMoney(r.investments)}</td>
+      <td>${fmtMoney(r.msi)}</td>
+      <td>${fmtMoney(r.hdebt)}</td>
+      <td>${fmtMoney(r.hequity)}</td>
+      <td>${r.credit||'—'}</td>
+      <td>${fmtMoney(r.college)}</td>
+      <td style="font-size:.78rem;color:var(--muted);max-width:200px">${escH(r.comments||'')}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openSavingsModal('${r.id}')">Edit</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function renderSavingsStats(rows){
+  const wrap = document.getElementById('savings-stats');
+  if(rows.length === 0){ wrap.innerHTML=''; return; }
+  const latest = rows[rows.length-1];
+  const prev = rows.length > 1 ? rows[rows.length-2] : null;
+  const first = rows[0];
+
+  function statCard(label, value, delta, deltaLabel){
+    const sign = delta > 0 ? '+' : '';
+    const col = delta > 0 ? '#16a34a' : delta < 0 ? '#dc2626' : '#6b7280';
+    const deltaHtml = delta !== null ? `<div style="font-size:.72rem;color:${col};margin-top:2px">${sign}${fmtMoneyShort(delta)} ${deltaLabel}</div>` : '';
+    return `<div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;border-left:4px solid var(--gold)">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px">${label}</div>
+      <div style="font-size:1.3rem;font-weight:800;color:var(--navy)">${value}</div>
+      ${deltaHtml}
+    </div>`;
+  }
+
+  const totalDelta = prev && prev.total !== null && latest.total !== null ? latest.total - prev.total : null;
+  const liquidDelta = prev && prev.liquid !== null && latest.liquid !== null ? latest.liquid - prev.liquid : null;
+  const allTimeGain = first.total !== null && latest.total !== null ? latest.total - first.total : null;
+  const yrs = rows.length > 1 ? ((new Date(latest.date) - new Date(first.date)) / (365.25*24*3600*1000)).toFixed(1) : null;
+
+  wrap.innerHTML = [
+    statCard('Total Assets (Latest)', fmtMoney(latest.total), totalDelta, 'since last'),
+    statCard('Liquid Assets', fmtMoney(latest.liquid), liquidDelta, 'since last'),
+    statCard('Investments', fmtMoney(latest.investments), null, ''),
+    statCard('Home Equity', fmtMoney(latest.hequity), null, ''),
+    statCard('Credit Score', latest.credit||'—', null, ''),
+    allTimeGain !== null ? statCard(`All-Time Gain (${yrs} yrs)`, fmtMoneyShort(allTimeGain), null, '') : '',
+  ].join('');
+}
+
+function renderSavingsChart(rows){
+  const wrap = document.getElementById('savings-chart-wrap');
+  const canvas = document.getElementById('savings-chart');
+  if(rows.length < 2){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+
+  // One point per year: pick entry closest to June 15
+  const june15DayOfYear = 166; // ~June 15
+  function dayOfYear(dateStr){
+    const d = new Date(dateStr);
+    const start = new Date(d.getFullYear(), 0, 0);
+    return Math.floor((d - start) / 86400000);
+  }
+  // Use total if available, fall back to liquid for older entries
+  function chartVal(r){ return r.total !== null ? r.total : r.liquid; }
+  const byYear = {};
+  rows.filter(r=>chartVal(r)!==null).forEach(r => {
+    const yr = r.date.slice(0,4);
+    if(!byYear[yr] || Math.abs(dayOfYear(r.date)-june15DayOfYear) < Math.abs(dayOfYear(byYear[yr].date)-june15DayOfYear)){
+      byYear[yr] = r;
+    }
+  });
+  const pts = Object.keys(byYear).sort().map(yr=>byYear[yr]);
+  if(pts.length < 2){ wrap.style.display='none'; return; }
+
+  const PX_PER_YEAR = 80;
+  const scrollDiv = document.getElementById('savings-chart-scroll');
+  const containerW = scrollDiv.offsetWidth || 700;
+  const minW = pts.length * PX_PER_YEAR;
+  const W = Math.max(containerW, minW);
+  const H = 200;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W+'px';
+  canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const vals = pts.map(r=>chartVal(r));
+  const minV = Math.min(...vals) * 0.9;
+  const maxV = Math.max(...vals) * 1.05;
+  const pad = {t:10,r:30,b:30,l:60};
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  const xPos = (i) => pad.l + (i/(pts.length-1))*cw;
+  const yPos = (v) => pad.t + ch - ((v-minV)/(maxV-minV))*ch;
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0,'rgba(201,162,39,.35)');
+  grad.addColorStop(1,'rgba(201,162,39,.02)');
+  ctx.beginPath();
+  ctx.moveTo(xPos(0),yPos(vals[0]));
+  pts.forEach((_,i)=>{ if(i>0) ctx.lineTo(xPos(i),yPos(vals[i])); });
+  ctx.lineTo(xPos(pts.length-1),H-pad.b);
+  ctx.lineTo(xPos(0),H-pad.b);
+  ctx.closePath();
+  ctx.fillStyle=grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle='#c9a227';
+  ctx.lineWidth=2.5;
+  ctx.lineJoin='round';
+  pts.forEach((p,i)=>{ i===0?ctx.moveTo(xPos(i),yPos(vals[i])):ctx.lineTo(xPos(i),yPos(vals[i])); });
+  ctx.stroke();
+
+  // Dots + labels
+  ctx.fillStyle='#c9a227';
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(xPos(i),yPos(vals[i]),3,0,Math.PI*2); ctx.fill();
+  });
+
+  // X-axis labels: every year since chart is scrollable
+  ctx.fillStyle='#999';
+  ctx.font='10px sans-serif';
+  ctx.textAlign='center';
+  pts.forEach((p,i)=>{
+    ctx.fillText(p.date.slice(0,4), xPos(i), H-pad.b+14);
+  });
+
+  // Y-axis labels
+  ctx.textAlign='right';
+  [minV, (minV+maxV)/2, maxV].forEach(v=>{
+    const y=yPos(v);
+    ctx.fillText(fmtMoneyShort(v), pad.l-6, y+4);
+    ctx.beginPath(); ctx.strokeStyle='#f0f2f5'; ctx.lineWidth=1;
+    ctx.moveTo(pad.l, y); ctx.lineTo(pad.l+cw, y); ctx.stroke();
+  });
+}
+
+function openSavingsModal(id){
+  editingSavingsId = id || null;
+  document.getElementById('modal-savings-title').textContent = id ? 'Edit Snapshot' : 'Add Snapshot';
+  document.getElementById('sv-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if(id){
+    const r = (profiles[currentProfile].savings||[]).find(x=>x.id===id);
+    if(!r) return;
+    document.getElementById('sv-date').value = r.date||'';
+    document.getElementById('sv-total').value = r.total !== null ? r.total : '';
+    document.getElementById('sv-liquid').value = r.liquid !== null ? r.liquid : '';
+    document.getElementById('sv-cash').value = r.cash !== null ? r.cash : '';
+    document.getElementById('sv-investments').value = r.investments !== null ? r.investments : '';
+    document.getElementById('sv-msi').value = r.msi !== null ? r.msi : '';
+    document.getElementById('sv-hdebt').value = r.hdebt !== null ? r.hdebt : '';
+    document.getElementById('sv-hequity').value = r.hequity !== null ? r.hequity : '';
+    document.getElementById('sv-credit').value = r.credit||'';
+    document.getElementById('sv-college').value = r.college !== null ? r.college : '';
+    document.getElementById('sv-comments').value = r.comments||'';
+  } else {
+    ['sv-date','sv-total','sv-liquid','sv-cash','sv-investments','sv-msi','sv-hdebt','sv-hequity','sv-credit','sv-college','sv-comments'].forEach(id=>document.getElementById(id).value='');
+  }
+  openModal('modal-savings');
+}
+
+function saveSavingsEntry(){
+  const date = document.getElementById('sv-date').value;
+  if(!date){ toast('Date required'); return; }
+  const row = {
+    id: editingSavingsId || genId(),
+    date,
+    total:       parseMoney(document.getElementById('sv-total').value),
+    liquid:      parseMoney(document.getElementById('sv-liquid').value),
+    cash:        parseMoney(document.getElementById('sv-cash').value),
+    investments: parseMoney(document.getElementById('sv-investments').value),
+    msi:         parseMoney(document.getElementById('sv-msi').value),
+    hdebt:       parseMoney(document.getElementById('sv-hdebt').value),
+    hequity:     parseMoney(document.getElementById('sv-hequity').value),
+    credit:      document.getElementById('sv-credit').value.trim(),
+    college:     parseMoney(document.getElementById('sv-college').value),
+    comments:    document.getElementById('sv-comments').value.trim(),
+  };
+  if(!profiles[currentProfile].savings) profiles[currentProfile].savings = [];
+  const arr = profiles[currentProfile].savings;
+  if(editingSavingsId){
+    const idx = arr.findIndex(x=>x.id===editingSavingsId);
+    if(idx>=0) arr[idx]=row; else arr.push(row);
+  } else {
+    arr.push(row);
+  }
+  saveProfiles();
+  closeModal('modal-savings');
+  renderSavings();
+  toast(editingSavingsId ? 'Updated!' : 'Snapshot saved!');
+}
+
+function deleteSavingsEntry(){
+  if(!editingSavingsId) return;
+  if(!confirm('Delete this snapshot?')) return;
+  profiles[currentProfile].savings = (profiles[currentProfile].savings||[]).filter(x=>x.id!==editingSavingsId);
+  saveProfiles();
+  closeModal('modal-savings');
+  renderSavings();
+  toast('Deleted');
+}
+
+// ============ TAXES ============
+let editingTaxId = null;
+
+const TAX_SEED = [
+  {year:2005,agi:173725,rate:19.4,capGains:false,comments:''},
+  {year:2006,agi:215276,rate:20.95,capGains:false,comments:''},
+  {year:2007,agi:268957,rate:20.05,capGains:false,comments:''},
+  {year:2008,agi:248188,rate:20.7,capGains:false,comments:''},
+  {year:2009,agi:244786,rate:18.55,capGains:false,comments:''},
+  {year:2010,agi:313078,rate:22.03,capGains:false,comments:'SMT special mgmt payment included'},
+  {year:2011,agi:840000,rate:null,capGains:true,comments:'SMT sale'},
+  {year:2012,agi:254671,rate:18.71,capGains:false,comments:''},
+  {year:2013,agi:348764,rate:23.3,capGains:false,comments:'$63k of this was stock capital gains'},
+  {year:2014,agi:291000,rate:19.70,capGains:false,comments:''},
+  {year:2015,agi:338291,rate:24.80,capGains:false,comments:''},
+  {year:2016,agi:286538,rate:17.76,capGains:false,comments:''},
+  {year:2017,agi:1159264,rate:35,capGains:true,comments:'Pdgm Sale'},
+  {year:2018,agi:347211,rate:15,capGains:false,comments:''},
+  {year:2019,agi:339000,rate:15.6,capGains:false,comments:''},
+  {year:2020,agi:710000,rate:28,capGains:true,comments:'EMR double pay'},
+  {year:2021,agi:454940,rate:19.1,capGains:false,comments:'Sold stocks for house, Pecan Trail renter'},
+  {year:2022,agi:391000,rate:18.90,capGains:false,comments:''},
+  {year:2023,agi:1275468,rate:35,capGains:true,comments:'Avetta 1st sale. Overpaid tax. waiting for IRS refund of $165k. Will drop rate to 22%'},
+  {year:2024,agi:1570115,rate:22.00,capGains:true,comments:'Avetta 2nd sale. Lean Carbon (Turk company) K1s start.'},
+  {year:2025,agi:null,rate:null,capGains:false,comments:'IRS $145k refund came in Sept.'},
+];
+
+function getTaxes(){ return (profiles[currentProfile].taxes || []).slice().sort((a,b)=>a.year-b.year); }
+
+function seedTaxes(){
+  if(!profiles[currentProfile].taxes){
+    profiles[currentProfile].taxes = TAX_SEED.map(r=>({...r, id:genId()}));
+    saveProfiles();
+  }
+}
+
+function renderTaxes(){
+  seedTaxes();
+  const rows = getTaxes();
+  renderTaxStats(rows);
+  renderTaxChart(rows);
+
+  const wrap = document.getElementById('tax-table-wrap');
+  if(rows.length === 0){ wrap.innerHTML=`<div class="empty-state"><div class="big-icon">🧾</div><p>No tax records yet.</p></div>`; return; }
+
+  wrap.innerHTML = `<table class="pw-table">
+    <thead><tr>
+      <th style="width:80px">Tax Year</th>
+      <th style="width:140px">AGI</th>
+      <th style="width:100px">Eff. Rate</th>
+      <th>Comments</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${rows.map(r => {
+      const rowStyle = r.capGains ? 'background:#fff5f5' : '';
+      const agiStyle = r.capGains ? 'color:#dc2626;font-weight:800' : 'font-weight:700';
+      return `<tr style="${rowStyle}">
+        <td style="font-weight:700">${r.year}${r.capGains ? ' 🔴' : ''}</td>
+        <td style="${agiStyle}">${r.agi !== null ? fmtMoney(r.agi) : '—'}</td>
+        <td>${r.rate !== null ? r.rate+'%' : '—'}</td>
+        <td style="font-size:.82rem">${escH(r.comments||'')}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openTaxModal('${r.id}')">Edit</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div style="padding:12px 16px;background:#f9f9f9;border-top:1px solid #eee;display:flex;gap:24px;font-size:.82rem;flex-wrap:wrap">
+    ${(()=>{
+      const withAgi = rows.filter(r=>r.agi!==null);
+      const total = withAgi.reduce((s,r)=>s+r.agi,0);
+      const withRate = rows.filter(r=>r.rate!==null);
+      const avgRate = withRate.length ? (withRate.reduce((s,r)=>s+r.rate,0)/withRate.length).toFixed(2) : '—';
+      return `<span><strong>Total Income:</strong> ${fmtMoney(total)}</span>
+              <span><strong>Avg Rate:</strong> ${avgRate}%</span>
+              <span><strong>Years Tracked:</strong> ${rows.length}</span>
+              <span style="color:#dc2626"><strong>🔴 Cap Gains Events:</strong> ${rows.filter(r=>r.capGains).length}</span>`;
+    })()}
+  </div>`;
+}
+
+function renderTaxStats(rows){
+  const wrap = document.getElementById('tax-stats');
+  if(rows.length===0){ wrap.innerHTML=''; return; }
+  const withAgi = rows.filter(r=>r.agi!==null);
+  const withRate = rows.filter(r=>r.rate!==null);
+  const total = withAgi.reduce((s,r)=>s+r.agi,0);
+  const avgRate = withRate.length ? (withRate.reduce((s,r)=>s+r.rate,0)/withRate.length).toFixed(2) : null;
+  const maxAgi = withAgi.reduce((m,r)=>r.agi>m.agi?r:m, withAgi[0]);
+  const minRate = withRate.reduce((m,r)=>r.rate<m.rate?r:m, withRate[0]);
+  const latest = [...rows].reverse().find(r=>r.agi!==null);
+  function card(label,val,sub=''){
+    return `<div style="background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;border-left:4px solid var(--navy-mid)">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px">${label}</div>
+      <div style="font-size:1.2rem;font-weight:800;color:var(--navy)">${val}</div>
+      ${sub?`<div style="font-size:.72rem;color:var(--muted);margin-top:2px">${sub}</div>`:''}
+    </div>`;
+  }
+  wrap.innerHTML = [
+    card('Total Income (all years)', fmtMoneyShort(total)),
+    card('Average Tax Rate', avgRate!==null?avgRate+'%':'—'),
+    latest ? card('Latest AGI', fmtMoney(latest.agi), latest.year) : '',
+    maxAgi ? card('Highest Income Year', fmtMoneyShort(maxAgi.agi), maxAgi.year+(maxAgi.capGains?' 🔴':'')) : '',
+    (()=>{
+      const first = withAgi[0], last = withAgi[withAgi.length-1];
+      if(withAgi.length >= 2 && first.agi && last.agi){
+        const yrs = last.year - first.year;
+        const cagr = (Math.pow(last.agi/first.agi, 1/yrs)-1)*100;
+        return card('AGI CAGR', cagr.toFixed(1)+'%', first.year+' → '+last.year);
+      }
+      return '';
+    })(),
+  ].join('');
+}
+
+function renderTaxChart(rows){
+  const wrap = document.getElementById('tax-chart-wrap');
+  const canvas = document.getElementById('tax-chart');
+  const pts = rows.filter(r=>r.agi!==null);
+  if(pts.length<2){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+
+  const W = canvas.offsetWidth || 700, H = 220;
+  canvas.width=W*(devicePixelRatio||1); canvas.height=H*(devicePixelRatio||1);
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(devicePixelRatio||1,devicePixelRatio||1);
+
+  const vals=pts.map(r=>r.agi);
+  const minV=0, maxV=Math.max(...vals)*1.1;
+  const pad={t:10,r:20,b:30,l:70};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const xPos=i=>pad.l+(i/(pts.length-1))*cw;
+  const yPos=v=>pad.t+ch-((v-minV)/(maxV-minV))*ch;
+
+  // Y gridlines
+  ctx.strokeStyle='#f0f2f5'; ctx.lineWidth=1;
+  [0,.25,.5,.75,1].forEach(f=>{
+    const v=minV+f*(maxV-minV), y=yPos(v);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle='#999'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(fmtMoneyShort(v),pad.l-6,y+4);
+  });
+
+  // Bars
+  const barW=Math.max(4, Math.floor(cw/pts.length*0.6));
+  pts.forEach((r,i)=>{
+    const x=xPos(i); const y=yPos(r.agi); const bh=H-pad.b-y;
+    ctx.fillStyle=r.capGains?'rgba(220,38,38,.75)':'rgba(29,45,69,.65)';
+    ctx.fillRect(x-barW/2,y,barW,bh);
+  });
+
+  // X labels
+  ctx.fillStyle='#888'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  const step=Math.max(1,Math.floor(pts.length/10));
+  pts.forEach((r,i)=>{ if(i%step===0||i===pts.length-1) ctx.fillText(r.year,xPos(i),H-pad.b+14); });
+}
+
+function openTaxModal(id){
+  editingTaxId = id || null;
+  document.getElementById('modal-tax-title').textContent = id ? 'Edit Tax Year' : 'Add Tax Year';
+  document.getElementById('tx-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if(id){
+    const r = getTaxes().find(x=>x.id===id);
+    if(!r) return;
+    document.getElementById('tx-year').value = r.year||'';
+    document.getElementById('tx-agi').value = r.agi !== null ? r.agi : '';
+    document.getElementById('tx-rate').value = r.rate !== null ? r.rate : '';
+    document.getElementById('tx-comments').value = r.comments||'';
+    document.getElementById('tx-capgains').checked = !!r.capGains;
+  } else {
+    ['tx-year','tx-agi','tx-rate','tx-comments'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('tx-capgains').checked = false;
+  }
+  openModal('modal-tax');
+}
+
+function saveTaxEntry(){
+  const year = parseInt(document.getElementById('tx-year').value);
+  if(!year){ toast('Year required'); return; }
+  const row = {
+    id: editingTaxId || genId(),
+    year,
+    agi: parseMoney(document.getElementById('tx-agi').value),
+    rate: parseFloat(document.getElementById('tx-rate').value) || null,
+    comments: document.getElementById('tx-comments').value.trim(),
+    capGains: document.getElementById('tx-capgains').checked,
+  };
+  if(!profiles[currentProfile].taxes) profiles[currentProfile].taxes = [];
+  const arr = profiles[currentProfile].taxes;
+  if(editingTaxId){
+    const idx=arr.findIndex(x=>x.id===editingTaxId);
+    if(idx>=0) arr[idx]=row; else arr.push(row);
+  } else {
+    arr.push(row);
+  }
+  saveProfiles();
+  closeModal('modal-tax');
+  renderTaxes();
+  toast(editingTaxId?'Updated!':'Tax year saved!');
+}
+
+function deleteTaxEntry(){
+  if(!editingTaxId) return;
+  if(!confirm('Delete this tax year?')) return;
+  profiles[currentProfile].taxes=(profiles[currentProfile].taxes||[]).filter(x=>x.id!==editingTaxId);
+  saveProfiles();
+  closeModal('modal-tax');
+  renderTaxes();
+  toast('Deleted');
+}
+
+// ============ ASSET EXPLANATIONS ============
+let editingAssetId = null;
+
+const ASSETS_SEED = [
+  {category:'Vanguard', asOfDate:'2026-06', description:'Indy account contains Mutual Funds, Kids college 529, VG 401k, Rollovers from NetIQ, BV\\Symantec, SMT, Microseismic, Pdgm\\Emerson, Avetta, HighRadius. Ananya contains IRA and Rollover from Sysco, EDS.', notes:'', imageData:null},
+  {category:'Fidelity NetBenefits', asOfDate:'2026-06', description:'Contains Indy IHS & Jaggaer 401k. IHS now owned by S&P Global so only that subaccount has the 401k money.', notes:'', imageData:null},
+  {category:'BoA\\Merrill', asOfDate:'2026-06', description:'Savings in BoA. CDs moved out of Merrill Edge to Robinhood on 8/7/25.', notes:'', imageData:null},
+  {category:'Schwab', asOfDate:'2026-06', description:'$100k gold iShares on 10/21/24. $100k bitcoin ETF (IBIT) on 10/29/24. $50k IBIT on 11/25/25. $51k IBIT on 6/9/25.', notes:'', imageData:null},
+  {category:'Robinhood', asOfDate:'2026-06', description:'$320k moved in 8/7/25 week from Merrill. Bought $100k IBIT on 8/13. $100k FETH on 8/18 and $100k on 8/24.', notes:'', imageData:null},
+  {category:'Lean Carbon', asOfDate:'2026-06', description:'$100k +$50k in Timurs venture capital fund called Lean Carbon around 9/24. Returned $41k to me 6/25 but my equity remained same and no tax implication.', notes:'', imageData:null},
+  {category:'Fidelity Life Ins', asOfDate:'2026-06', description:'20 year term life for $250k - will expire age 55? Also have insurance from work.', notes:'', imageData:null},
+  {category:'Last Will', asOfDate:'2026-06', description:'On Legalzoom.com and printed out in Plastic Box in closet. Updated 3/2/25.', notes:'', imageData:null},
+  {category:'Mortgages', asOfDate:'2026-06', description:'Pecan Trail is Chase ($3500/mth at 2.5% interest) - SOLD 2025. Cardwell is Shellpoint ($6600/mth at 2.25% interest).', notes:'', imageData:null},
+  {category:'Files', asOfDate:'2026-06', description:'Dropbox has 95% of critical records. Google Drive for indy555 has a bit. HighRadius GDrive also items after 2024. Under folder called Personal (not Personnel). Taxdome tax software has records with Tolga our accountant. Tolga is Timur\'s older brother.', notes:'', imageData:null},
+  {category:'Other', asOfDate:'2026-06', description:'Tolga Kuru is our Tax guy (Pactax). Taxdome software has our records on taxes with him. FYI, Ananya SYS stock sold to buy Pecan Trail.', notes:'', imageData:null},
+  {category:'HighRadius Stock', asOfDate:'2026-06', description:'Got $130,000 Restricted Stock Units (RSU) + 500 options. After quitting, left with 89,389 RSU + 500 Options. Maybe $1.8 value at $20/share. Not reflected in Savings above. Stored on Carta.com account.', notes:'Image of Carta pasted to right', imageData:null},
+  {category:'Jaggaer Stocks', asOfDate:'2026-06', description:'I have 4M Mgmt Incentive Units worth $10/Unit ($4M total). 50% time vest over 4 yrs. 50% based on Jaggaer performance at sale. In truth, expect to get $1-$1.5M when we sell. Not reflected in savings above.', notes:'Details in Dropbox under Home/Jaggaer', imageData:null},
+];
+
+function seedAssets(){
+  if(!profiles[currentProfile].assets){
+    profiles[currentProfile].assets = ASSETS_SEED.map(r=>({...r, id:genId()}));
+    saveProfiles();
+  }
+}
+let pendingAssetImageData = null; // base64 string or null
+
+function getAssets(){ return (profiles[currentProfile].assets || []); }
+
+function renderAssets(){
+  seedAssets();
+  const items = getAssets();
+  const wrap = document.getElementById('assets-table-wrap');
+  if(!wrap) return;
+  if(items.length === 0){
+    wrap.innerHTML = `<div class="empty-state"><div class="big-icon">📋</div><p>No asset explanations yet. Click <strong>+ Add Item</strong> to get started.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<table class="pw-table" style="min-width:600px">
+    <thead><tr>
+      <th style="width:140px">Category</th>
+      <th style="width:100px">As Of</th>
+      <th>Description</th>
+      <th style="width:80px">Image</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${items.map(a => {
+      const imgThumb = a.imageData ? `<img src="${a.imageData}" style="width:48px;height:36px;object-fit:cover;border-radius:4px;cursor:pointer" onclick="openAssetImageViewer('${escH(a.id)}')">` : '—';
+      const desc = a.description || '';
+      const notes = a.notes ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px;font-style:italic">${escH(a.notes.length>80?a.notes.slice(0,80)+'…':a.notes)}</div>` : '';
+      return `<tr>
+        <td><strong>${escH(a.category||'')}</strong></td>
+        <td style="font-size:.8rem;color:var(--muted)">${a.asOfDate||'—'}</td>
+        <td>
+          <div style="font-size:.83rem">${escH(desc.length>120?desc.slice(0,120)+'…':desc)}</div>
+          ${notes}
+        </td>
+        <td>${imgThumb}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openAssetModal('${escH(a.id)}')">Edit</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function openAssetModal(id){
+  editingAssetId = id || null;
+  pendingAssetImageData = null;
+  document.getElementById('modal-asset-title').textContent = id ? 'Edit Asset Explanation' : 'Add Asset Explanation';
+  document.getElementById('as-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  document.getElementById('as-image-preview').innerHTML = '';
+  document.getElementById('as-image-name').textContent = '';
+  document.getElementById('as-image-clear').style.display = 'none';
+  document.getElementById('as-image-file').value = '';
+
+  if(id){
+    const a = getAssets().find(x=>x.id===id);
+    if(!a) return;
+    document.getElementById('as-category').value = a.category||'';
+    document.getElementById('as-date').value = a.asOfDate||'';
+    document.getElementById('as-description').value = a.description||'';
+    document.getElementById('as-notes').value = a.notes||'';
+    if(a.imageData){
+      pendingAssetImageData = a.imageData;
+      document.getElementById('as-image-preview').innerHTML = `<img src="${a.imageData}" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:4px">`;
+      document.getElementById('as-image-name').textContent = 'Current image';
+      document.getElementById('as-image-clear').style.display = 'inline-flex';
+    }
+  } else {
+    document.getElementById('as-category').value = '';
+    document.getElementById('as-date').value = '';
+    document.getElementById('as-description').value = '';
+    document.getElementById('as-notes').value = '';
+  }
+  openModal('modal-asset');
+}
+
+function handleAssetImage(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ toast('Image must be under 2 MB'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingAssetImageData = e.target.result;
+    document.getElementById('as-image-preview').innerHTML = `<img src="${pendingAssetImageData}" style="max-width:100%;max-height:200px;border-radius:6px;margin-top:4px">`;
+    document.getElementById('as-image-name').textContent = file.name;
+    document.getElementById('as-image-clear').style.display = 'inline-flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearAssetImage(){
+  pendingAssetImageData = null;
+  document.getElementById('as-image-preview').innerHTML = '';
+  document.getElementById('as-image-name').textContent = '';
+  document.getElementById('as-image-clear').style.display = 'none';
+  document.getElementById('as-image-file').value = '';
+}
+
+function saveAssetEntry(){
+  const category = document.getElementById('as-category').value.trim();
+  if(!category){ toast('Category required'); return; }
+  const entry = {
+    id: editingAssetId || genId(),
+    category,
+    asOfDate: document.getElementById('as-date').value,
+    description: document.getElementById('as-description').value.trim(),
+    notes: document.getElementById('as-notes').value.trim(),
+    imageData: pendingAssetImageData || null,
+  };
+  if(!profiles[currentProfile].assets) profiles[currentProfile].assets = [];
+  const arr = profiles[currentProfile].assets;
+  if(editingAssetId){
+    const idx = arr.findIndex(x=>x.id===editingAssetId);
+    if(idx>=0) arr[idx]=entry; else arr.push(entry);
+  } else {
+    arr.push(entry);
+  }
+  saveProfiles();
+  closeModal('modal-asset');
+  renderAssets();
+  toast(editingAssetId ? 'Updated!' : 'Asset saved!');
+}
+
+function deleteAssetEntry(){
+  if(!editingAssetId) return;
+  if(!confirm('Delete this item?')) return;
+  profiles[currentProfile].assets = getAssets().filter(x=>x.id!==editingAssetId);
+  saveProfiles();
+  closeModal('modal-asset');
+  renderAssets();
+  toast('Deleted');
+}
+
+// Full-size image viewer
+function openAssetImageViewer(id){
+  const a = getAssets().find(x=>x.id===id);
+  if(!a||!a.imageData) return;
+  const ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:20px';
+  ov.innerHTML=`<img src="${a.imageData}" style="max-width:100%;max-height:90vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.5)">`;
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
+}
+
+// ============ LEGEND ============
+const LEGEND_SEED = {
+  'Indy': 'Passwords: "DAK! means Dc120904!"; "Romo! is Dc121109!", "No ! means dont add !"\nPearson is DC122288 or Dc122288\nMy different Pins, listed in order of frequency of usage: 2288, 222888, 8822, 8750, 1406, 0770, 22888 if 5 digits\nSamsung Lock Screen is 222111',
+};
+
+function seedLegend(){
+  if(!profiles[currentProfile].legend){
+    profiles[currentProfile].legend = {...LEGEND_SEED};
+    saveProfiles();
+  }
+}
+
+let editingLegendName = null;
+
+function renderLegend(){
+  seedLegend();
+  const legend = profiles[currentProfile].legend || {};
+  const container = document.getElementById('legend-cards');
+  if(!container) return;
+  const entries = Object.entries(legend);
+  if(entries.length === 0){ container.innerHTML = ''; return; }
+  container.innerHTML = entries.map(([name, notes]) => `
+    <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;width:100%;box-sizing:border-box;cursor:pointer;transition:.15s"
+         onclick="openLegendModal('${escH(name)}')"
+         onmouseover="this.style.borderColor='var(--navy-mid)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:6px">📖 ${escH(name)}</div>
+      <div style="font-size:.75rem;color:var(--muted);white-space:pre-wrap;line-height:1.5">${escH(notes.length>200?notes.slice(0,200)+'…':notes)}</div>
+    </div>`).join('');
+}
+
+function openLegendModal(name){
+  editingLegendName = name || null;
+  document.getElementById('modal-legend-title').textContent = name ? 'Edit Legend' : 'Add Legend Entry';
+  document.getElementById('lg-delete-btn').style.display = name ? 'inline-flex' : 'none';
+  document.getElementById('lg-name').value = name || '';
+  document.getElementById('lg-name').readOnly = !!name;
+  document.getElementById('lg-name').style.opacity = name ? '.6' : '1';
+  const legend = profiles[currentProfile].legend || {};
+  document.getElementById('lg-notes').value = name ? (legend[name]||'') : '';
+  openModal('modal-legend');
+}
+
+function saveLegendEntry(){
+  const name = (document.getElementById('lg-name').value || '').trim();
+  const notes = document.getElementById('lg-notes').value.trim();
+  if(!name){ toast('Name required'); return; }
+  if(!profiles[currentProfile].legend) profiles[currentProfile].legend = {};
+  if(editingLegendName && editingLegendName !== name){
+    delete profiles[currentProfile].legend[editingLegendName];
+  }
+  profiles[currentProfile].legend[name] = notes;
+  saveProfiles();
+  closeModal('modal-legend');
+  renderLegend();
+  toast('Legend saved!');
+}
+
+function deleteLegendEntry(){
+  if(!editingLegendName) return;
+  if(!confirm(`Delete legend for "${editingLegendName}"?`)) return;
+  delete profiles[currentProfile].legend[editingLegendName];
+  saveProfiles();
+  closeModal('modal-legend');
+  renderLegend();
+  toast('Deleted');
+}
+
+// ============ VAULT RENDER ============
+function setFilter(f, el){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  // Reset dropdowns
+  const ps = document.getElementById('filter-personal-select');
+  const ws = document.getElementById('filter-work-select');
+  if(ps){ ps.value=''; ps.classList.remove('active'); }
+  if(ws){ ws.value=''; ws.classList.remove('active'); }
+  renderVault();
+}
+function setFilterSelect(type, select){
+  // Deactivate All button
+  const allBtn = document.getElementById('filter-all-btn');
+  if(allBtn) allBtn.classList.remove('active');
+  // Deactivate the other select
+  const otherId = type==='personal' ? 'filter-work-select' : 'filter-personal-select';
+  const other = document.getElementById(otherId);
+  if(other){ other.value=''; other.classList.remove('active'); }
+  // Set currentFilter
+  if(select.value === ''){
+    currentFilter = type; // 'personal' or 'work' (show all of that type)
+  } else {
+    currentFilter = type + ':' + select.value;
+  }
+  select.classList.toggle('active', true);
+  renderVault();
+}
+function populateWorkDropdown(){
+  const vault = profiles[currentProfile]?.vault || [];
+  const companies = [...new Set(vault.filter(e=>e.type==='work'&&e.company).map(e=>e.company))].sort();
+  const sel = document.getElementById('filter-work-select');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">💼 Work</option>` + companies.map(c=>`<option value="${escH(c)}"${c===cur?'selected':''}>${escH(c)}</option>`).join('');
+}
+function renderVault(){
+  renderLegend();
+  populateWorkDropdown();
+  const vault = profiles[currentProfile]?.vault || [];
+  const search = document.getElementById('search-input').value.toLowerCase();
+  let entries = vault.filter(e => {
+    const [fType, fVal] = currentFilter.includes(':') ? currentFilter.split(':') : [currentFilter, null];
+    if(fType === 'personal'){
+      if(e.type !== 'personal') return false;
+      if(fVal && e.person !== fVal) return false;
+    } else if(fType === 'work'){
+      if(e.type !== 'work') return false;
+      if(fVal && e.company !== fVal) return false;
+    }
+    if(search){
+      const hay = (e.website+e.username+e.comments+(e.company||'')+(e.person||'')).toLowerCase();
+      if(!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  const wrap = document.getElementById('vault-wrap');
+  if(entries.length === 0){
+    wrap.innerHTML = `<div class="empty-state"><div class="big-icon">🔑</div>
+      <p>${vault.length === 0 ? 'No passwords yet. Click <strong>+ Add Password</strong> to get started.' : 'No matches found.'}</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<table class="pw-table">
+    <thead><tr>
+      <th>Website</th>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Notes</th>
+      <th>Type / Owner</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${entries.map(e => {
+      const owner = e.type === 'work' ? e.company||'' : e.person||'';
+      const typeLabel = e.type === 'work'
+        ? `<span class="type-pill type-work" style="white-space:nowrap">💼 ${escH(owner)}</span>`
+        : `<span class="type-pill type-personal" style="white-space:nowrap">👤 ${escH(owner)}</span>`;
+      const notesShort = e.comments
+        ? `<span title="${escH(e.comments)}" style="font-size:.78rem;color:var(--muted);cursor:help;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">${escH(e.comments.length>60?e.comments.slice(0,60)+'…':e.comments)}</span>`
+        : '';
+      return `<tr>
+        <td><strong>${escH(e.website)}</strong></td>
+        <td style="font-size:.82rem">${escH(e.username)}</td>
+        <td><span class="pw-val" style="font-family:monospace;font-size:.82rem">${escH(e.password||'—')}</span></td>
+        <td style="max-width:180px">${notesShort}</td>
+        <td style="white-space:nowrap">${typeLabel}</td>
+        <td><div class="pw-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openPwModal('${escH(e.id)}')">Edit</button>
+        </div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+
+}
+
+function toggleEntryVis(id){
+  const el = document.getElementById('pval-'+id);
+  if(!el) return;
+  if(el.classList.contains('pw-mask')){
+    el.classList.remove('pw-mask');
+    el.textContent = el._pw || '';
+  } else {
+    el.classList.add('pw-mask');
+    el.innerHTML = '••••••••';
+  }
+}
+
+// ============ ADD / EDIT MODAL ============
+function onTypeChange(){
+  const isWork = document.getElementById('type-work').checked;
+  document.getElementById('row-company').style.display = isWork ? 'block' : 'none';
+  document.getElementById('row-person').style.display = isWork ? 'none' : 'block';
+}
+function openPwModal(id){
+  editingEntryId = id || null;
+  document.getElementById('modal-pw-title').textContent = id ? 'Edit Password' : 'Add Password';
+  document.getElementById('pw-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if(id){
+    const e = (profiles[currentProfile].vault||[]).find(x=>x.id===id);
+    if(!e) return;
+    const isWork = e.type === 'work';
+    document.getElementById(isWork ? 'type-work' : 'type-personal').checked = true;
+    document.getElementById('pw-website').value = e.website||'';
+    document.getElementById('pw-username').value = e.username||'';
+    document.getElementById('pw-password').value = e.password||'';
+    document.getElementById('pw-comments').value = e.comments||'';
+    document.getElementById('pw-company').value = e.company||'';
+    document.getElementById('pw-person').value = e.person||'Indy';
+  } else {
+    document.getElementById('type-personal').checked = true;
+    document.getElementById('pw-website').value = '';
+    document.getElementById('pw-username').value = '';
+    document.getElementById('pw-password').value = '';
+    document.getElementById('pw-comments').value = '';
+    document.getElementById('pw-company').value = '';
+    document.getElementById('pw-person').value = 'Indy';
+  }
+  onTypeChange();
+  openModal('modal-pw');
+}
+function savePwEntry(){
+  const type = document.querySelector('input[name="pw-type"]:checked').value;
+  const website = document.getElementById('pw-website').value.trim();
+  const username = document.getElementById('pw-username').value.trim();
+  const password = document.getElementById('pw-password').value;
+  if(!website){ toast('Website required'); return; }
+  if(!password){ toast('Password required'); return; }
+  const entry = {
+    type,
+    website, username, password,
+    comments: document.getElementById('pw-comments').value.trim(),
+    company: type==='work' ? document.getElementById('pw-company').value.trim() : '',
+    person: type==='personal' ? document.getElementById('pw-person').value : '',
+    updatedAt: Date.now(),
+  };
+  const vault = profiles[currentProfile].vault || [];
+  if(editingEntryId){
+    const idx = vault.findIndex(x=>x.id===editingEntryId);
+    if(idx>=0){ entry.id = editingEntryId; entry.createdAt = vault[idx].createdAt; vault[idx] = entry; }
+  } else {
+    entry.id = genId(); entry.createdAt = Date.now();
+    vault.push(entry);
+  }
+  profiles[currentProfile].vault = vault;
+  saveProfiles();
+  closeModal('modal-pw');
+  renderVault();
+  toast(editingEntryId ? 'Updated!' : 'Password saved!');
+}
+function deletePwEntry(){
+  if(!editingEntryId) return;
+  if(!confirm('Delete this entry?')) return;
+  profiles[currentProfile].vault = (profiles[currentProfile].vault||[]).filter(x=>x.id!==editingEntryId);
+  saveProfiles();
+  closeModal('modal-pw');
+  renderVault();
+  toast('Deleted');
+}
+function togglePwVis(inputId, btn){
+  const inp = document.getElementById(inputId);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
+// ============ SETTINGS ============
+async function changePassword(){
+  const curr = document.getElementById('chg-current').value;
+  const nw = document.getElementById('chg-new').value;
+  const conf = document.getElementById('chg-confirm').value;
+  const currHash = await hashPw(curr);
+  if(currHash !== profiles[currentProfile].pwHash){ toast('Current password is incorrect'); return; }
+  if(!nw){ toast('Enter a new password'); return; }
+  if(nw !== conf){ toast('Passwords do not match'); return; }
+  profiles[currentProfile].pwHash = await hashPw(nw);
+  saveProfiles();
+  document.getElementById('chg-current').value = '';
+  document.getElementById('chg-new').value = '';
+  document.getElementById('chg-confirm').value = '';
+  toast('Password changed!');
+}
+function deleteSection(key, label){
+  if(!confirm(`Are you sure you want to delete all ${label} data?\n\nYou can export your data first to keep it safe.`)) return;
+  profiles[currentProfile][key] = key === 'vault' ? [] : undefined;
+  saveProfiles();
+  renderVault();
+  if(key === 'savings') renderSavings();
+  if(key === 'taxes') renderTaxes();
+  if(key === 'assets') renderAssets();
+  toast(`${label} data deleted.`);
+}
+function deleteProfile(){
+  if(!confirm(`Delete the profile "${currentProfile}" and ALL its data? This cannot be undone.`)) return;
+  const name = currentProfile;
+  delete profiles[name];
+  saveProfiles();
+  // Also delete the Firestore document (fire-and-forget)
+  if(usingFirestore){
+    db.collection('lifeinfo_profiles').doc(name).delete()
+      .catch(err => console.error('Firestore delete error', err));
+  }
+  showProfiles();
+  toast('Profile deleted');
+}
+
+// ============ CSV IMPORT ============
+function importCSV(file){
+  if(!file) return;
+  const statusEl = document.getElementById('import-status');
+  statusEl.textContent = 'Reading file…';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/);
+      if(lines.length < 2){ toast('CSV appears empty'); statusEl.textContent=''; return; }
+      const headers = parseCSVLine(lines[0]);
+      const mode = document.querySelector('input[name="import-mode"]:checked')?.value || 'auto';
+
+      let imported = 0;
+      if(mode === 'password-parse'){
+        imported = importPasswordParseFormat(lines, headers);
+      } else {
+        const isMultiCol = headers.some(h => /personal\s*-|work\s*-/i.test(h));
+        imported = isMultiCol ? importMultiColFormat(lines, headers) : importStandardFormat(lines, headers);
+      }
+
+      saveProfiles();
+      renderVault();
+      document.getElementById('csv-file').value = '';
+      statusEl.textContent = `✅ Imported ${imported} entries successfully.`;
+      toast(`Imported ${imported} entries!`);
+    } catch(err) {
+      statusEl.textContent = '❌ Error reading file: ' + err.message;
+      toast('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Section-header keywords to skip (all-caps divider rows in the sheet)
+const SECTION_HEADERS = new Set(['LOYALTY PROGRAMS','KEY DATA','HOUSING','FINANCIAL CHANGES']);
+
+function importMultiColFormat(lines, headers){
+  // Build column metadata from row 0 headers
+  // Each non-empty header is either "Personal - Name" or "WORK - Company"
+  const colMeta = headers.map(h => {
+    h = (h||'').trim();
+    if(!h) return null;
+    const workMatch = h.match(/^WORK\s*-\s*(.+)/i);
+    const personalMatch = h.match(/^Personal\s*-\s*(.+)/i);
+    if(workMatch) return { isWork: true, name: workMatch[1].trim() };
+    if(personalMatch) return { isWork: false, name: personalMatch[1].trim() };
+    return null; // skip columns without a recognized header
+  });
+
+  let imported = 0;
+  // Row 1 is notes/hints row — skip it. Start at row 2.
+  for(let i = 2; i < lines.length; i++){
+    const line = lines[i];
+    if(!line.trim()) continue;
+    const cols = parseCSVLine(line);
+
+    // Check if this entire row is a section header (col 0 is one of the keywords, rest empty)
+    const col0 = (cols[0]||'').trim();
+    if(SECTION_HEADERS.has(col0)) continue;
+
+    cols.forEach((cell, colIdx) => {
+      cell = (cell||'').trim();
+      if(!cell) return;
+      const meta = colMeta[colIdx];
+      if(!meta) return; // skip unlabeled columns
+
+      // Parse "Website: rest of info" — everything before first colon is the service name
+      let website = cell;
+      let comments = '';
+      const colonIdx = cell.indexOf(':');
+      if(colonIdx > 0){
+        website = cell.substring(0, colonIdx).trim();
+        comments = cell.substring(colonIdx + 1).trim();
+      }
+
+      // Skip blank parsed websites
+      if(!website) return;
+
+      const entry = {
+        id: genId(), createdAt: Date.now() + imported, updatedAt: Date.now(),
+        type: meta.isWork ? 'work' : 'personal',
+        website,
+        username: '',
+        password: '',
+        comments,
+        company: meta.isWork ? meta.name : '',
+        person: meta.isWork ? '' : meta.name,
+      };
+      profiles[currentProfile].vault.push(entry);
+      imported++;
+    });
+  }
+  return imported;
+}
+
+// Password Parse mode:
+// "Website: username, password!" — up to 12 chars after comma, ends at last '!'
+function parsePasswordCell(cell){
+  cell = (cell||'').trim();
+  const colonIdx = cell.indexOf(':');
+  if(colonIdx < 0) return {website:cell, username:'', password:'', comments:''};
+  const website = cell.substring(0, colonIdx).trim();
+  const afterColon = cell.substring(colonIdx + 1);
+  const commaIdx = afterColon.indexOf(',');
+  if(commaIdx < 0) return {website, username:afterColon.trim(), password:'', comments:''};
+  const username = afterColon.substring(0, commaIdx).trim();
+  const afterComma = afterColon.substring(commaIdx + 1);
+  const window12 = afterComma.substring(0, 12);
+  const lastBang = window12.lastIndexOf('!');
+  if(lastBang < 0) return {website, username, password:'', comments:afterComma.trim()};
+  const password = window12.substring(0, lastBang + 1).trim();
+  const comments = afterComma.substring(lastBang + 1).replace(/^,?\s*/, '');
+  return {website, username, password, comments};
+}
+
+function importPasswordParseFormat(lines, headers){
+  // Detect column delimiter: tab (TSV) or comma (CSV).
+  // For Password Parse mode, TSV is preferred because cell values contain
+  // internal commas (e.g. "Airbnb: Gmail, Dak!") that must not be split.
+  // Google Sheets: File → Download → TSV to use tab mode.
+  // If the raw header line contains tabs between known column markers, use tabs.
+  const rawHeader = lines[0];
+  const delim = rawHeader.includes('\t') ? '\t' : null; // null = use CSV quoting
+
+  function splitRow(line){
+    if(delim === '\t') return line.split('\t').map(s=>s.trim());
+    // CSV mode: use parseCSVLine which handles quoted cells.
+    // Then rejoin any cell fragment (no ':') onto the prior cell if the
+    // prior cell's colMeta is valid — these are likely comma-split leftovers.
+    const raw = parseCSVLine(line);
+    const rejoined = [];
+    raw.forEach((cell, i) => {
+      const meta = colMeta[i < rejoined.length ? i : rejoined.length];
+      // If this cell has no ':' and no colMeta of its own, it's probably a
+      // fragment split off from the previous cell's internal comma.
+      // Re-attach it to the last real cell.
+      if(!cell.includes(':') && rejoined.length > 0 && !colMeta[i]) {
+        rejoined[rejoined.length - 1] += ', ' + cell;
+      } else {
+        rejoined.push(cell);
+      }
+    });
+    return rejoined;
+  }
+
+  // Build colMeta from the (already-parsed) headers array
+  const colMeta = headers.map(h => {
+    h = (h||'').trim();
+    const workMatch = h.match(/^WORK\s*-\s*(.+)/i);
+    const personalMatch = h.match(/^Personal\s*-\s*(.+)/i);
+    if(workMatch) return {isWork:true, name:workMatch[1].trim()};
+    if(personalMatch) return {isWork:false, name:personalMatch[1].trim()};
+    return null;
+  });
+
+  let imported = 0;
+  for(let i = 1; i < lines.length; i++){
+    if(!lines[i].trim()) continue;
+    const cols = splitRow(lines[i]);
+    const col0 = (cols[0]||'').trim();
+    if(SECTION_HEADERS.has(col0)) continue;
+    cols.forEach((cell, colIdx) => {
+      cell = (cell||'').trim();
+      if(!cell) return;
+      const meta = colMeta[colIdx];
+      if(!meta) return;
+      const parsed = parsePasswordCell(cell);
+      if(!parsed.website) return;
+      const entry = {
+        id:genId(), createdAt:Date.now()+imported, updatedAt:Date.now(),
+        type: meta.isWork ? 'work' : 'personal',
+        website: parsed.website,
+        username: parsed.username,
+        password: parsed.password,
+        comments: parsed.comments,
+        company: meta.isWork ? meta.name : '',
+        person: meta.isWork ? '' : meta.name,
+      };
+      profiles[currentProfile].vault.push(entry);
+      imported++;
+    });
+  }
+  return imported;
+}
+
+function importStandardFormat(lines, headers){
+  const hdrs = headers.map(h=>(h||'').toLowerCase().trim());
+  let imported = 0;
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    const cols = parseCSVLine(lines[i]);
+    const row = {};
+    hdrs.forEach((h,j)=>row[h]=cols[j]||'');
+    const website = row['website']||row['site']||row['url']||'';
+    const username = row['username']||row['user']||row['email']||'';
+    const password = row['password']||row['pw']||row['pass']||'';
+    if(!website && !username && !password) continue;
+    const type = (row['type']||'').toLowerCase().includes('work') ? 'work' : 'personal';
+    profiles[currentProfile].vault.push({
+      id: genId(), createdAt: Date.now() + imported, updatedAt: Date.now(),
+      type, website, username, password,
+      comments: row['comments']||row['notes']||row['comment']||'',
+      company: row['company']||'',
+      person: row['person']||'Indy',
+    });
+    imported++;
+  }
+  return imported;
+}
+
+function parseCSVLine(line){
+  const result=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(inQ && line[i+1]==='"'){ cur+='"'; i++; } // escaped quote
+      else inQ=!inQ;
+      continue;
+    }
+    if(c===','&&!inQ){ result.push(cur); cur=''; continue; }
+    cur+=c;
+  }
+  result.push(cur);
+  return result.map(s=>s.trim());
+}
+
+// ============ CSV EXPORT ============
+function exportCSV(){
+  const vault = profiles[currentProfile]?.vault || [];
+  const rows = [['Website','Username','Password','Comments','Type','Company','Person']];
+  vault.forEach(e=>rows.push([e.website,e.username,e.password,e.comments,e.type,e.company||'',e.person||'']));
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = currentProfile.replace(/\s/g,'_')+'_passwords.csv';
+  a.click();
+}
+
+function csvDownload(filename, rows){
+  const csv = rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = filename;
+  a.click();
+}
+function exportSavingsCSV(){
+  const rows = [['Date','Total Assets','Liquid Assets','Cash','Investments','MSI/Lean','House Debt','Home Equity','Credit Score','College Funds','Comments']];
+  getSavings().forEach(r=>rows.push([r.date,r.total,r.liquid,r.cash,r.investments,r.msi,r.hdebt,r.hequity,r.credit,r.college,r.comments]));
+  csvDownload(currentProfile.replace(/\s/g,'_')+'_savings.csv', rows);
+}
+function exportTaxesCSV(){
+  const rows = [['Tax Year','AGI','Effective Rate (%)','Capital Gains','Comments']];
+  getTaxes().forEach(r=>rows.push([r.year,r.agi,r.rate,r.capGains?'Yes':'No',r.comments]));
+  csvDownload(currentProfile.replace(/\s/g,'_')+'_taxes.csv', rows);
+}
+function exportAssetsCSV(){
+  const rows = [['Category','As Of','Description','Notes']];
+  getAssets().forEach(a=>rows.push([a.category,a.asOfDate,a.description,a.notes]));
+  csvDownload(currentProfile.replace(/\s/g,'_')+'_assets.csv', rows);
+}
+
+// ============ INIT ============
+// Override createProfile to handle updating an existing stub (no pwHash yet)
+async function createProfile(){
+  const name = document.getElementById('new-profile-name').value.trim();
+  const emoji = document.getElementById('new-profile-emoji').value.trim() || '🧑';
+  const pw = document.getElementById('new-profile-pw').value;
+  if(!name){ toast('Enter a name'); return; }
+  if(!pw){ toast('Set a password'); return; }
+  if(profiles[name] && profiles[name].pwHash){ toast('Profile already exists'); return; }
+  const hash = await hashPw(pw);
+  if(profiles[name]){
+    // Update existing stub (e.g. Indy without a password yet)
+    profiles[name].emoji = emoji || profiles[name].emoji;
+    profiles[name].pwHash = hash;
+  } else {
+    profiles[name] = { emoji, pwHash: hash, vault:[] };
+  }
+  saveProfiles();
+  document.getElementById('new-profile-name').value = '';
+  document.getElementById('new-profile-emoji').value = '';
+  document.getElementById('new-profile-pw').value = '';
+  renderProfiles();
+  toast('Profile ready! Click it to log in.');
+}
+
+async function init(){
+  updateFirebaseStatusUI();
+  await loadProfiles();
+
+  // Seed "Indy" profile stub if not present
+  if(!profiles['Indy']){
+    profiles['Indy'] = { emoji:'👑', vault:[] };
+    saveProfiles();
+  }
+
+  await showProfiles();
+  setTimeout(()=>{
+    if(!profiles['Indy'] || !profiles['Indy'].pwHash)
+      toast('Welcome! Add "Indy" in the form below to set your password.', 4000);
+
+  // Wire up drag-and-drop for import box
+  const dropZone = document.getElementById('import-drop-zone');
+  if(dropZone){
+    dropZone.addEventListener('dragover', ev => { ev.preventDefault(); dropZone.style.borderColor='var(--navy-mid)'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor=''; });
+    dropZone.addEventListener('drop', ev => {
+      ev.preventDefault();
+      dropZone.style.borderColor='';
+      const file = ev.dataTransfer.files[0];
+      if(file) importCSV(file);
+    });
+  }
+  },400);
+}
+
+init();
+</script>
+</body>
+</html>
