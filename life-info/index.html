@@ -424,10 +424,19 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
 
       <div class="settings-card">
         <h3>Import from CSV</h3>
-        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.5">
-          Supports your multi-column Google Sheet format (one column per person/company).<br>
-          In Google Sheets: <strong>File → Download → Comma Separated Values (.csv)</strong>
-        </p>
+        <div style="margin-bottom:14px">
+          <div style="font-size:.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Parse Mode</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.83rem">
+              <input type="radio" name="import-mode" value="auto" checked style="margin-top:2px;accent-color:var(--navy-mid)">
+              <span><strong>Auto-detect</strong> — detects multi-column Google Sheets format or standard CSV</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.83rem">
+              <input type="radio" name="import-mode" value="password-parse" style="margin-top:2px;accent-color:var(--navy-mid)">
+              <span><strong>Password Parse</strong> — parses each cell as <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">Website: username, password!</code> — text before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">:</code> is the site, before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">,</code> is the username, up to 12 chars ending at last <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">!</code> is the password, remainder goes to Comments</span>
+            </label>
+          </div>
+        </div>
         <div class="import-box" id="import-drop-zone" onclick="document.getElementById('csv-file').click()">
           <div style="font-size:1.6rem;margin-bottom:6px">📂</div>
           <div style="font-weight:700;margin-bottom:4px">Click to choose CSV file</div>
@@ -1814,15 +1823,14 @@ function importCSV(file){
       const lines = text.split(/\r?\n/);
       if(lines.length < 2){ toast('CSV appears empty'); statusEl.textContent=''; return; }
       const headers = parseCSVLine(lines[0]);
-
-      // Detect multi-column format: headers contain "Personal -" or "WORK -"
-      const isMultiCol = headers.some(h => /personal\s*-|work\s*-/i.test(h));
+      const mode = document.querySelector('input[name="import-mode"]:checked')?.value || 'auto';
 
       let imported = 0;
-      if(isMultiCol){
-        imported = importMultiColFormat(lines, headers);
+      if(mode === 'password-parse'){
+        imported = importPasswordParseFormat(lines, headers);
       } else {
-        imported = importStandardFormat(lines, headers);
+        const isMultiCol = headers.some(h => /personal\s*-|work\s*-/i.test(h));
+        imported = isMultiCol ? importMultiColFormat(lines, headers) : importStandardFormat(lines, headers);
       }
 
       saveProfiles();
@@ -1890,6 +1898,66 @@ function importMultiColFormat(lines, headers){
         username: '',
         password: '',
         comments,
+        company: meta.isWork ? meta.name : '',
+        person: meta.isWork ? '' : meta.name,
+      };
+      profiles[currentProfile].vault.push(entry);
+      imported++;
+    });
+  }
+  return imported;
+}
+
+// Password Parse mode:
+// "Website: username, password!" — up to 12 chars after comma, ends at last '!'
+function parsePasswordCell(cell){
+  cell = (cell||'').trim();
+  const colonIdx = cell.indexOf(':');
+  if(colonIdx < 0) return {website:cell, username:'', password:'', comments:''};
+  const website = cell.substring(0, colonIdx).trim();
+  const afterColon = cell.substring(colonIdx + 1);
+  const commaIdx = afterColon.indexOf(',');
+  if(commaIdx < 0) return {website, username:afterColon.trim(), password:'', comments:''};
+  const username = afterColon.substring(0, commaIdx).trim();
+  const afterComma = afterColon.substring(commaIdx + 1);
+  const window12 = afterComma.substring(0, 12);
+  const lastBang = window12.lastIndexOf('!');
+  if(lastBang < 0) return {website, username, password:'', comments:afterComma.trim()};
+  const password = window12.substring(0, lastBang + 1).trim();
+  const comments = afterComma.substring(lastBang + 1).replace(/^,?\s*/, '');
+  return {website, username, password, comments};
+}
+
+function importPasswordParseFormat(lines, headers){
+  // Determine column ownership from headers (same logic as multi-col)
+  const colMeta = headers.map(h => {
+    h = (h||'').trim();
+    const workMatch = h.match(/^WORK\s*-\s*(.+)/i);
+    const personalMatch = h.match(/^Personal\s*-\s*(.+)/i);
+    if(workMatch) return {isWork:true, name:workMatch[1].trim()};
+    if(personalMatch) return {isWork:false, name:personalMatch[1].trim()};
+    return null;
+  });
+  let imported = 0;
+  for(let i = 1; i < lines.length; i++){
+    if(!lines[i].trim()) continue;
+    const cols = parseCSVLine(lines[i]);
+    const col0 = (cols[0]||'').trim();
+    if(SECTION_HEADERS.has(col0)) continue;
+    cols.forEach((cell, colIdx) => {
+      cell = (cell||'').trim();
+      if(!cell) return;
+      const meta = colMeta[colIdx];
+      if(!meta) return;
+      const parsed = parsePasswordCell(cell);
+      if(!parsed.website) return;
+      const entry = {
+        id:genId(), createdAt:Date.now()+imported, updatedAt:Date.now(),
+        type: meta.isWork ? 'work' : 'personal',
+        website: parsed.website,
+        username: parsed.username,
+        password: parsed.password,
+        comments: parsed.comments,
         company: meta.isWork ? meta.name : '',
         person: meta.isWork ? '' : meta.name,
       };
