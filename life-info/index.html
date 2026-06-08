@@ -486,6 +486,41 @@ service cloud.firestore {
       </div>
 
       <div class="settings-card">
+        <h3 style="color:var(--red)">Delete Data</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Permanently clear a section's data. You can export first to keep a copy.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">🔑 Passwords</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('vault','Passwords')">Delete All</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">💰 Savings</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportSavingsCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('savings','Savings')">Delete All</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">🧾 Taxes</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportTaxesCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('taxes','Taxes')">Delete All</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border:1px solid #fee2e2;border-radius:8px;background:#fff5f5">
+            <span style="font-size:.85rem;font-weight:600">📋 Asset Explanations</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="exportAssetsCSV()">⬇ Export first</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSection('assets','Asset Explanations')">Delete All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
         <h3 style="color:var(--red)">Danger Zone</h3>
         <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px">Permanently delete this profile and all its data.</p>
         <button class="btn btn-danger" onclick="deleteProfile()">Delete Profile</button>
@@ -1796,6 +1831,16 @@ async function changePassword(){
   document.getElementById('chg-new').value = '';
   document.getElementById('chg-confirm').value = '';
   toast('Password changed!');
+}
+function deleteSection(key, label){
+  if(!confirm(`Are you sure you want to delete all ${label} data?\n\nYou can export your data first to keep it safe.`)) return;
+  profiles[currentProfile][key] = key === 'vault' ? [] : undefined;
+  saveProfiles();
+  renderVault();
+  if(key === 'savings') renderSavings();
+  if(key === 'taxes') renderTaxes();
+  if(key === 'assets') renderAssets();
+  toast(`${label} data deleted.`);
 }
 function deleteProfile(){
   if(!confirm(`Delete the profile "${currentProfile}" and ALL its data? This cannot be undone.`)) return;
