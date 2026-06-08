@@ -457,33 +457,7 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
         </div>
       </div>
 
-      <div class="settings-card" id="firebase-setup-card">
-        <h3>☁️ Firebase Sync Setup</h3>
-        <p id="firebase-status-detail" style="font-size:.83rem;margin-bottom:14px;padding:8px 12px;border-radius:6px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0">
-          ☁️ Firebase is configured and active — data syncs across all devices.
-        </p>
-        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.6">
-          To enable cross-device sync, set up a free Firebase project and paste the config into this file.
-        </p>
-        <ol style="font-size:.83rem;color:var(--text);line-height:1.8;padding-left:20px;margin-bottom:14px">
-          <li>Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--navy-mid)">console.firebase.google.com</a></li>
-          <li>Create a new project called <strong>life-info</strong></li>
-          <li>Click "Add app" → Web app and copy the config</li>
-          <li>Enable Firestore Database (test mode is fine to start)</li>
-          <li>Open <code>life-info/index.html</code> and replace the <code>REPLACE_WITH_…</code> values in <code>FIREBASE_CONFIG</code></li>
-        </ol>
-        <details style="font-size:.82rem">
-          <summary style="cursor:pointer;font-weight:700;color:var(--navy);margin-bottom:8px">Recommended Firestore Rules</summary>
-          <pre style="background:#f8f9fa;border:1px solid var(--border);border-radius:6px;padding:12px;overflow-x:auto;line-height:1.5;font-size:.78rem">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{collection}/{docId} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
-        </details>
-      </div>
+
 
       <div class="settings-card">
         <h3 style="color:var(--red)">Danger Zone</h3>
