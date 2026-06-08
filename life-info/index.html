@@ -433,7 +433,7 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
             </label>
             <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.83rem">
               <input type="radio" name="import-mode" value="password-parse" style="margin-top:2px;accent-color:var(--navy-mid)">
-              <span><strong>Password Parse</strong> — parses each cell as <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">Website: username, password!</code> — text before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">:</code> is the site, before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">,</code> is the username, up to 12 chars ending at last <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">!</code> is the password, remainder goes to Comments</span>
+              <span><strong>Password Parse</strong> — parses each cell as <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">Website: username, password!</code> — text before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">:</code> is the site, before <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">,</code> is the username, up to 12 chars ending at last <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px">!</code> is the password, remainder goes to Comments. Each cell is parsed independently per its column owner. <strong>Tip:</strong> In Google Sheets use <em>File → Download → TSV</em> to avoid comma conflicts inside cells.</span>
             </label>
           </div>
         </div>
@@ -1948,7 +1948,36 @@ function parsePasswordCell(cell){
 }
 
 function importPasswordParseFormat(lines, headers){
-  // Determine column ownership from headers (same logic as multi-col)
+  // Detect column delimiter: tab (TSV) or comma (CSV).
+  // For Password Parse mode, TSV is preferred because cell values contain
+  // internal commas (e.g. "Airbnb: Gmail, Dak!") that must not be split.
+  // Google Sheets: File → Download → TSV to use tab mode.
+  // If the raw header line contains tabs between known column markers, use tabs.
+  const rawHeader = lines[0];
+  const delim = rawHeader.includes('\t') ? '\t' : null; // null = use CSV quoting
+
+  function splitRow(line){
+    if(delim === '\t') return line.split('\t').map(s=>s.trim());
+    // CSV mode: use parseCSVLine which handles quoted cells.
+    // Then rejoin any cell fragment (no ':') onto the prior cell if the
+    // prior cell's colMeta is valid — these are likely comma-split leftovers.
+    const raw = parseCSVLine(line);
+    const rejoined = [];
+    raw.forEach((cell, i) => {
+      const meta = colMeta[i < rejoined.length ? i : rejoined.length];
+      // If this cell has no ':' and no colMeta of its own, it's probably a
+      // fragment split off from the previous cell's internal comma.
+      // Re-attach it to the last real cell.
+      if(!cell.includes(':') && rejoined.length > 0 && !colMeta[i]) {
+        rejoined[rejoined.length - 1] += ', ' + cell;
+      } else {
+        rejoined.push(cell);
+      }
+    });
+    return rejoined;
+  }
+
+  // Build colMeta from the (already-parsed) headers array
   const colMeta = headers.map(h => {
     h = (h||'').trim();
     const workMatch = h.match(/^WORK\s*-\s*(.+)/i);
@@ -1957,10 +1986,11 @@ function importPasswordParseFormat(lines, headers){
     if(personalMatch) return {isWork:false, name:personalMatch[1].trim()};
     return null;
   });
+
   let imported = 0;
   for(let i = 1; i < lines.length; i++){
     if(!lines[i].trim()) continue;
-    const cols = parseCSVLine(lines[i]);
+    const cols = splitRow(lines[i]);
     const col0 = (cols[0]||'').trim();
     if(SECTION_HEADERS.has(col0)) continue;
     cols.forEach((cell, colIdx) => {
