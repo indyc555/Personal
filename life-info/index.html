@@ -322,6 +322,15 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
         <h2>Password Vault</h2>
         <button class="btn btn-gold" onclick="openPwModal()">+ Add Password</button>
       </div>
+
+      <!-- LEGEND -->
+      <div id="legend-section" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <span style="font-size:.88rem;font-weight:700;color:var(--navy)">📖 Legend</span>
+          <button class="btn btn-ghost btn-sm" onclick="openLegendModal()">+ Add / Edit Legend</button>
+        </div>
+        <div id="legend-cards" style="display:flex;flex-wrap:wrap;gap:10px"></div>
+      </div>
       <div class="filter-bar">
         <button class="filter-btn active" id="filter-all-btn" onclick="setFilter('all',this)">All</button>
         <select class="filter-select" id="filter-personal-select" onchange="setFilterSelect('personal',this)">
@@ -721,6 +730,28 @@ main{flex:1;max-width:1000px;margin:0 auto;width:100%;padding:28px 18px}
       <span class="spacer"></span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-asset')">Cancel</button>
       <button class="btn btn-gold" onclick="saveAssetEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== LEGEND MODAL =========== -->
+<div class="modal-overlay" id="modal-legend">
+  <div class="modal" style="max-width:540px">
+    <button class="modal-close" onclick="closeModal('modal-legend')">&times;</button>
+    <h2 id="modal-legend-title">Add Legend Entry</h2>
+    <div class="form-row">
+      <label>Name (person or company)</label>
+      <input type="text" id="lg-name" placeholder="e.g. Indy, Ananya, Jaggaer">
+    </div>
+    <div class="form-row">
+      <label>Legend / Notes</label>
+      <textarea id="lg-notes" style="min-height:140px" placeholder="Password hints, PINs, lock codes…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="lg-delete-btn" style="display:none" onclick="deleteLegendEntry()">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-legend')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLegendEntry()">Save</button>
     </div>
   </div>
 </div>
@@ -1596,6 +1627,73 @@ function openAssetImageViewer(id){
   document.body.appendChild(ov);
 }
 
+// ============ LEGEND ============
+const LEGEND_SEED = {
+  'Indy': 'Passwords: "DAK! means Dc120904!"; "Romo! is Dc121109!", "No ! means dont add !"\nPearson is DC122288 or Dc122288\nMy different Pins, listed in order of frequency of usage: 2288, 222888, 8822, 8750, 1406, 0770, 22888 if 5 digits\nSamsung Lock Screen is 222111',
+};
+
+function seedLegend(){
+  if(!profiles[currentProfile].legend){
+    profiles[currentProfile].legend = {...LEGEND_SEED};
+    saveProfiles();
+  }
+}
+
+let editingLegendName = null;
+
+function renderLegend(){
+  seedLegend();
+  const legend = profiles[currentProfile].legend || {};
+  const container = document.getElementById('legend-cards');
+  if(!container) return;
+  const entries = Object.entries(legend);
+  if(entries.length === 0){ container.innerHTML = ''; return; }
+  container.innerHTML = entries.map(([name, notes]) => `
+    <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;min-width:220px;max-width:340px;flex:1;cursor:pointer;transition:.15s"
+         onclick="openLegendModal('${escH(name)}')"
+         onmouseover="this.style.borderColor='var(--navy-mid)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:6px">📖 ${escH(name)}</div>
+      <div style="font-size:.75rem;color:var(--muted);white-space:pre-wrap;line-height:1.5">${escH(notes.length>200?notes.slice(0,200)+'…':notes)}</div>
+    </div>`).join('');
+}
+
+function openLegendModal(name){
+  editingLegendName = name || null;
+  document.getElementById('modal-legend-title').textContent = name ? 'Edit Legend' : 'Add Legend Entry';
+  document.getElementById('lg-delete-btn').style.display = name ? 'inline-flex' : 'none';
+  document.getElementById('lg-name').value = name || '';
+  document.getElementById('lg-name').readOnly = !!name;
+  document.getElementById('lg-name').style.opacity = name ? '.6' : '1';
+  const legend = profiles[currentProfile].legend || {};
+  document.getElementById('lg-notes').value = name ? (legend[name]||'') : '';
+  openModal('modal-legend');
+}
+
+function saveLegendEntry(){
+  const name = (document.getElementById('lg-name').value || '').trim();
+  const notes = document.getElementById('lg-notes').value.trim();
+  if(!name){ toast('Name required'); return; }
+  if(!profiles[currentProfile].legend) profiles[currentProfile].legend = {};
+  if(editingLegendName && editingLegendName !== name){
+    delete profiles[currentProfile].legend[editingLegendName];
+  }
+  profiles[currentProfile].legend[name] = notes;
+  saveProfiles();
+  closeModal('modal-legend');
+  renderLegend();
+  toast('Legend saved!');
+}
+
+function deleteLegendEntry(){
+  if(!editingLegendName) return;
+  if(!confirm(`Delete legend for "${editingLegendName}"?`)) return;
+  delete profiles[currentProfile].legend[editingLegendName];
+  saveProfiles();
+  closeModal('modal-legend');
+  renderLegend();
+  toast('Deleted');
+}
+
 // ============ VAULT RENDER ============
 function setFilter(f, el){
   currentFilter = f;
@@ -1634,6 +1732,7 @@ function populateWorkDropdown(){
   sel.innerHTML = `<option value="">💼 Work</option>` + companies.map(c=>`<option value="${escH(c)}"${c===cur?'selected':''}>${escH(c)}</option>`).join('');
 }
 function renderVault(){
+  renderLegend();
   populateWorkDropdown();
   const vault = profiles[currentProfile]?.vault || [];
   const search = document.getElementById('search-input').value.toLowerCase();
@@ -1670,22 +1769,19 @@ function renderVault(){
       <th></th>
     </tr></thead>
     <tbody>${entries.map(e => {
+      const owner = e.type === 'work' ? e.company||'' : e.person||'';
       const typeLabel = e.type === 'work'
-        ? `<span class="type-pill type-work">Work</span><div class="sub-label">${escH(e.company||'')}</div>`
-        : `<span class="type-pill type-personal">Personal</span><div class="sub-label">${escH(e.person||'')}</div>`;
-      const hasPw = !!e.password;
+        ? `<span class="type-pill type-work" style="white-space:nowrap">💼 ${escH(owner)}</span>`
+        : `<span class="type-pill type-personal" style="white-space:nowrap">👤 ${escH(owner)}</span>`;
       const notesShort = e.comments
         ? `<span title="${escH(e.comments)}" style="font-size:.78rem;color:var(--muted);cursor:help;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">${escH(e.comments.length>60?e.comments.slice(0,60)+'…':e.comments)}</span>`
         : '';
       return `<tr>
         <td><strong>${escH(e.website)}</strong></td>
         <td style="font-size:.82rem">${escH(e.username)}</td>
-        <td>
-          <span class="pw-val pw-mask" id="pval-${escH(e.id)}">${hasPw ? '••••••••' : '<span style="color:#bbb">—</span>'}</span>
-          ${hasPw ? `<button style="background:none;border:none;cursor:pointer;font-size:.85rem;margin-left:4px" onclick="toggleEntryVis('${escH(e.id)}')" title="Show/hide">👁</button>` : ''}
-        </td>
+        <td><span class="pw-val" style="font-family:monospace;font-size:.82rem">${escH(e.password||'—')}</span></td>
         <td style="max-width:180px">${notesShort}</td>
-        <td>${typeLabel}</td>
+        <td style="white-space:nowrap">${typeLabel}</td>
         <td><div class="pw-actions">
           <button class="btn btn-ghost btn-sm" onclick="openPwModal('${escH(e.id)}')">Edit</button>
         </div></td>
@@ -1693,11 +1789,6 @@ function renderVault(){
     }).join('')}</tbody>
   </table>`;
 
-  // Set password data on each span via JS (avoids exposing in HTML attribute)
-  entries.forEach(e => {
-    const el = document.getElementById('pval-'+e.id);
-    if(el) el._pw = e.password || '';
-  });
 }
 
 function toggleEntryVis(id){
