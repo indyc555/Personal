@@ -1605,6 +1605,26 @@ function saveState(){
   }
 }
 
+// Merge helpers — union instead of overwrite, so whichever device happens
+// to sync last never wipes out progress made on the other device.
+function mergeLearned(local, remote){ return Object.assign({}, local||{}, remote||{}); }
+function mergeAwards(local, remote){ return Object.assign({}, local||{}, remote||{}); }
+function mergeQuizHistory(local, remote){
+  const byDate = new Map();
+  (local||[]).forEach(q => { if(q.date) byDate.set(q.date, q); });
+  (remote||[]).forEach(q => { if(q.date) byDate.set(q.date, q); });
+  return Array.from(byDate.values()).sort((a,b)=> new Date(a.date)-new Date(b.date)).slice(-50);
+}
+function mergeDailyData(local, remote){
+  local = local || {date:'',pts:0,record:0};
+  remote = remote || {date:'',pts:0,record:0};
+  const record = Math.max(local.record||0, remote.record||0);
+  if(local.date === todayStr && remote.date === todayStr) return {date:todayStr, pts:Math.max(local.pts||0, remote.pts||0), record};
+  if(local.date === todayStr) return {date:todayStr, pts:local.pts||0, record};
+  if(remote.date === todayStr) return {date:todayStr, pts:remote.pts||0, record};
+  return {date: (local.date||'') > (remote.date||'') ? local.date : remote.date, pts:0, record};
+}
+
 async function syncUsersFromFirestore(){
   if(!usingFirestore)return;
   try{
@@ -1616,12 +1636,12 @@ async function syncUsersFromFirestore(){
       const existing = users.find(u=>u.name===name);
       if(existing){
         existing.emoji=remote.emoji||existing.emoji;
-        existing.totalPoints=remote.totalPoints||0;
-        existing.singerPoints=remote.singerPoints||0;
-        existing.learned=remote.learned||{};
-        existing.quizHistory=remote.quizHistory||[];
-        existing.filmfareAwards=remote.filmfareAwards||{};
-        existing.dailyData=remote.dailyData||{date:'',pts:0,record:0};
+        existing.totalPoints=Math.max(existing.totalPoints||0, remote.totalPoints||0);
+        existing.singerPoints=Math.max(existing.singerPoints||0, remote.singerPoints||0);
+        existing.learned=mergeLearned(existing.learned, remote.learned);
+        existing.quizHistory=mergeQuizHistory(existing.quizHistory, remote.quizHistory);
+        existing.filmfareAwards=mergeAwards(existing.filmfareAwards, remote.filmfareAwards);
+        existing.dailyData=mergeDailyData(existing.dailyData, remote.dailyData);
       }else{
         users.push({
           id:'u_'+Date.now()+Math.random().toString(36).slice(2,6),
@@ -1634,6 +1654,9 @@ async function syncUsersFromFirestore(){
     });
     localStorage.setItem('seekho-users',JSON.stringify(users));
     loadUserState(currentUserId);
+    // Push the reconciled result back so every device converges on the
+    // same merged state instead of silently keeping the smaller one.
+    saveState();
   }catch(e){
     console.error('Firestore load failed, falling back to localStorage:', e);
   }

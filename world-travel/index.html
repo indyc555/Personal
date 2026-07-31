@@ -648,6 +648,26 @@ let worldData = null;
 let projection, path, svg, g, zoom;
 let currentTab = 'map';
 
+function countryKey(c){ return (c.countryName||'').trim().toLowerCase(); }
+function idTimestamp(id){
+  const m = String(id||'').match(/(\d{10,})$/);
+  return m ? parseInt(m[1], 10) : 0;
+}
+// Union two country lists by country name so an addition made on one device
+// (e.g. Croatia added on mobile) never gets lost when merging with another
+// device's list — on a genuine conflict (same country edited on both sides)
+// keep whichever has the newer timestamp-based id.
+function mergeCountries(local, remote){
+  const byKey = new Map();
+  (local||[]).forEach(c => byKey.set(countryKey(c), c));
+  (remote||[]).forEach(c => {
+    const key = countryKey(c);
+    const existing = byKey.get(key);
+    if(!existing || idTimestamp(c.id) >= idTimestamp(existing.id)) byKey.set(key, c);
+  });
+  return Array.from(byKey.values());
+}
+
 function getData(){ return profiles[currentProfile]?.countries || []; }
 function saveData(){
   localStorage.setItem('worldtravel_profiles', JSON.stringify(profiles));
@@ -671,9 +691,30 @@ async function loadData(){
     try{
       const snap = await db.collection('worldtravel_profiles').get();
       if(!snap.empty){
-        // Merge Firestore data into profiles — never discard existing local profiles
-        snap.docs.forEach(doc => { profiles[doc.id] = { ...doc.data() }; });
+        // Merge Firestore's countries into each profile's local countries
+        // (union by name) — never replace the whole profile, so an
+        // addition made on one device is never lost when another device
+        // (with its own unsynced additions) loads and merges.
+        snap.docs.forEach(doc => {
+          const remote = doc.data();
+          const name = doc.id;
+          const existing = profiles[name];
+          profiles[name] = {
+            emoji: remote.emoji || existing?.emoji || '🌍',
+            countries: mergeCountries(existing?.countries, remote.countries)
+          };
+        });
         localStorage.setItem('worldtravel_profiles', JSON.stringify(profiles));
+        // Push the reconciled result back so every device converges on the
+        // same union instead of silently keeping the smaller list until its
+        // next manual edit.
+        Object.keys(profiles).forEach(name => {
+          const p = profiles[name];
+          db.collection('worldtravel_profiles').doc(name).set({
+            emoji: p.emoji || '🌍',
+            countries: p.countries || []
+          }).catch(err => console.error('Firestore write error for', name, err));
+        });
       }
     }catch(e){
       console.error('Firestore load failed, falling back to localStorage:', e);
