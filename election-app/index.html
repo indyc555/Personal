@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Election App</title>
+<style>
+:root{
+  --navy:#0b1f3a;
+  --navy-mid:#132c52;
+  --blue:#2a78d6;
+  --red:#c0392b;
+  --gold:#c9a227;
+  --bg:#f5f0e8;
+  --border:#d9d0b8;
+  --r:14px;
+  --shadow:0 4px 20px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
+  padding:48px 24px 40px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+header h1{
+  color:#fff;
+  font-size:2.2rem;
+  font-weight:800;
+  letter-spacing:.5px;
+  position:relative;
+}
+header p{
+  color:rgba(255,255,255,.7);
+  margin-top:8px;
+  font-size:1rem;
+  position:relative;
+}
+header a.back{
+  position:absolute;
+  top:20px;
+  left:20px;
+  color:rgba(255,255,255,.75);
+  text-decoration:none;
+  font-size:.85rem;
+  font-weight:600;
+}
+header a.back:hover{color:#fff}
+.gold-bar{
+  height:4px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+main{
+  flex:1;
+  max-width:900px;
+  margin:0 auto;
+  width:100%;
+  padding:40px 20px;
+}
+.elections-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:22px;
+}
+.election-card{
+  background:#fff;
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  text-decoration:none;
+  color:inherit;
+  display:flex;
+  flex-direction:column;
+  transition:transform .18s, box-shadow .18s;
+  border:1px solid var(--border);
+}
+.election-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 10px 32px rgba(0,0,0,.18);
+}
+.election-card-banner{
+  height:100px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:3rem;
+  background:linear-gradient(135deg,var(--navy),var(--blue));
+}
+.election-card-body{
+  padding:18px 20px 22px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.election-card-body h2{
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--navy);
+  margin-bottom:6px;
+}
+.election-card-body p{
+  font-size:.85rem;
+  color:#666;
+  line-height:1.5;
+  flex:1;
+}
+.election-card-footer{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.open-btn{
+  background:var(--navy-mid);
+  color:#fff;
+  padding:7px 16px;
+  border-radius:20px;
+  font-size:.8rem;
+  font-weight:700;
+  letter-spacing:.3px;
+}
+.election-card:hover .open-btn{
+  background:var(--navy);
+}
+.tag{
+  font-size:.7rem;
+  color:var(--gold);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.coming-soon{
+  border:2px dashed var(--border);
+  border-radius:var(--r);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:140px;
+  color:#999;
+  font-size:.85rem;
+  font-weight:600;
+  text-align:center;
+  padding:20px;
+}
+footer{
+  text-align:center;
+  padding:24px;
+  font-size:.78rem;
+  color:#aaa;
+  border-top:1px solid var(--border);
+  background:#fff;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="../">← Apps</a>
+  <h1>🗳️ Election App</h1>
+  <p>One dashboard per election — markets, polls, pundits &amp; AI odds</p>
+</header>
+<div class="gold-bar"></div>
+
+<main>
+  <div class="elections-grid">
+
+    <a class="election-card" href="us-midterms-2026/">
+      <div class="election-card-banner">🇺🇸</div>
+      <div class="election-card-body">
+        <h2>US Midterms 2026</h2>
+        <p>Prediction markets, Senate polling averages, top pundit takes, and AI-generated odds — updated daily.</p>
+        <div class="election-card-footer">
+          <span class="open-btn">Open →</span>
+          <span class="tag">Nov 3, 2026</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="coming-soon">More elections coming soon</div>
+
+  </div>
+</main>
+
+<footer>
+  Built with ❤️ · Hosted on GitHub Pages
+</footer>
+
+</body>
+</html>

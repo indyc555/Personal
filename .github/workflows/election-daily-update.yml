@@ -1,0 +1,32 @@
+name: Election App — Daily Data Update
+
+on:
+  schedule:
+    - cron: "0 11 * * *" # ~7am ET / 4am PT daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Fetch prediction markets (Kalshi, Polymarket, PredictIt)
+        run: node election-app/scripts/fetch-prediction-markets.mjs
+
+      - name: Fetch AI odds (Claude, ChatGPT, Gemini, Grok, Qwen)
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+        run: node election-app/scripts/fetch-ai-odds.mjs
