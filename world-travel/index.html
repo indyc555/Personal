@@ -6,6 +6,8 @@
 <title>World Travel Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <style>
 :root{
   --green-dark:#1a472a;
@@ -23,6 +25,21 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ---- GATE SCREEN ---- */
+#gate-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;background:linear-gradient(135deg,var(--green-dark) 0%,var(--green-mid) 100%);
+  padding:20px;
+}
+#gate-screen h1{color:#fff;font-size:1.6rem;margin-bottom:6px;letter-spacing:1px}
+#gate-screen p{color:rgba(255,255,255,.7);margin-bottom:22px;font-size:.9rem}
+#gate-screen input{
+  width:100%;max-width:280px;padding:12px 14px;border-radius:var(--r);border:2px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.1);color:#fff;font-size:1rem;text-align:center;margin-bottom:12px;
+}
+#gate-screen input::placeholder{color:rgba(255,255,255,.5)}
+#gate-screen .gate-error{color:#f0c040;font-size:.85rem;min-height:1.2em;margin-bottom:8px}
 
 /* ---- PROFILE SCREEN ---- */
 #profile-screen{
@@ -236,8 +253,17 @@ header h1{font-size:1.15rem;letter-spacing:.5px;display:flex;align-items:center;
 </head>
 <body>
 
+<!-- GATE SCREEN -->
+<div id="gate-screen" style="display:none">
+  <h1>🌍 World Travel Tracker</h1>
+  <p>Enter passcode to continue</p>
+  <input type="password" id="gate-input" placeholder="Passcode" onkeydown="if(event.key==='Enter')submitGate()">
+  <div class="gate-error" id="gate-error"></div>
+  <button class="btn btn-gold" onclick="submitGate()" style="width:100%;max-width:280px">Unlock</button>
+</div>
+
 <!-- PROFILE SCREEN -->
-<div id="profile-screen">
+<div id="profile-screen" style="display:none">
   <h1>🌍 World Travel Tracker</h1>
   <p>Select your profile or create a new one</p>
   <div class="profile-cards" id="profile-cards"></div>
@@ -553,6 +579,67 @@ function getTravelerLevel(count){
   return { ...level, levelNum, next, toNext };
 }
 
+// ============ FIREBASE CONFIG ============
+// Suggested Firestore rules (set in Firebase console):
+// rules_version = '2';
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     match /{document=**} {
+//       allow read, write: if true;
+//     }
+//   }
+// }
+const FIREBASE_CONFIG = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
+};
+
+function isFirebaseConfigured(){
+  return !FIREBASE_CONFIG.apiKey.includes('REPLACE');
+}
+
+let db = null;
+let usingFirestore = false;
+
+if(isFirebaseConfigured()){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    usingFirestore = true;
+  }catch(e){
+    console.error('Firebase init failed, falling back to localStorage:', e);
+    usingFirestore = false;
+  }
+}
+
+// ============ GATE (shared passcode) ============
+// Same passcode gates Iron Log, World Travel Tracker, and the Hindi app.
+const GATE_SALT = 'personalapps_gate_salt_v1';
+const GATE_HASH = 'f480f1208bc3846d96c8aa1d81e01f9ef080fc0a10fba6ff4270557da8135020';
+const GATE_LS_KEY = 'personalapps_gate_ok';
+
+async function hashGate(pw){
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(pw + GATE_SALT));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function submitGate(){
+  const val = document.getElementById('gate-input').value;
+  const hash = await hashGate(val);
+  if(hash === GATE_HASH){
+    localStorage.setItem(GATE_LS_KEY, '1');
+    document.getElementById('gate-screen').style.display = 'none';
+    startApp();
+  }else{
+    document.getElementById('gate-error').textContent = 'Wrong passcode';
+  }
+}
+function gatePassed(){ return localStorage.getItem(GATE_LS_KEY) === '1'; }
+
 // ============ STATE ============
 let profiles = {};
 let currentProfile = null;
@@ -564,10 +651,34 @@ let currentTab = 'map';
 function getData(){ return profiles[currentProfile]?.countries || []; }
 function saveData(){
   localStorage.setItem('worldtravel_profiles', JSON.stringify(profiles));
+  if(usingFirestore){
+    // Only write the currently active profile to avoid overwriting other profiles' data
+    const namesToWrite = currentProfile ? [currentProfile] : Object.keys(profiles);
+    namesToWrite.forEach(name => {
+      const p = profiles[name];
+      if(!p) return;
+      db.collection('worldtravel_profiles').doc(name).set({
+        emoji: p.emoji || '🌍',
+        countries: p.countries || []
+      }).catch(err => console.error('Firestore write error for', name, err));
+    });
+  }
 }
-function loadData(){
+async function loadData(){
   try{ profiles = JSON.parse(localStorage.getItem('worldtravel_profiles') || '{}'); }
   catch(e){ profiles = {}; }
+  if(usingFirestore){
+    try{
+      const snap = await db.collection('worldtravel_profiles').get();
+      if(!snap.empty){
+        // Merge Firestore data into profiles — never discard existing local profiles
+        snap.docs.forEach(doc => { profiles[doc.id] = { ...doc.data() }; });
+        localStorage.setItem('worldtravel_profiles', JSON.stringify(profiles));
+      }
+    }catch(e){
+      console.error('Firestore load failed, falling back to localStorage:', e);
+    }
+  }
 }
 
 // ============ PROFILES ============
@@ -1080,16 +1191,22 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 // ============ INIT ============
-loadData();
-// Start
-if(Object.keys(profiles).length === 0){
-  // Auto-create Indy profile
-  profiles['Indy'] = { emoji:'👑', countries: INDY_SEED.map((c,i) => ({...c, id:'c'+i})) };
-  saveData();
+async function startApp(){
+  await loadData();
+  if(Object.keys(profiles).length === 0){
+    // Auto-create Indy profile
+    profiles['Indy'] = { emoji:'👑', countries: INDY_SEED.map((c,i) => ({...c, id:'c'+i})) };
+    saveData();
+  }
+  showProfileScreen();
+  // Load map data in background
+  initMap();
 }
-showProfileScreen();
-// Load map data in background
-initMap();
+if(gatePassed()){
+  startApp();
+}else{
+  document.getElementById('gate-screen').style.display = 'flex';
+}
 </script>
 </body>
 </html>

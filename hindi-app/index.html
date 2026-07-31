@@ -4,9 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seekho Hindi Aap 🎬 Bollywood Style</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <style>
 :root{--gold:#FFD700;--pink:#FF1493;--saffron:#FF9933;--bg:#0f0f1e;--card:rgba(255,255,255,0.07);--card2:rgba(255,255,255,0.12);--text:#f0e6d3;--muted:#a89880;--border:rgba(255,215,0,0.25);--r:14px}
 *{box-sizing:border-box;margin:0;padding:0}
+#gate-screen{position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);background-image:radial-gradient(ellipse at top,rgba(255,20,147,0.12) 0%,transparent 55%),radial-gradient(ellipse at bottom,rgba(255,153,51,0.09) 0%,transparent 55%);padding:20px}
+#gate-screen h1{font-size:1.4rem;margin-bottom:6px;background:linear-gradient(90deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#gate-screen p{color:var(--muted);margin-bottom:22px;font-size:.9rem}
+#gate-screen input{width:100%;max-width:280px;padding:12px 14px;border-radius:var(--r);border:2px solid var(--border);background:var(--card);color:var(--text);font-size:1rem;text-align:center;margin-bottom:12px}
+#gate-screen input::placeholder{color:var(--muted)}
+#gate-screen .gate-error{color:var(--saffron);font-size:.85rem;min-height:1.2em;margin-bottom:8px}
+#gate-screen button{width:100%;max-width:280px;padding:12px;border:none;border-radius:var(--r);background:linear-gradient(90deg,var(--gold),var(--pink));color:#1a0a2e;font-weight:700;font-size:1rem;cursor:pointer}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);background-image:radial-gradient(ellipse at top,rgba(255,20,147,0.12) 0%,transparent 55%),radial-gradient(ellipse at bottom,rgba(255,153,51,0.09) 0%,transparent 55%);color:var(--text);min-height:100vh}
 
 /* film strip header */
@@ -290,6 +299,13 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 </style>
 </head>
 <body>
+<div id="gate-screen">
+  <h1>🎬 Seekho Hindi Aap</h1>
+  <p>Enter passcode to continue</p>
+  <input type="password" id="gate-input" placeholder="Passcode" onkeydown="if(event.key==='Enter')submitGate()">
+  <div class="gate-error" id="gate-error"></div>
+  <button onclick="submitGate()">Unlock</button>
+</div>
 <header>
   <div class="header-inner">
     <a href="../" style="font-size:.75rem;color:rgba(255,255,255,.5);text-decoration:none;white-space:nowrap;padding:5px 10px;border:1px solid rgba(255,255,255,.2);border-radius:20px;flex-shrink:0" title="All Apps">⬅ Apps</a>
@@ -510,6 +526,64 @@ main{max-width:920px;margin:0 auto;padding:24px 16px}
 
 <script>
 const APP_VERSION = 'v2.6';
+
+// ═══════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════
+// Suggested Firestore rules (set in Firebase console):
+// rules_version = '2';
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     match /{document=**} {
+//       allow read, write: if true;
+//     }
+//   }
+// }
+const FIREBASE_CONFIG = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
+};
+function isFirebaseConfigured(){ return !FIREBASE_CONFIG.apiKey.includes('REPLACE'); }
+let db = null;
+let usingFirestore = false;
+if(isFirebaseConfigured()){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    usingFirestore = true;
+  }catch(e){
+    console.error('Firebase init failed, falling back to localStorage:', e);
+    usingFirestore = false;
+  }
+}
+
+// ═══════════════════════════════════
+// GATE (shared passcode — same one gates Iron Log, World Travel Tracker, and this app)
+// ═══════════════════════════════════
+const GATE_SALT = 'personalapps_gate_salt_v1';
+const GATE_HASH = 'f480f1208bc3846d96c8aa1d81e01f9ef080fc0a10fba6ff4270557da8135020';
+const GATE_LS_KEY = 'personalapps_gate_ok';
+async function hashGate(pw){
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(pw + GATE_SALT));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function submitGate(){
+  const val = document.getElementById('gate-input').value;
+  const hash = await hashGate(val);
+  if(hash === GATE_HASH){
+    localStorage.setItem(GATE_LS_KEY, '1');
+    document.getElementById('gate-screen').style.display = 'none';
+    startApp();
+  }else{
+    document.getElementById('gate-error').textContent = 'Wrong passcode';
+  }
+}
+function gatePassed(){ return localStorage.getItem(GATE_LS_KEY) === '1'; }
 const W=(english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip='')=>({english,transliteration,devanagari,sentence,sentenceDev,sentenceEng,tip});
 // ═══════════════════════════════════
 // DATA
@@ -1517,6 +1591,52 @@ function saveState(){
   u.filmfareAwards=filmfareAwards;u.dailyData=dailyData;
   localStorage.setItem('seekho-users',JSON.stringify(users));
   localStorage.setItem('seekho-current-uid',currentUserId);
+  if(usingFirestore){
+    db.collection('seekho_users').doc(u.name).set({
+      emoji:u.emoji||'🌸',
+      totalPoints:u.totalPoints,
+      singerPoints:u.singerPoints,
+      learned:u.learned,
+      quizHistory:u.quizHistory,
+      filmfareAwards:u.filmfareAwards,
+      dailyData:u.dailyData,
+      createdAt:u.createdAt
+    }).catch(err => console.error('Firestore write error for', u.name, err));
+  }
+}
+
+async function syncUsersFromFirestore(){
+  if(!usingFirestore)return;
+  try{
+    const snap = await db.collection('seekho_users').get();
+    if(snap.empty)return;
+    snap.docs.forEach(doc => {
+      const remote = doc.data();
+      const name = doc.id;
+      const existing = users.find(u=>u.name===name);
+      if(existing){
+        existing.emoji=remote.emoji||existing.emoji;
+        existing.totalPoints=remote.totalPoints||0;
+        existing.singerPoints=remote.singerPoints||0;
+        existing.learned=remote.learned||{};
+        existing.quizHistory=remote.quizHistory||[];
+        existing.filmfareAwards=remote.filmfareAwards||{};
+        existing.dailyData=remote.dailyData||{date:'',pts:0,record:0};
+      }else{
+        users.push({
+          id:'u_'+Date.now()+Math.random().toString(36).slice(2,6),
+          name, emoji:remote.emoji||'🌟', createdAt:remote.createdAt||new Date().toISOString(),
+          totalPoints:remote.totalPoints||0, singerPoints:remote.singerPoints||0,
+          learned:remote.learned||{}, quizHistory:remote.quizHistory||[],
+          filmfareAwards:remote.filmfareAwards||{}, dailyData:remote.dailyData||{date:'',pts:0,record:0}
+        });
+      }
+    });
+    localStorage.setItem('seekho-users',JSON.stringify(users));
+    loadUserState(currentUserId);
+  }catch(e){
+    console.error('Firestore load failed, falling back to localStorage:', e);
+  }
 }
 
 function addDailyPoints(n){
@@ -2319,7 +2439,15 @@ function submitNewUser(){
 // INIT
 // ═══════════════════════════════════
 document.getElementById('app-version').textContent = APP_VERSION;
-renderHome();
+async function startApp(){
+  await syncUsersFromFirestore();
+  renderHome();
+}
+if(gatePassed()){
+  startApp();
+}else{
+  document.getElementById('gate-screen').style.display = 'flex';
+}
 function renderSettings(){
   // User profiles list
   const usersEl=document.getElementById('settings-users');
