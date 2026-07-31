@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Midterms 2026 — Election Dashboard</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  color-scheme: light;
+  --navy:#0b1f3a;
+  --navy-mid:#132c52;
+  --bg:#f5f0e8;
+  --page:#f9f9f7;
+  --border:#d9d0b8;
+  --gold:#c9a227;
+  --r:14px;
+  --shadow:0 4px 20px rgba(0,0,0,.10);
+
+  --surface-1:#fcfcfb;
+  --text-primary:#0b0b0b;
+  --text-secondary:#52514e;
+  --text-muted:#898781;
+  --grid-line:#e1e0d9;
+  --axis-line:#c3c2b7;
+  --card-border:rgba(11,11,11,0.10);
+
+  --series-blue:#2a78d6;
+  --series-orange:#eb6834;
+  --series-aqua:#1baf7a;
+  --series-yellow:#eda100;
+  --series-magenta:#e87ba4;
+  --series-green:#008300;
+  --series-violet:#4a3aa7;
+  --series-red:#e34948;
+
+  --dem:#2a78d6;
+  --rep:#e34948;
+  --good:#0ca30c;
+  --critical:#d03b3b;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --bg:#0d0d0d;
+    --page:#0d0d0d;
+    --border:#2c2c2a;
+    --surface-1:#1a1a19;
+    --text-primary:#ffffff;
+    --text-secondary:#c3c2b7;
+    --text-muted:#898781;
+    --grid-line:#2c2c2a;
+    --axis-line:#383835;
+    --card-border:rgba(255,255,255,0.10);
+    --series-blue:#3987e5;
+    --series-orange:#d95926;
+    --series-aqua:#199e70;
+    --series-yellow:#c98500;
+    --series-magenta:#d55181;
+    --series-green:#008300;
+    --series-violet:#9085e9;
+    --series-red:#e66767;
+    --dem:#3987e5;
+    --rep:#e66767;
+    --good:#0ca30c;
+    --critical:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0d0d0d;
+  --page:#0d0d0d;
+  --border:#2c2c2a;
+  --surface-1:#1a1a19;
+  --text-primary:#ffffff;
+  --text-secondary:#c3c2b7;
+  --text-muted:#898781;
+  --grid-line:#2c2c2a;
+  --axis-line:#383835;
+  --card-border:rgba(255,255,255,0.10);
+  --series-blue:#3987e5;
+  --series-orange:#d95926;
+  --series-aqua:#199e70;
+  --series-yellow:#c98500;
+  --series-magenta:#d55181;
+  --series-green:#008300;
+  --series-violet:#9085e9;
+  --series-red:#e66767;
+  --dem:#3987e5;
+  --rep:#e66767;
+  --good:#0ca30c;
+  --critical:#e66767;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text-primary);
+  min-height:100vh;
+}
+header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
+  padding:36px 20px 30px;
+  text-align:center;
+  position:relative;
+}
+header a.back{
+  position:absolute;
+  top:18px;
+  left:18px;
+  color:rgba(255,255,255,.75);
+  text-decoration:none;
+  font-size:.85rem;
+  font-weight:600;
+}
+header a.back:hover{color:#fff}
+header h1{
+  color:#fff;
+  font-size:1.9rem;
+  font-weight:800;
+  letter-spacing:.3px;
+}
+header p{
+  color:rgba(255,255,255,.7);
+  margin-top:6px;
+  font-size:.9rem;
+}
+.gold-bar{ height:4px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+
+nav.tabs{
+  display:flex;
+  overflow-x:auto;
+  background:var(--surface-1);
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+nav.tabs button{
+  flex:1 0 auto;
+  padding:14px 18px;
+  background:none;
+  border:none;
+  font-size:.88rem;
+  font-weight:700;
+  color:var(--text-secondary);
+  cursor:pointer;
+  border-bottom:3px solid transparent;
+  white-space:nowrap;
+}
+nav.tabs button.active{
+  color:var(--navy);
+  border-bottom-color:var(--gold);
+}
+:root[data-theme="dark"] nav.tabs button.active,
+@media (prefers-color-scheme: dark){ nav.tabs button.active{ color:var(--series-blue); } }
+
+main{ max-width:1100px; margin:0 auto; padding:24px 16px 60px; }
+section.panel{ display:none; }
+section.panel.active{ display:block; }
+
+.section-head{ margin-bottom:18px; }
+.section-head h2{ font-size:1.3rem; font-weight:800; margin-bottom:4px; }
+.section-head p{ color:var(--text-secondary); font-size:.88rem; }
+.updated-badge{
+  display:inline-block;
+  margin-top:6px;
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--text-muted);
+  background:var(--surface-1);
+  border:1px solid var(--card-border);
+  padding:3px 10px;
+  border-radius:20px;
+}
+
+.card{
+  background:var(--surface-1);
+  border:1px solid var(--card-border);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  padding:20px;
+  margin-bottom:20px;
+}
+.card h3{ font-size:1rem; font-weight:700; margin-bottom:12px; }
+.chart-wrap{ position:relative; height:280px; }
+.stat-row{ display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+.stat-tile{
+  flex:1 1 140px;
+  background:var(--page);
+  border:1px solid var(--card-border);
+  border-radius:10px;
+  padding:14px 16px;
+}
+.stat-tile .label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); font-weight:700; }
+.stat-tile .value{ font-size:1.6rem; font-weight:800; margin-top:4px; font-variant-numeric: tabular-nums; }
+.stat-tile .sub{ font-size:.76rem; color:var(--text-secondary); margin-top:2px; }
+.dem-txt{ color:var(--dem); }
+.rep-txt{ color:var(--rep); }
+
+table.data-table{ width:100%; border-collapse:collapse; font-size:.82rem; }
+table.data-table th, table.data-table td{
+  text-align:left; padding:8px 10px; border-bottom:1px solid var(--grid-line);
+  font-variant-numeric: tabular-nums;
+}
+table.data-table th{ color:var(--text-muted); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.3px; }
+.legend-row{ display:flex; gap:14px; flex-wrap:wrap; margin:10px 0 4px; font-size:.78rem; }
+.legend-row span{ display:inline-flex; align-items:center; gap:6px; color:var(--text-secondary); }
+.dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+.toggle-table-btn{
+  margin-top:10px;
+  font-size:.76rem;
+  font-weight:700;
+  color:var(--text-secondary);
+  background:none;
+  border:1px solid var(--card-border);
+  border-radius:20px;
+  padding:5px 12px;
+  cursor:pointer;
+}
+.table-view{ display:none; overflow-x:auto; margin-top:12px; }
+.table-view.open{ display:block; }
+
+.state-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.state-tabs button{
+  padding:6px 14px;
+  border-radius:20px;
+  border:1px solid var(--card-border);
+  background:var(--surface-1);
+  color:var(--text-secondary);
+  font-size:.8rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.state-tabs button.active{ background:var(--navy); color:#fff; border-color:var(--navy); }
+
+.bucket-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+.bucket-card h4{ font-size:.85rem; font-weight:800; margin-bottom:2px; }
+.bucket-card .bucket-sub{ font-size:.72rem; color:var(--text-muted); margin-bottom:10px; }
+
+.tweet-feed{ display:flex; flex-direction:column; gap:12px; }
+.tweet-card{
+  border:1px solid var(--card-border);
+  border-radius:10px;
+  padding:14px 16px;
+  background:var(--page);
+}
+.tweet-card .author{ font-weight:800; font-size:.88rem; }
+.tweet-card .handle{ color:var(--text-muted); font-size:.78rem; margin-left:4px; }
+.tweet-card .text{ margin-top:6px; font-size:.88rem; line-height:1.5; }
+.tweet-card .meta{ margin-top:8px; font-size:.72rem; color:var(--text-muted); display:flex; gap:10px; }
+.tweet-card .meta a{ color:var(--text-muted); }
+
+.ai-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:18px; }
+.ai-tile{
+  border:1px solid var(--card-border);
+  border-radius:10px;
+  padding:14px;
+  text-align:center;
+  background:var(--page);
+}
+.ai-tile .icon{ font-size:1.4rem; }
+.ai-tile .name{ font-size:.78rem; font-weight:700; color:var(--text-secondary); margin-top:4px; }
+.ai-tile .pct{ font-size:1.3rem; font-weight:800; margin-top:4px; font-variant-numeric: tabular-nums; }
+.ai-tile.pending{ opacity:.5; }
+.ai-tile .pending-label{ font-size:.68rem; color:var(--text-muted); margin-top:2px; }
+
+.btn{
+  display:inline-block;
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  border-radius:20px;
+  padding:8px 18px;
+  font-size:.8rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.btn.ghost{ background:none; color:var(--navy); border:1px solid var(--card-border); }
+:root[data-theme="dark"] .btn.ghost, @media (prefers-color-scheme: dark){ .btn.ghost{ color:#fff; } }
+
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  display:none; align-items:center; justify-content:center; z-index:100; padding:16px;
+}
+.modal-backdrop.open{ display:flex; }
+.modal{
+  background:var(--surface-1); border-radius:var(--r); padding:22px; max-width:440px; width:100%;
+  max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.modal h3{ margin-bottom:14px; }
+.modal label{ display:block; font-size:.76rem; font-weight:700; color:var(--text-muted); margin:10px 0 4px; }
+.modal input, .modal select, .modal textarea{
+  width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--card-border);
+  background:var(--page); color:var(--text-primary); font-size:.85rem; font-family:inherit;
+}
+.modal textarea{ min-height:70px; resize:vertical; }
+.modal .actions{ display:flex; gap:10px; margin-top:18px; justify-content:flex-end; }
+
+.footnote{ font-size:.76rem; color:var(--text-muted); line-height:1.6; margin-top:10px; }
+.empty-state{ color:var(--text-muted); font-size:.85rem; padding:20px; text-align:center; }
+#toast{
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  background:var(--navy); color:#fff; padding:10px 20px; border-radius:20px;
+  font-size:.85rem; font-weight:600; opacity:0; pointer-events:none; transition:opacity .25s; z-index:200;
+}
+#toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="../">← Elections</a>
+  <h1>🇺🇸 US Midterms 2026</h1>
+  <p>Election Day: Tuesday, November 3, 2026 · dashboard refreshes daily</p>
+</header>
+<div class="gold-bar"></div>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="markets" class="active">📈 Prediction Markets</button>
+  <button data-tab="polls">🗳️ Senate Polls</button>
+  <button data-tab="tweets">🐦 Top Tweeters</button>
+  <button data-tab="ai">🤖 AI Odds</button>
+</nav>
+
+<main>
+
+  <!-- ============ PREDICTION MARKETS ============ -->
+  <section class="panel active" id="panel-markets">
+    <div class="section-head">
+      <h2>Prediction Markets</h2>
+      <p>Real-money odds that Democrats win control of each chamber, from Kalshi, Polymarket &amp; PredictIt.</p>
+      <span class="updated-badge" id="markets-updated">Loading…</span>
+    </div>
+
+    <div class="stat-row" id="markets-stat-row"></div>
+
+    <div class="card">
+      <h3>Dem House Chances — trend</h3>
+      <div class="chart-wrap"><canvas id="chart-house"></canvas></div>
+      <button class="toggle-table-btn" data-target="table-house">Show data table</button>
+      <div class="table-view" id="table-house"></div>
+    </div>
+
+    <div class="card">
+      <h3>Dem Senate Chances — trend</h3>
+      <div class="chart-wrap"><canvas id="chart-senate"></canvas></div>
+      <button class="toggle-table-btn" data-target="table-senate">Show data table</button>
+      <div class="table-view" id="table-senate"></div>
+    </div>
+
+    <p class="footnote">
+      <strong>Sources:</strong> Kalshi (<code>CONTROLH-2026-D</code> / <code>CONTROLS-2026-D</code>), Polymarket
+      (<em>“Which party will win the House/Senate in 2026?”</em>), PredictIt (House &amp; Senate control markets).
+      <strong>Avg Odds</strong> is the simple average of the three. Other markets exist (Manifold, Metaculus, Smarkets)
+      but trade on play-money or low volume, so they're excluded from the average — Kalshi and Polymarket are the two
+      dominant real-money US election markets, PredictIt is the longest-running regulated one.
+      Auto-updated daily via GitHub Actions from each platform's public API.
+    </p>
+  </section>
+
+  <!-- ============ SENATE POLLS ============ -->
+  <section class="panel" id="panel-polls">
+    <div class="section-head">
+      <h2>Senate Polls — Key Swing States</h2>
+      <p>Three pollster panels, tracked weekly, each with an aggregate average.</p>
+      <span class="updated-badge" id="polls-updated">Loading…</span>
+    </div>
+
+    <div class="state-tabs" id="state-tabs"></div>
+
+    <div class="card">
+      <h3 id="poll-trend-title">Bucket averages over time</h3>
+      <div class="chart-wrap"><canvas id="chart-polls"></canvas></div>
+    </div>
+
+    <div class="bucket-grid" id="bucket-grid"></div>
+
+    <div style="margin-top:16px;">
+      <button class="btn ghost" id="add-poll-btn">+ Add a poll</button>
+    </div>
+
+    <p class="footnote">
+      <strong>Nate Silver's Top 7:</strong> NYT/Siena, Suffolk University, AtlasIntel, SurveyUSA, YouGov, Marquette
+      Law School, ABC News.
+      <strong>Right Leaning:</strong> Fox News, Emerson College, Trafalgar Group.
+      <strong>Left Leaning:</strong> Data for Progress, PPP, Morning Consult.
+      Not every pollster surveys every state every week — cells with no new poll simply carry no update that week,
+      which is normal for a polling dashboard. Polls are curated manually (no compliant free API exists for
+      pollster-level crosstabs) — use “+ Add a poll” to log a new release; it's saved straight to the shared database.
+    </p>
+  </section>
+
+  <!-- ============ TOP TWEETERS ============ -->
+  <section class="panel" id="panel-tweets">
+    <div class="section-head">
+      <h2>Top Tweeters</h2>
+      <p>Recent horse-race commentary from the election forecasting crowd.</p>
+      <span class="updated-badge" id="tweets-updated">Loading…</span>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <button class="btn ghost" id="add-tweet-btn">+ Log a take</button>
+    </div>
+
+    <div class="tweet-feed" id="tweet-feed"></div>
+
+    <p class="footnote">
+      Tracking: Nate Silver, Nate Cohn, Sean Trende, G. Elliott Morris, Dave Wasserman, Lakshya Jain, Charlie Cook,
+      Nathaniel Rakich. X's API no longer offers free read access, so this feed is curated manually — use
+      “+ Log a take” to add a new post or quote as you see it.
+    </p>
+  </section>
+
+  <!-- ============ AI ODDS ============ -->
+  <section class="panel" id="panel-ai">
+    <div class="section-head">
+      <h2>AI Odds</h2>
+      <p>Each model's probability estimate that Democrats win control of each chamber.</p>
+      <span class="updated-badge" id="ai-updated">Loading…</span>
+    </div>
+
+    <div class="card">
+      <h3>Dem House — by model</h3>
+      <div class="ai-grid" id="ai-grid-house"></div>
+    </div>
+
+    <div class="card">
+      <h3>Dem Senate — by model</h3>
+      <div class="ai-grid" id="ai-grid-senate"></div>
+    </div>
+
+    <div class="card">
+      <h3>AI Avg — trend</h3>
+      <div class="chart-wrap"><canvas id="chart-ai"></canvas></div>
+    </div>
+
+    <p class="footnote">
+      Models: Claude, ChatGPT, Gemini, Grok, Qwen. Each is asked the same fixed prompt daily for a probability
+      estimate; <strong>AI Avg</strong> is the mean across whichever models have a configured API key. These are
+      LLM guesses informed by their training and any browsing they do — not real forecasts or markets — treat them
+      as illustrative, not predictive. A model shows “pending” until its API key secret is added to the automation.
+    </p>
+  </section>
+
+</main>
+
+<!-- Add Poll Modal -->
+<div class="modal-backdrop" id="poll-modal">
+  <div class="modal">
+    <h3>Log a new poll</h3>
+    <label>State</label>
+    <select id="pf-state"></select>
+    <label>Bucket</label>
+    <select id="pf-bucket">
+      <option value="silverTop7">Nate Silver's Top 7</option>
+      <option value="rightLeaning">Right Leaning</option>
+      <option value="leftLeaning">Left Leaning</option>
+    </select>
+    <label>Pollster</label>
+    <select id="pf-pollster"></select>
+    <label>Date released</label>
+    <input type="date" id="pf-date">
+    <label>Dem %</label>
+    <input type="number" step="0.1" id="pf-dem">
+    <label>Rep %</label>
+    <input type="number" step="0.1" id="pf-rep">
+    <label>Sample size (optional)</label>
+    <input type="number" id="pf-sample">
+    <label>Source URL (optional)</label>
+    <input type="url" id="pf-source">
+    <div class="actions">
+      <button class="btn ghost" onclick="closeModal('poll-modal')">Cancel</button>
+      <button class="btn" onclick="submitPoll()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Tweet Modal -->
+<div class="modal-backdrop" id="tweet-modal">
+  <div class="modal">
+    <h3>Log a take</h3>
+    <label>Author</label>
+    <select id="tf-author"></select>
+    <label>Post text / paraphrase</label>
+    <textarea id="tf-text" placeholder="What did they say?"></textarea>
+    <label>Date posted</label>
+    <input type="date" id="tf-date">
+    <label>Source URL (optional)</label>
+    <input type="url" id="tf-source">
+    <div class="actions">
+      <button class="btn ghost" onclick="closeModal('tweet-modal')">Cancel</button>
+      <button class="btn" onclick="submitTweet()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
