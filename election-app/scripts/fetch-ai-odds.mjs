@@ -48,7 +48,7 @@ async function askOpenAiCompatible({ envKey, baseUrl, modelEnv, defaultModel }) 
 async function askGemini() {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return null;
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-3.5-flash";
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
