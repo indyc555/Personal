@@ -14,13 +14,13 @@ const ELECTION_ID = "us-midterms-2026";
 // Add/remove states here as race ratings shift.
 const SWING_STATES = [
   { code: "GA", name: "Georgia", note: "Ossoff (D-inc) vs. Mike Collins (R)" },
-  { code: "ME", name: "Maine", note: "Susan Collins (R-inc) vs. Graham Platner (D)" },
+  { code: "ME", name: "Maine", note: "Susan Collins (R-inc) vs. Troy Jackson (D) — Dems swapped in Jackson after Platner withdrew Jul 10, 2026" },
   { code: "NC", name: "North Carolina", note: "Open (Tillis retiring): Roy Cooper (D) vs. Michael Whatley (R)" },
   { code: "OH", name: "Ohio", note: "Jon Husted (R-inc, appointed) vs. Sherrod Brown (D)" },
   { code: "AK", name: "Alaska", note: "Dan Sullivan (R-inc) vs. Mary Peltola (D)" },
   { code: "IA", name: "Iowa", note: "Open (Ernst retiring): Ashley Hinson (R) vs. Josh Turek (D)" },
   { code: "TX", name: "Texas", note: "Ken Paxton (R) vs. James Talarico (D)" },
-  { code: "MI", name: "Michigan", note: "Open (Peters retiring): Mike Rogers (R) vs. TBD Dem nominee (primary Aug 4, 2026)" }
+  { code: "MI", name: "Michigan", note: "Open (Peters retiring): Mike Rogers (R) vs. Abdul El-Sayed (D), who won the Aug 4, 2026 primary" }
 ];
 
 // Pollster panels

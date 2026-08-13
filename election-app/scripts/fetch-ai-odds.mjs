@@ -38,7 +38,7 @@ async function askOpenAiCompatible({ envKey, baseUrl, modelEnv, defaultModel }) 
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model, messages: [{ role: "user", content: PROMPT }], temperature: 0 })
+    body: JSON.stringify({ model, messages: [{ role: "user", content: PROMPT }] })
   });
   if (!res.ok) throw new Error(`${baseUrl} HTTP ${res.status}: ${await res.text()}`);
   const data = await res.json();
