@@ -31,14 +31,16 @@ async function askAnthropic() {
   return extractJson(data.content.map((c) => c.text || "").join(""));
 }
 
-async function askOpenAiCompatible({ envKey, baseUrl, modelEnv, defaultModel }) {
+async function askOpenAiCompatible({ envKey, baseUrl, modelEnv, defaultModel, temperature }) {
   const key = process.env[envKey];
   if (!key) return null;
   const model = process.env[modelEnv] || defaultModel;
+  const body = { model, messages: [{ role: "user", content: PROMPT }] };
+  if (temperature !== undefined) body.temperature = temperature;
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model, messages: [{ role: "user", content: PROMPT }], temperature: 0 })
+    body: JSON.stringify(body)
   });
   if (!res.ok) throw new Error(`${baseUrl} HTTP ${res.status}: ${await res.text()}`);
   const data = await res.json();
@@ -63,8 +65,8 @@ const MODELS = {
   claude: () => askAnthropic(),
   chatgpt: () => askOpenAiCompatible({ envKey: "OPENAI_API_KEY", baseUrl: "https://api.openai.com/v1", modelEnv: "OPENAI_MODEL", defaultModel: "gpt-5" }),
   gemini: () => askGemini(),
-  grok: () => askOpenAiCompatible({ envKey: "XAI_API_KEY", baseUrl: "https://api.x.ai/v1", modelEnv: "XAI_MODEL", defaultModel: "grok-4" }),
-  qwen: () => askOpenAiCompatible({ envKey: "DASHSCOPE_API_KEY", baseUrl: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", modelEnv: "QWEN_MODEL", defaultModel: "qwen-max" })
+  grok: () => askOpenAiCompatible({ envKey: "XAI_API_KEY", baseUrl: "https://api.x.ai/v1", modelEnv: "XAI_MODEL", defaultModel: "grok-4", temperature: 0 }),
+  qwen: () => askOpenAiCompatible({ envKey: "DASHSCOPE_API_KEY", baseUrl: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", modelEnv: "QWEN_MODEL", defaultModel: "qwen-max", temperature: 0 })
 };
 
 function average(nums) {
